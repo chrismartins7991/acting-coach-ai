@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { AuthModal } from "./AuthModal";
 
 export const Hero = () => {
   return (
@@ -32,12 +32,7 @@ export const Hero = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="mt-10 flex items-center justify-center gap-x-6"
           >
-            <Button 
-              size="lg"
-              className="bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
-            >
-              Start Free Trial
-            </Button>
+            <AuthModal />
             <Button 
               variant="link" 
               className="text-white hover:text-theater-gold"
