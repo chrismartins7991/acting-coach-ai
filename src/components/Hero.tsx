@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { AuthModal } from "./AuthModal";
+import { Button } from "./ui/button";
 
 export const Hero = () => {
   return (
