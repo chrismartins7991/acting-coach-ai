@@ -10,7 +10,7 @@ export const AuthModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
 
-  // Add console logs to track auth state changes
+  // Add console logs to track auth state changes and errors
   supabase.auth.onAuthStateChange((event, session) => {
     console.log('Auth state changed:', event, session);
     
@@ -33,6 +33,30 @@ export const AuthModal = () => {
     }
   });
 
+  const handleAuthError = (error: Error) => {
+    console.error('Auth error:', error);
+    
+    if (error.message.includes('user_already_exists')) {
+      toast({
+        title: "Account exists",
+        description: "This email is already registered. Please try signing in instead.",
+        variant: "destructive",
+      });
+    } else if (error.message.includes('invalid_credentials')) {
+      toast({
+        title: "Invalid credentials",
+        description: "Please check your email and password and try again.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -54,6 +78,7 @@ export const AuthModal = () => {
           providers={['google']}
           redirectTo={`${window.location.origin}/auth/callback`}
           onlyThirdPartyProviders={false}
+          onError={handleAuthError}
         />
       </DialogContent>
     </Dialog>
