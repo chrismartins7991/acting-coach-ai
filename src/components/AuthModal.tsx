@@ -4,9 +4,34 @@ import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/lib/supabase';
 import { Button } from './ui/button';
+import { useToast } from './ui/use-toast';
 
 export const AuthModal = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
+
+  // Add console logs to track auth state changes
+  supabase.auth.onAuthStateChange((event, session) => {
+    console.log('Auth state changed:', event, session);
+    
+    if (event === 'SIGNED_IN') {
+      setIsOpen(false);
+      toast({
+        title: "Welcome!",
+        description: "You have successfully signed in.",
+      });
+    } else if (event === 'SIGNED_OUT') {
+      toast({
+        title: "Signed out",
+        description: "You have been signed out.",
+      });
+    } else if (event === 'USER_UPDATED') {
+      toast({
+        title: "Email confirmed",
+        description: "Your email has been confirmed.",
+      });
+    }
+  });
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -27,7 +52,8 @@ export const AuthModal = () => {
           appearance={{ theme: ThemeSupa }}
           theme="dark"
           providers={['google']}
-          redirectTo={`${window.location.origin}/dashboard`}
+          redirectTo={`${window.location.origin}/auth/callback`}
+          onlyThirdPartyProviders={false}
         />
       </DialogContent>
     </Dialog>
