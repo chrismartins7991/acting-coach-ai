@@ -5,6 +5,7 @@ import { Camera, FileVideo, History } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
+import { TopMenu } from "@/components/TopMenu";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -33,6 +34,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red">
+      <TopMenu />
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-white">Welcome to Your Acting Studio</h1>
