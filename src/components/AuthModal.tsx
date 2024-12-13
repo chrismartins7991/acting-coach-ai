@@ -1,14 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Auth } from '@supabase/auth-ui-react';
 import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { supabase } from '@/lib/supabase';
 import { Button } from './ui/button';
 import { useToast } from './ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 export const AuthModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        console.log('User is already logged in, redirecting to dashboard');
+        navigate('/dashboard');
+      }
+    };
+    checkUser();
+  }, [navigate]);
 
   // Add console logs to track auth state changes and errors
   supabase.auth.onAuthStateChange((event, session) => {
@@ -16,11 +30,13 @@ export const AuthModal = () => {
     
     if (event === 'SIGNED_IN') {
       setIsOpen(false);
+      navigate('/dashboard');
       toast({
         title: "Welcome!",
         description: "You have successfully signed in.",
       });
     } else if (event === 'SIGNED_OUT') {
+      navigate('/');
       toast({
         title: "Signed out",
         description: "You have been signed out.",
