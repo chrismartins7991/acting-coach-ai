@@ -13,6 +13,7 @@ serve(async (req) => {
 
   try {
     const { videoUrl } = await req.json()
+    console.log("Received video URL for analysis:", videoUrl)
 
     // Call RapidAPI's Video Analysis API
     const response = await fetch('https://ai-video-analysis.p.rapidapi.com/api/v1/analyze', {
@@ -34,6 +35,7 @@ serve(async (req) => {
     });
 
     const analysisData = await response.json()
+    console.log("Analysis completed:", analysisData)
 
     return new Response(
       JSON.stringify(analysisData),

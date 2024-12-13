@@ -13,7 +13,7 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
-  const { analyzeVideo } = useVideoAnalysis();
+  const { analyzeVideo, isAnalyzing } = useVideoAnalysis();
 
   if (!user) {
     return <Navigate to="/" replace />;
@@ -89,9 +89,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red">
-      <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50">
-        <TopMenu />
-      </div>
+      <TopMenu />
       
       <div className="container mx-auto px-4 py-8 pt-32">
         <div className="flex justify-between items-center mb-8">
@@ -111,13 +109,13 @@ const Dashboard = () => {
             animate={{ opacity: 1, y: 0 }}
             className="group cursor-pointer"
           >
-            <label className={`block p-6 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 transform transition-all duration-300 group-hover:scale-105 shadow-xl ${isUploading ? 'opacity-50' : ''}`}>
+            <label className={`block p-6 rounded-lg bg-gradient-to-br from-theater-purple to-theater-gold transform transition-all duration-300 group-hover:scale-105 shadow-xl ${isUploading || isAnalyzing ? 'opacity-50' : ''}`}>
               <input
                 type="file"
                 accept="video/*"
                 onChange={handleFileUpload}
                 className="hidden"
-                disabled={isUploading}
+                disabled={isUploading || isAnalyzing}
               />
               <div className="text-center">
                 <Upload className="w-12 h-12 text-white mb-4 mx-auto" />
@@ -132,13 +130,13 @@ const Dashboard = () => {
               title: "Record Performance",
               description: "Use your camera to record a new performance",
               icon: Camera,
-              color: "from-purple-500 to-purple-600",
+              color: "from-theater-purple to-theater-gold",
             },
             {
               title: "View History",
               description: "Review your past performances and feedback",
               icon: History,
-              color: "from-green-500 to-green-600",
+              color: "from-theater-purple to-theater-gold",
             },
           ].map((feature, index) => (
             <motion.div
