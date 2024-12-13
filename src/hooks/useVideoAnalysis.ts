@@ -1,33 +1,63 @@
-import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { useState } from "react";
+
+interface AnalyzeVideoParams {
+  videoUrl: string;
+  title: string;
+  userId: string;
+}
 
 export const useVideoAnalysis = () => {
-  return useMutation({
-    mutationFn: async ({ videoUrl, title }: { videoUrl: string; title: string }) => {
-      // First, analyze the video using our Edge Function
-      const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
-        'analyze-performance',
-        {
-          body: { videoUrl },
-        }
-      );
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-      if (analysisError) throw analysisError;
+  const analyzeVideo = async ({ videoUrl, title, userId }: AnalyzeVideoParams) => {
+    setIsAnalyzing(true);
+    console.log("Starting video analysis...");
 
-      // Then, save the performance and feedback to our database
-      const { data: performanceData, error: performanceError } = await supabase
+    try {
+      // Call the analyze-performance edge function
+      const response = await fetch('/api/analyze-performance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ videoUrl }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to analyze video');
+      }
+
+      const analysis = await response.json();
+      console.log("Analysis received:", analysis);
+
+      // Save the performance and analysis to the database
+      const { data, error } = await supabase
         .from('performances')
         .insert({
+          user_id: userId,
           title,
           video_url: videoUrl,
-          ai_feedback: analysisData,
+          ai_feedback: analysis,
         })
         .select()
         .single();
 
-      if (performanceError) throw performanceError;
+      if (error) throw error;
 
-      return performanceData;
-    },
-  });
+      console.log("Performance saved to database:", data);
+      return data;
+
+    } catch (error) {
+      console.error("Error in video analysis:", error);
+      throw error;
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  return {
+    analyzeVideo,
+    isAnalyzing,
+  };
 };
