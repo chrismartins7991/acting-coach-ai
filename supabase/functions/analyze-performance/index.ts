@@ -9,22 +9,36 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { videoUrl } = await req.json();
-    console.log("Analyzing video URL:", videoUrl);
+    console.log("Processing video URL:", videoUrl);
 
     if (!RAPIDAPI_KEY) {
       console.error("RAPIDAPI_KEY is not configured");
       throw new Error('RAPIDAPI_KEY is not configured');
     }
 
-    // Call RapidAPI Computer Vision endpoint
-    console.log("Making RapidAPI request with URL:", videoUrl);
+    // Ensure the URL is properly encoded
+    const encodedUrl = encodeURI(videoUrl);
+    console.log("Encoded URL:", encodedUrl);
+
+    const prompt = `Analyze this acting performance video and provide feedback in exactly this format:
+Delivery Score: [number between 0-100]
+Delivery Feedback: [1-2 sentences about voice and articulation]
+Presence Score: [number between 0-100]
+Presence Feedback: [1-2 sentences about body language]
+Emotional Range Score: [number between 0-100]
+Emotional Range Feedback: [1-2 sentences about emotional expression]
+Recommendations:
+1. [specific actionable recommendation]
+2. [specific actionable recommendation]
+3. [specific actionable recommendation]`;
+
+    console.log("Making RapidAPI request...");
     const response = await fetch("https://chatgpt-vision1.p.rapidapi.com/matagvision2", {
       method: "POST",
       headers: {
@@ -39,11 +53,11 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "You are an acting coach. Analyze this acting performance video and provide detailed feedback in this exact format, with no additional text:\n\nDelivery Score: [0-100]\nDelivery Feedback: [specific feedback about voice, articulation, pace]\n\nPresence Score: [0-100]\nPresence Feedback: [specific feedback about body language, movements]\n\nEmotional Range Score: [0-100]\nEmotional Range Feedback: [specific feedback about expression, authenticity]\n\nRecommendations:\n1. [specific recommendation]\n2. [specific recommendation]\n3. [specific recommendation]"
+                text: prompt
               },
               {
                 type: "image",
-                url: videoUrl
+                url: encodedUrl
               }
             ]
           }
@@ -63,17 +77,16 @@ serve(async (req) => {
     const aiResponse = await response.json();
     console.log("Raw AI Response:", JSON.stringify(aiResponse, null, 2));
 
-    // Check for valid response structure
-    if (!aiResponse.assistant && !aiResponse.text) {
-      console.error("Invalid AI response format:", aiResponse);
-      throw new Error("Invalid AI response format");
+    // Extract the content from the response
+    const analysisText = aiResponse.assistant || aiResponse.text;
+    if (!analysisText) {
+      console.error("No analysis text in response:", aiResponse);
+      throw new Error("Invalid response format from AI");
     }
 
-    // Extract the content from the RapidAPI response
-    const analysisText = aiResponse.assistant || aiResponse.text;
     console.log("Analysis text:", analysisText);
 
-    // Parse scores and feedback using more specific regex patterns
+    // Parse scores and feedback
     const deliveryScoreMatch = analysisText.match(/Delivery Score:\s*(\d+)/i);
     const presenceScoreMatch = analysisText.match(/Presence Score:\s*(\d+)/i);
     const emotionalScoreMatch = analysisText.match(/Emotional Range Score:\s*(\d+)/i);
@@ -92,16 +105,10 @@ serve(async (req) => {
           .slice(0, 3)
       : [];
 
-    console.log("Extracted scores:", {
-      delivery: deliveryScoreMatch?.[1],
-      presence: presenceScoreMatch?.[1],
-      emotional: emotionalScoreMatch?.[1]
-    });
-
-    // Validate that we have all required scores
+    // Validate parsed data
     if (!deliveryScoreMatch || !presenceScoreMatch || !emotionalScoreMatch) {
-      console.error("Failed to extract scores from AI response");
-      throw new Error("Failed to parse AI response format");
+      console.error("Failed to parse scores from response:", analysisText);
+      throw new Error("Failed to parse AI response");
     }
 
     const analysis = {
@@ -132,11 +139,12 @@ serve(async (req) => {
       ]
     };
 
-    console.log("Final analysis object:", JSON.stringify(analysis, null, 2));
+    console.log("Final analysis:", JSON.stringify(analysis, null, 2));
 
-    return new Response(JSON.stringify(analysis), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify(analysis),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
 
   } catch (error) {
     console.error("Error in analyze-performance function:", error);
