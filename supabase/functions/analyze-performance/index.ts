@@ -59,25 +59,8 @@ serve(async (req) => {
     const aiResponse = await response.json();
     console.log("Raw AI Response:", JSON.stringify(aiResponse, null, 2));
 
-    // Validate AI response structure
-    if (!aiResponse) {
-      throw new Error('Empty response from AI');
-    }
-    if (!aiResponse.choices) {
-      throw new Error('No choices in AI response');
-    }
-    if (!aiResponse.choices[0]) {
-      throw new Error('Empty choices array in AI response');
-    }
-    if (!aiResponse.choices[0].message) {
-      throw new Error('No message in AI response choice');
-    }
-    if (!aiResponse.choices[0].message.content) {
-      throw new Error('No content in AI response message');
-    }
-
-    // Parse AI response and structure it for our frontend
-    const analysisText = aiResponse.choices[0].message.content;
+    // Extract the content from the RapidAPI response
+    const analysisText = aiResponse.assistant || aiResponse.text || '';
     console.log("Analysis text:", analysisText);
     
     // Extract scores using regex with fallbacks
