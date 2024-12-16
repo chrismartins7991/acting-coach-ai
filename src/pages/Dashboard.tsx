@@ -8,12 +8,14 @@ import { useToast } from "@/components/ui/use-toast";
 import { TopMenu } from "@/components/TopMenu";
 import { useState } from "react";
 import { useVideoAnalysis } from "@/hooks/useVideoAnalysis";
+import { PerformanceAnalysis } from "@/components/PerformanceAnalysis";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const { analyzeVideo, isAnalyzing } = useVideoAnalysis();
+  const [currentAnalysis, setCurrentAnalysis] = useState(null);
 
   if (!user) {
     return <Navigate to="/" replace />;
@@ -25,12 +27,12 @@ const Dashboard = () => {
 
     try {
       setIsUploading(true);
+      setCurrentAnalysis(null);
       console.log("Starting video upload...");
 
-      // Upload to Supabase Storage with correct path structure
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `${user.id}/${fileName}`; // Simplified path structure
+      const filePath = `${user.id}/${fileName}`;
       
       console.log("Uploading file to path:", filePath);
       
@@ -45,7 +47,6 @@ const Dashboard = () => {
 
       console.log("Video uploaded successfully, getting public URL...");
       
-      // Get the public URL
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
         .getPublicUrl(filePath);
@@ -53,12 +54,13 @@ const Dashboard = () => {
       console.log("Public URL generated:", publicUrl);
       console.log("Starting AI analysis...");
       
-      // Analyze the video
       const analysis = await analyzeVideo({
         videoUrl: publicUrl,
         title: file.name,
         userId: user.id
       });
+
+      setCurrentAnalysis(analysis.ai_feedback);
 
       toast({
         title: "Analysis Complete",
@@ -110,62 +112,78 @@ const Dashboard = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="group cursor-pointer"
-          >
-            <label className={`block p-6 rounded-lg bg-gradient-to-br from-theater-purple to-theater-gold transform transition-all duration-300 group-hover:scale-105 shadow-xl ${isUploading || isAnalyzing ? 'opacity-50 cursor-not-allowed' : ''}`}>
-              <input
-                type="file"
-                accept="video/*"
-                onChange={handleFileUpload}
-                className="hidden"
-                disabled={isUploading || isAnalyzing}
-              />
-              <div className="text-center">
-                <Upload className="w-12 h-12 text-white mb-4 mx-auto" />
-                <h3 className="text-xl font-semibold text-white mb-2">Upload Video</h3>
-                <p className="text-white/80">Upload an existing video for analysis</p>
-                {(isUploading || isAnalyzing) && (
-                  <p className="text-white/80 mt-2">
-                    {isUploading ? 'Uploading...' : 'Analyzing...'}
-                  </p>
-                )}
-              </div>
-            </label>
-          </motion.div>
-
-          {[
-            {
-              title: "Record Performance",
-              description: "Use your camera to record a new performance",
-              icon: Camera,
-              color: "from-theater-purple to-theater-gold",
-            },
-            {
-              title: "View History",
-              description: "Review your past performances and feedback",
-              icon: History,
-              color: "from-theater-purple to-theater-gold",
-            },
-          ].map((feature, index) => (
+        {currentAnalysis ? (
+          <div className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-white">Performance Analysis</h2>
+              <Button
+                variant="outline"
+                onClick={() => setCurrentAnalysis(null)}
+                className="text-white hover:text-theater-gold"
+              >
+                Upload Another Video
+              </Button>
+            </div>
+            <PerformanceAnalysis analysis={currentAnalysis} />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <motion.div
-              key={feature.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
               className="group cursor-pointer"
             >
-              <div className={`p-6 rounded-lg bg-gradient-to-br ${feature.color} transform transition-all duration-300 group-hover:scale-105 shadow-xl`}>
-                <feature.icon className="w-12 h-12 text-white mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-white/80">{feature.description}</p>
-              </div>
+              <label className={`block p-6 rounded-lg bg-gradient-to-br from-theater-purple to-theater-gold transform transition-all duration-300 group-hover:scale-105 shadow-xl ${isUploading || isAnalyzing ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  disabled={isUploading || isAnalyzing}
+                />
+                <div className="text-center">
+                  <Upload className="w-12 h-12 text-white mb-4 mx-auto" />
+                  <h3 className="text-xl font-semibold text-white mb-2">Upload Video</h3>
+                  <p className="text-white/80">Upload an existing video for analysis</p>
+                  {(isUploading || isAnalyzing) && (
+                    <p className="text-white/80 mt-2">
+                      {isUploading ? 'Uploading...' : 'Analyzing...'}
+                    </p>
+                  )}
+                </div>
+              </label>
             </motion.div>
-          ))}
-        </div>
+
+            {[
+              {
+                title: "Record Performance",
+                description: "Use your camera to record a new performance",
+                icon: Camera,
+                color: "from-theater-purple to-theater-gold",
+              },
+              {
+                title: "View History",
+                description: "Review your past performances and feedback",
+                icon: History,
+                color: "from-theater-purple to-theater-gold",
+              },
+            ].map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="group cursor-pointer"
+              >
+                <div className={`p-6 rounded-lg bg-gradient-to-br ${feature.color} transform transition-all duration-300 group-hover:scale-105 shadow-xl`}>
+                  <feature.icon className="w-12 h-12 text-white mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
+                  <p className="text-white/80">{feature.description}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

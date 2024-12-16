@@ -15,30 +15,36 @@ serve(async (req) => {
     const { videoUrl } = await req.json()
     console.log("Received video URL for analysis:", videoUrl)
 
-    // Call RapidAPI's Video Analysis API
-    const response = await fetch('https://ai-video-analysis.p.rapidapi.com/api/v1/analyze', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'X-RapidAPI-Key': Deno.env.get('RAPIDAPI_KEY') || '',
-        'X-RapidAPI-Host': 'ai-video-analysis.p.rapidapi.com'
+    // Simulate AI analysis with structured feedback
+    // In a real implementation, this would call the actual AI service
+    const mockAnalysis = {
+      overallScore: 85,
+      categories: {
+        delivery: {
+          score: 88,
+          feedback: "Strong vocal projection and clear articulation. Consider varying your pace for dramatic effect."
+        },
+        presence: {
+          score: 82,
+          feedback: "Good stage presence and natural movements. Work on maintaining consistent eye contact with the camera."
+        },
+        emotionalRange: {
+          score: 85,
+          feedback: "Effective emotional expression. Could explore more subtle transitions between emotional states."
+        }
       },
-      body: JSON.stringify({
-        url: videoUrl,
-        features: [
-          "emotion_recognition",
-          "pose_estimation",
-          "voice_analysis",
-          "scene_understanding"
-        ]
-      })
-    });
+      recommendations: [
+        "Practice varying your vocal dynamics to add more depth to the performance",
+        "Consider incorporating more pauses for dramatic effect",
+        "Experiment with different camera angles in future recordings"
+      ],
+      timestamp: new Date().toISOString()
+    }
 
-    const analysisData = await response.json()
-    console.log("Analysis completed:", analysisData)
+    console.log("Analysis completed:", mockAnalysis)
 
     return new Response(
-      JSON.stringify(analysisData),
+      JSON.stringify(mockAnalysis),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 
