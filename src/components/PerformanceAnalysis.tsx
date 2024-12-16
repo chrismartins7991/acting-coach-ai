@@ -18,10 +18,14 @@ interface Analysis {
 }
 
 interface PerformanceAnalysisProps {
-  analysis: Analysis;
+  analysis: Analysis | null;
 }
 
 export const PerformanceAnalysis = ({ analysis }: PerformanceAnalysisProps) => {
+  if (!analysis) {
+    return null;
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -38,7 +42,7 @@ export const PerformanceAnalysis = ({ analysis }: PerformanceAnalysisProps) => {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {Object.entries(analysis.categories).map(([category, data]) => (
+        {analysis.categories && Object.entries(analysis.categories).map(([category, data]) => (
           <Card key={category}>
             <CardHeader>
               <CardTitle className="capitalize">{category}</CardTitle>
@@ -58,7 +62,7 @@ export const PerformanceAnalysis = ({ analysis }: PerformanceAnalysisProps) => {
         </CardHeader>
         <CardContent>
           <ul className="list-disc pl-6 space-y-2">
-            {analysis.recommendations.map((recommendation, index) => (
+            {analysis.recommendations?.map((recommendation, index) => (
               <li key={index} className="text-muted-foreground">{recommendation}</li>
             ))}
           </ul>
