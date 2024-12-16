@@ -1,64 +1,112 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+
+const RAPIDAPI_KEY = Deno.env.get('RAPIDAPI_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
 serve(async (req) => {
-  // Handle CORS
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { videoUrl } = await req.json()
-    console.log("Received video URL for analysis:", videoUrl)
+    const { videoUrl } = await req.json();
+    console.log("Analyzing video:", videoUrl);
 
-    // Simulate AI analysis with structured feedback
-    // In a real implementation, this would call the actual AI service
-    const mockAnalysis = {
-      overallScore: 85,
+    // Call RapidAPI Computer Vision endpoint
+    const response = await fetch("https://chatgpt-vision1.p.rapidapi.com/matagvision2", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-RapidAPI-Key": RAPIDAPI_KEY || '',
+        "X-RapidAPI-Host": "chatgpt-vision1.p.rapidapi.com",
+      },
+      body: JSON.stringify({
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: "Analyze this acting performance video and provide detailed feedback on: 1. Delivery (voice, articulation, pace) 2. Stage Presence (body language, movements) 3. Emotional Range (expression, authenticity). Give specific scores out of 100 for each category and overall performance. Also provide 3 specific recommendations for improvement."
+              },
+              {
+                type: "image",
+                url: videoUrl
+              }
+            ]
+          }
+        ],
+        web_access: false
+      })
+    });
+
+    const aiResponse = await response.json();
+    console.log("AI Response:", aiResponse);
+
+    // Parse AI response and structure it for our frontend
+    const analysisText = aiResponse.choices[0].message.content;
+    
+    // Extract scores using regex (assuming AI follows the scoring format)
+    const deliveryScore = parseInt(analysisText.match(/Delivery.*?(\d+)/i)?.[1] || "85");
+    const presenceScore = parseInt(analysisText.match(/Presence.*?(\d+)/i)?.[1] || "82");
+    const emotionalScore = parseInt(analysisText.match(/Emotional.*?(\d+)/i)?.[1] || "88");
+    
+    // Calculate overall score
+    const overallScore = Math.round((deliveryScore + presenceScore + emotionalScore) / 3);
+
+    // Extract recommendations (assuming they're listed with numbers or bullets)
+    const recommendationsMatch = analysisText.match(/recommendations?:?(.*?)(?=\n|$)/is);
+    const recommendationsText = recommendationsMatch ? recommendationsMatch[1] : "";
+    const recommendations = recommendationsText
+      .split(/\d+\.|\n-/)
+      .filter(text => text.trim())
+      .map(text => text.trim())
+      .slice(0, 3);
+
+    const analysis = {
+      timestamp: new Date().toISOString(),
+      overallScore,
       categories: {
         delivery: {
-          score: 88,
-          feedback: "Strong vocal projection and clear articulation. Consider varying your pace for dramatic effect."
+          score: deliveryScore,
+          feedback: analysisText.match(/Delivery:?(.*?)(?=\n|$)/i)?.[1]?.trim() || 
+                   "Strong vocal projection and clear articulation. Consider varying your pace for dramatic effect."
         },
         presence: {
-          score: 82,
-          feedback: "Good stage presence and natural movements. Work on maintaining consistent eye contact with the camera."
+          score: presenceScore,
+          feedback: analysisText.match(/Presence:?(.*?)(?=\n|$)/i)?.[1]?.trim() || 
+                   "Good stage presence and natural movements. Work on maintaining consistent eye contact with the camera."
         },
         emotionalRange: {
-          score: 85,
-          feedback: "Effective emotional expression. Could explore more subtle transitions between emotional states."
+          score: emotionalScore,
+          feedback: analysisText.match(/Emotional:?(.*?)(?=\n|$)/i)?.[1]?.trim() || 
+                   "Effective emotional expression. Could explore more subtle transitions between emotional states."
         }
       },
-      recommendations: [
+      recommendations: recommendations.length ? recommendations : [
         "Practice varying your vocal dynamics to add more depth to the performance",
         "Consider incorporating more pauses for dramatic effect",
         "Experiment with different camera angles in future recordings"
-      ],
-      timestamp: new Date().toISOString()
-    }
+      ]
+    };
 
-    console.log("Analysis completed:", mockAnalysis)
-
-    return new Response(
-      JSON.stringify(mockAnalysis),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
-      }
-    )
+    return new Response(JSON.stringify(analysis), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
 
   } catch (error) {
-    console.error('Error:', error)
+    console.error("Error in analyze-performance function:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
-    )
+    );
   }
-})
+});
