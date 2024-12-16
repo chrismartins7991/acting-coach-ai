@@ -22,6 +22,7 @@ serve(async (req) => {
     }
 
     // Call RapidAPI Computer Vision endpoint
+    console.log("Making RapidAPI request...");
     const response = await fetch("https://chatgpt-vision1.p.rapidapi.com/matagvision2", {
       method: "POST",
       headers: {
@@ -50,15 +51,29 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      console.error("RapidAPI error:", await response.text());
-      throw new Error(`RapidAPI returned status ${response.status}`);
+      const errorText = await response.text();
+      console.error("RapidAPI error response:", errorText);
+      throw new Error(`RapidAPI returned status ${response.status}: ${errorText}`);
     }
 
     const aiResponse = await response.json();
-    console.log("AI Response received:", aiResponse);
+    console.log("Raw AI Response:", JSON.stringify(aiResponse, null, 2));
 
-    if (!aiResponse?.choices?.[0]?.message?.content) {
-      throw new Error('Invalid AI response format');
+    // Validate AI response structure
+    if (!aiResponse) {
+      throw new Error('Empty response from AI');
+    }
+    if (!aiResponse.choices) {
+      throw new Error('No choices in AI response');
+    }
+    if (!aiResponse.choices[0]) {
+      throw new Error('Empty choices array in AI response');
+    }
+    if (!aiResponse.choices[0].message) {
+      throw new Error('No message in AI response choice');
+    }
+    if (!aiResponse.choices[0].message.content) {
+      throw new Error('No content in AI response message');
     }
 
     // Parse AI response and structure it for our frontend
@@ -66,21 +81,31 @@ serve(async (req) => {
     console.log("Analysis text:", analysisText);
     
     // Extract scores using regex with fallbacks
-    const deliveryScore = parseInt(analysisText.match(/Delivery.*?(\d+)/i)?.[1] || "85");
-    const presenceScore = parseInt(analysisText.match(/Presence.*?(\d+)/i)?.[1] || "82");
-    const emotionalScore = parseInt(analysisText.match(/Emotional.*?(\d+)/i)?.[1] || "88");
+    const deliveryMatch = analysisText.match(/Delivery.*?(\d+)/i);
+    const presenceMatch = analysisText.match(/Presence.*?(\d+)/i);
+    const emotionalMatch = analysisText.match(/Emotional.*?(\d+)/i);
+
+    console.log("Score matches:", { deliveryMatch, presenceMatch, emotionalMatch });
+
+    const deliveryScore = parseInt(deliveryMatch?.[1] || "85");
+    const presenceScore = parseInt(presenceMatch?.[1] || "82");
+    const emotionalScore = parseInt(emotionalMatch?.[1] || "88");
     
     // Calculate overall score
     const overallScore = Math.round((deliveryScore + presenceScore + emotionalScore) / 3);
 
     // Extract recommendations
     const recommendationsMatch = analysisText.match(/recommendations?:?(.*?)(?=\n|$)/is);
+    console.log("Recommendations match:", recommendationsMatch);
+    
     const recommendationsText = recommendationsMatch ? recommendationsMatch[1] : "";
     const recommendations = recommendationsText
       .split(/\d+\.|\n-/)
       .filter(text => text.trim())
       .map(text => text.trim())
       .slice(0, 3);
+
+    console.log("Extracted recommendations:", recommendations);
 
     // Ensure we have at least some recommendations
     const finalRecommendations = recommendations.length ? recommendations : [
@@ -112,7 +137,7 @@ serve(async (req) => {
       recommendations: finalRecommendations
     };
 
-    console.log("Sending analysis to frontend:", analysis);
+    console.log("Final analysis object:", JSON.stringify(analysis, null, 2));
 
     return new Response(JSON.stringify(analysis), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
