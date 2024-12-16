@@ -17,12 +17,16 @@ serve(async (req) => {
     const { videoUrl } = await req.json();
     console.log("Analyzing video:", videoUrl);
 
+    if (!RAPIDAPI_KEY) {
+      throw new Error('RAPIDAPI_KEY is not configured');
+    }
+
     // Call RapidAPI Computer Vision endpoint
     const response = await fetch("https://chatgpt-vision1.p.rapidapi.com/matagvision2", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-RapidAPI-Key": RAPIDAPI_KEY || '',
+        "X-RapidAPI-Key": RAPIDAPI_KEY,
         "X-RapidAPI-Host": "chatgpt-vision1.p.rapidapi.com",
       },
       body: JSON.stringify({
@@ -45,13 +49,23 @@ serve(async (req) => {
       })
     });
 
+    if (!response.ok) {
+      console.error("RapidAPI error:", await response.text());
+      throw new Error(`RapidAPI returned status ${response.status}`);
+    }
+
     const aiResponse = await response.json();
-    console.log("AI Response:", aiResponse);
+    console.log("AI Response received:", aiResponse);
+
+    if (!aiResponse?.choices?.[0]?.message?.content) {
+      throw new Error('Invalid AI response format');
+    }
 
     // Parse AI response and structure it for our frontend
     const analysisText = aiResponse.choices[0].message.content;
+    console.log("Analysis text:", analysisText);
     
-    // Extract scores using regex (assuming AI follows the scoring format)
+    // Extract scores using regex with fallbacks
     const deliveryScore = parseInt(analysisText.match(/Delivery.*?(\d+)/i)?.[1] || "85");
     const presenceScore = parseInt(analysisText.match(/Presence.*?(\d+)/i)?.[1] || "82");
     const emotionalScore = parseInt(analysisText.match(/Emotional.*?(\d+)/i)?.[1] || "88");
@@ -59,7 +73,7 @@ serve(async (req) => {
     // Calculate overall score
     const overallScore = Math.round((deliveryScore + presenceScore + emotionalScore) / 3);
 
-    // Extract recommendations (assuming they're listed with numbers or bullets)
+    // Extract recommendations
     const recommendationsMatch = analysisText.match(/recommendations?:?(.*?)(?=\n|$)/is);
     const recommendationsText = recommendationsMatch ? recommendationsMatch[1] : "";
     const recommendations = recommendationsText
@@ -67,6 +81,13 @@ serve(async (req) => {
       .filter(text => text.trim())
       .map(text => text.trim())
       .slice(0, 3);
+
+    // Ensure we have at least some recommendations
+    const finalRecommendations = recommendations.length ? recommendations : [
+      "Practice varying your vocal dynamics to add more depth to the performance",
+      "Consider incorporating more pauses for dramatic effect",
+      "Experiment with different camera angles in future recordings"
+    ];
 
     const analysis = {
       timestamp: new Date().toISOString(),
@@ -88,12 +109,10 @@ serve(async (req) => {
                    "Effective emotional expression. Could explore more subtle transitions between emotional states."
         }
       },
-      recommendations: recommendations.length ? recommendations : [
-        "Practice varying your vocal dynamics to add more depth to the performance",
-        "Consider incorporating more pauses for dramatic effect",
-        "Experiment with different camera angles in future recordings"
-      ]
+      recommendations: finalRecommendations
     };
+
+    console.log("Sending analysis to frontend:", analysis);
 
     return new Response(JSON.stringify(analysis), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
