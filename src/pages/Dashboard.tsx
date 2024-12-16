@@ -27,15 +27,21 @@ const Dashboard = () => {
       setIsUploading(true);
       console.log("Starting video upload...");
 
-      // Upload to Supabase Storage
+      // Upload to Supabase Storage with correct path structure
       const fileExt = file.name.split('.').pop();
-      const filePath = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`; // Simplified path structure
+      
+      console.log("Uploading file to path:", filePath);
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('videos')
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        throw uploadError;
+      }
 
       console.log("Video uploaded successfully, getting public URL...");
       
@@ -44,6 +50,7 @@ const Dashboard = () => {
         .from('videos')
         .getPublicUrl(filePath);
 
+      console.log("Public URL generated:", publicUrl);
       console.log("Starting AI analysis...");
       
       // Analyze the video
@@ -109,7 +116,7 @@ const Dashboard = () => {
             animate={{ opacity: 1, y: 0 }}
             className="group cursor-pointer"
           >
-            <label className={`block p-6 rounded-lg bg-gradient-to-br from-theater-purple to-theater-gold transform transition-all duration-300 group-hover:scale-105 shadow-xl ${isUploading || isAnalyzing ? 'opacity-50' : ''}`}>
+            <label className={`block p-6 rounded-lg bg-gradient-to-br from-theater-purple to-theater-gold transform transition-all duration-300 group-hover:scale-105 shadow-xl ${isUploading || isAnalyzing ? 'opacity-50 cursor-not-allowed' : ''}`}>
               <input
                 type="file"
                 accept="video/*"
@@ -121,6 +128,11 @@ const Dashboard = () => {
                 <Upload className="w-12 h-12 text-white mb-4 mx-auto" />
                 <h3 className="text-xl font-semibold text-white mb-2">Upload Video</h3>
                 <p className="text-white/80">Upload an existing video for analysis</p>
+                {(isUploading || isAnalyzing) && (
+                  <p className="text-white/80 mt-2">
+                    {isUploading ? 'Uploading...' : 'Analyzing...'}
+                  </p>
+                )}
               </div>
             </label>
           </motion.div>
