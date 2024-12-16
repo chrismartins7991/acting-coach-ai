@@ -15,24 +15,20 @@ export const useVideoAnalysis = () => {
     console.log("Starting video analysis...");
 
     try {
-      // Call the analyze-performance edge function
-      const response = await fetch('/api/analyze-performance', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ videoUrl }),
+      // Call the analyze-performance edge function using Supabase client
+      const { data: analysis, error } = await supabase.functions.invoke('analyze-performance', {
+        body: { videoUrl }
       });
 
-      if (!response.ok) {
+      if (error) {
+        console.error("Edge function error:", error);
         throw new Error('Failed to analyze video');
       }
 
-      const analysis = await response.json();
       console.log("Analysis received:", analysis);
 
       // Save the performance and analysis to the database
-      const { data, error } = await supabase
+      const { data, error: dbError } = await supabase
         .from('performances')
         .insert({
           user_id: userId,
@@ -43,7 +39,7 @@ export const useVideoAnalysis = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (dbError) throw dbError;
 
       console.log("Performance saved to database:", data);
       return data;
