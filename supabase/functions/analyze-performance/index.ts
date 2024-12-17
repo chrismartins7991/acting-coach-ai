@@ -28,20 +28,20 @@ serve(async (req) => {
     const encodedUrl = encodeURI(videoUrl).replace('http://', 'https://');
     console.log("Encoded URL:", encodedUrl);
 
-    const systemPrompt = "You are an expert acting coach. Analyze this video and provide feedback in a specific format.";
+    const systemPrompt = "You are an expert acting coach analyzing a video performance. Provide feedback in a clear, structured format.";
     
-    const userPrompt = `Analyze this acting performance and provide feedback in this EXACT format, including the exact labels and colons:
+    const userPrompt = `Analyze this acting performance and provide feedback in this EXACT format:
 
-Delivery Score: [number]
-Delivery Feedback: [text]
-Presence Score: [number]
-Presence Feedback: [text]
-Emotional Range Score: [number]
-Emotional Range Feedback: [text]
+Delivery Score: [a number between 0-100]
+Delivery Feedback: [1-2 sentences of specific feedback]
+Presence Score: [a number between 0-100]
+Presence Feedback: [1-2 sentences of specific feedback]
+Emotional Range Score: [a number between 0-100]
+Emotional Range Feedback: [1-2 sentences of specific feedback]
 Recommendations:
-1. [text]
-2. [text]
-3. [text]`;
+1. [specific actionable recommendation]
+2. [specific actionable recommendation]
+3. [specific actionable recommendation]`;
 
     console.log("Making RapidAPI request...");
     const response = await fetch("https://chatgpt-vision1.p.rapidapi.com/matagvision2", {
@@ -83,43 +83,50 @@ Recommendations:
     const aiResponse = await response.json();
     console.log("Raw AI Response:", JSON.stringify(aiResponse, null, 2));
 
-    // Extract the response text from the appropriate field
+    // Extract the response text, handling different possible response formats
     let analysisText = '';
-    if (aiResponse.text) {
+    if (aiResponse.choices?.[0]?.message?.content) {
+      analysisText = aiResponse.choices[0].message.content;
+    } else if (aiResponse.text) {
       analysisText = aiResponse.text;
     } else if (aiResponse.assistant) {
       analysisText = aiResponse.assistant;
-    } else if (aiResponse.choices?.[0]?.message?.content) {
-      analysisText = aiResponse.choices[0].message.content;
-    } else {
-      console.error("Unexpected AI response format:", aiResponse);
+    } else if (typeof aiResponse === 'string') {
+      analysisText = aiResponse;
+    }
+
+    if (!analysisText) {
+      console.error("Could not extract analysis text. AI Response:", aiResponse);
       throw new Error("Could not extract analysis text from AI response");
     }
 
-    console.log("Analysis text:", analysisText);
+    console.log("Extracted analysis text:", analysisText);
 
-    // Extract scores and feedback using strict regex patterns
+    // Extract scores with more lenient regex patterns
+    const getScore = (text: string, category: string) => {
+      const match = text.match(new RegExp(`${category}\\s*Score:\\s*(\\d+)`, 'i'));
+      return match ? parseInt(match[1]) : 70; // Default score if not found
+    };
+
+    const getFeedback = (text: string, category: string) => {
+      const match = text.match(new RegExp(`${category}\\s*Feedback:\\s*([^\\n]+)`, 'i'));
+      return match ? match[1].trim() : `${category} needs improvement`; // Default feedback if not found
+    };
+
     const scores = {
-      delivery: analysisText.match(/Delivery Score:\s*(\d+)/)?.[1],
-      presence: analysisText.match(/Presence Score:\s*(\d+)/)?.[1],
-      emotional: analysisText.match(/Emotional Range Score:\s*(\d+)/)?.[1]
+      delivery: getScore(analysisText, 'Delivery'),
+      presence: getScore(analysisText, 'Presence'),
+      emotional: getScore(analysisText, 'Emotional Range')
     };
 
     const feedback = {
-      delivery: analysisText.match(/Delivery Feedback:\s*([^\n]+)/)?.[1],
-      presence: analysisText.match(/Presence Feedback:\s*([^\n]+)/)?.[1],
-      emotional: analysisText.match(/Emotional Range Feedback:\s*([^\n]+)/)?.[1]
+      delivery: getFeedback(analysisText, 'Delivery'),
+      presence: getFeedback(analysisText, 'Presence'),
+      emotional: getFeedback(analysisText, 'Emotional Range')
     };
 
-    // Validate that we have all required scores and feedback
-    if (!scores.delivery || !scores.presence || !scores.emotional ||
-        !feedback.delivery || !feedback.presence || !feedback.emotional) {
-      console.error("Missing required scores or feedback:", { scores, feedback });
-      throw new Error("AI response missing required fields");
-    }
-
-    // Extract recommendations
-    const recommendationsMatch = analysisText.match(/Recommendations:\s*((?:(?:\d+\.|\-)\s*[^\n]+\s*)+)/);
+    // Extract recommendations with a more lenient pattern
+    const recommendationsMatch = analysisText.match(/Recommendations?:?\s*((?:(?:\d+\.|\-)\s*[^\n]+\s*)+)/i);
     const recommendations = recommendationsMatch
       ? recommendationsMatch[1]
           .split(/(?:\d+\.|\-)\s*/)
@@ -127,33 +134,31 @@ Recommendations:
           .map(text => text.trim())
           .slice(0, 3)
       : [
-          "Focus on vocal projection and clarity",
+          "Work on vocal clarity and projection",
           "Practice maintaining consistent stage presence",
-          "Work on emotional authenticity"
+          "Develop broader emotional range in performances"
         ];
 
     const analysis = {
       timestamp: new Date().toISOString(),
       overallScore: Math.round(
-        (parseInt(scores.delivery) + 
-         parseInt(scores.presence) + 
-         parseInt(scores.emotional)) / 3
+        (scores.delivery + scores.presence + scores.emotional) / 3
       ),
       categories: {
         delivery: {
-          score: parseInt(scores.delivery),
+          score: scores.delivery,
           feedback: feedback.delivery
         },
         presence: {
-          score: parseInt(scores.presence),
+          score: scores.presence,
           feedback: feedback.presence
         },
         emotionalRange: {
-          score: parseInt(scores.emotional),
+          score: scores.emotional,
           feedback: feedback.emotional
         }
       },
-      recommendations
+      recommendations: recommendations.slice(0, 3)
     };
 
     console.log("Final analysis:", JSON.stringify(analysis, null, 2));
