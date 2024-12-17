@@ -25,27 +25,23 @@ serve(async (req) => {
       throw new Error('No video URL provided');
     }
 
-    // Ensure the URL is properly encoded and uses HTTPS
     const encodedUrl = encodeURI(videoUrl).replace('http://', 'https://');
     console.log("Encoded URL:", encodedUrl);
 
-    const systemPrompt = "You are an expert acting coach. Your task is to analyze acting performances and provide detailed, constructive feedback. Focus on delivery, presence, and emotional range.";
+    const systemPrompt = "You are an expert acting coach. Analyze this video and provide feedback in a specific format.";
     
-    const userPrompt = `Please analyze this acting performance video and provide feedback in EXACTLY this format:
+    const userPrompt = `Analyze this acting performance and provide feedback in this EXACT format, including the exact labels and colons:
 
-Delivery Score: [number between 0-100]
-Delivery Feedback: [brief feedback about voice and articulation]
-
-Presence Score: [number between 0-100]
-Presence Feedback: [brief feedback about stage presence and body language]
-
-Emotional Range Score: [number between 0-100]
-Emotional Range Feedback: [brief feedback about emotional expression]
-
+Delivery Score: [number]
+Delivery Feedback: [text]
+Presence Score: [number]
+Presence Feedback: [text]
+Emotional Range Score: [number]
+Emotional Range Feedback: [text]
 Recommendations:
-1. [specific recommendation]
-2. [specific recommendation]
-3. [specific recommendation]`;
+1. [text]
+2. [text]
+3. [text]`;
 
     console.log("Making RapidAPI request...");
     const response = await fetch("https://chatgpt-vision1.p.rapidapi.com/matagvision2", {
@@ -74,8 +70,7 @@ Recommendations:
               }
             ]
           }
-        ],
-        web_access: false
+        ]
       })
     });
 
@@ -88,55 +83,74 @@ Recommendations:
     const aiResponse = await response.json();
     console.log("Raw AI Response:", JSON.stringify(aiResponse, null, 2));
 
-    const analysisText = aiResponse.assistant || aiResponse.text;
-    if (!analysisText) {
-      console.error("No analysis text in response:", aiResponse);
-      throw new Error("Invalid response format from AI");
+    // Extract the response text from the appropriate field
+    let analysisText = '';
+    if (aiResponse.text) {
+      analysisText = aiResponse.text;
+    } else if (aiResponse.assistant) {
+      analysisText = aiResponse.assistant;
+    } else if (aiResponse.choices?.[0]?.message?.content) {
+      analysisText = aiResponse.choices[0].message.content;
+    } else {
+      console.error("Unexpected AI response format:", aiResponse);
+      throw new Error("Could not extract analysis text from AI response");
     }
 
     console.log("Analysis text:", analysisText);
 
-    // More lenient regex patterns
-    const deliveryScoreMatch = analysisText.match(/Delivery Score:?\s*(\d+)/i);
-    const presenceScoreMatch = analysisText.match(/Presence Score:?\s*(\d+)/i);
-    const emotionalScoreMatch = analysisText.match(/Emotional Range Score:?\s*(\d+)/i);
+    // Extract scores and feedback using strict regex patterns
+    const scores = {
+      delivery: analysisText.match(/Delivery Score:\s*(\d+)/)?.[1],
+      presence: analysisText.match(/Presence Score:\s*(\d+)/)?.[1],
+      emotional: analysisText.match(/Emotional Range Score:\s*(\d+)/)?.[1]
+    };
 
-    const deliveryFeedbackMatch = analysisText.match(/Delivery Feedback:?\s*([^\n]+)/i);
-    const presenceFeedbackMatch = analysisText.match(/Presence Feedback:?\s*([^\n]+)/i);
-    const emotionalFeedbackMatch = analysisText.match(/Emotional Range Feedback:?\s*([^\n]+)/i);
+    const feedback = {
+      delivery: analysisText.match(/Delivery Feedback:\s*([^\n]+)/)?.[1],
+      presence: analysisText.match(/Presence Feedback:\s*([^\n]+)/)?.[1],
+      emotional: analysisText.match(/Emotional Range Feedback:\s*([^\n]+)/)?.[1]
+    };
 
-    // Extract recommendations with a more flexible pattern
-    const recommendationsMatch = analysisText.match(/Recommendations:?\s*((?:\d+\.?\s*[^\n]+\s*)+)/i);
+    // Validate that we have all required scores and feedback
+    if (!scores.delivery || !scores.presence || !scores.emotional ||
+        !feedback.delivery || !feedback.presence || !feedback.emotional) {
+      console.error("Missing required scores or feedback:", { scores, feedback });
+      throw new Error("AI response missing required fields");
+    }
+
+    // Extract recommendations
+    const recommendationsMatch = analysisText.match(/Recommendations:\s*((?:(?:\d+\.|\-)\s*[^\n]+\s*)+)/);
     const recommendations = recommendationsMatch
       ? recommendationsMatch[1]
-          .split(/\d+\.?\s*/)
+          .split(/(?:\d+\.|\-)\s*/)
           .filter(text => text.trim())
           .map(text => text.trim())
           .slice(0, 3)
-      : ["Focus on vocal projection and clarity",
-         "Practice maintaining consistent stage presence",
-         "Work on emotional authenticity"];
+      : [
+          "Focus on vocal projection and clarity",
+          "Practice maintaining consistent stage presence",
+          "Work on emotional authenticity"
+        ];
 
-    // Provide default values if parsing fails
     const analysis = {
       timestamp: new Date().toISOString(),
       overallScore: Math.round(
-        (parseInt(deliveryScoreMatch?.[1] || "70") + 
-         parseInt(presenceScoreMatch?.[1] || "70") + 
-         parseInt(emotionalScoreMatch?.[1] || "70")) / 3
+        (parseInt(scores.delivery) + 
+         parseInt(scores.presence) + 
+         parseInt(scores.emotional)) / 3
       ),
       categories: {
         delivery: {
-          score: parseInt(deliveryScoreMatch?.[1] || "70"),
-          feedback: deliveryFeedbackMatch?.[1] || "Focus on clear articulation and vocal projection"
+          score: parseInt(scores.delivery),
+          feedback: feedback.delivery
         },
         presence: {
-          score: parseInt(presenceScoreMatch?.[1] || "70"),
-          feedback: presenceFeedbackMatch?.[1] || "Work on maintaining strong stage presence"
+          score: parseInt(scores.presence),
+          feedback: feedback.presence
         },
         emotionalRange: {
-          score: parseInt(emotionalScoreMatch?.[1] || "70"),
-          feedback: emotionalFeedbackMatch?.[1] || "Continue developing emotional authenticity"
+          score: parseInt(scores.emotional),
+          feedback: feedback.emotional
         }
       },
       recommendations
