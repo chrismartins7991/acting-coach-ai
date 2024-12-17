@@ -28,20 +28,20 @@ serve(async (req) => {
     const encodedUrl = encodeURI(videoUrl).replace('http://', 'https://');
     console.log("Encoded URL:", encodedUrl);
 
-    const systemPrompt = "You are an expert acting coach analyzing a video performance. Provide feedback in a clear, structured format.";
+    const systemPrompt = `You are an expert acting coach analyzing a video performance. You must provide feedback in the exact format specified, using numbers between 0-100 for scores.`;
     
-    const userPrompt = `Analyze this acting performance and provide feedback in this EXACT format:
+    const userPrompt = `Analyze this acting performance and provide feedback in this exact format, maintaining all headers and using numbers between 0-100 for scores:
 
-Delivery Score: [a number between 0-100]
-Delivery Feedback: [1-2 sentences of specific feedback]
-Presence Score: [a number between 0-100]
-Presence Feedback: [1-2 sentences of specific feedback]
-Emotional Range Score: [a number between 0-100]
-Emotional Range Feedback: [1-2 sentences of specific feedback]
+Delivery Score: [number]
+Delivery Feedback: [feedback]
+Presence Score: [number]
+Presence Feedback: [feedback]
+Emotional Range Score: [number]
+Emotional Range Feedback: [feedback]
 Recommendations:
-1. [specific actionable recommendation]
-2. [specific actionable recommendation]
-3. [specific actionable recommendation]`;
+1. [recommendation]
+2. [recommendation]
+3. [recommendation]`;
 
     console.log("Making RapidAPI request...");
     const response = await fetch("https://chatgpt-vision1.p.rapidapi.com/matagvision2", {
@@ -75,6 +75,7 @@ Recommendations:
     });
 
     if (!response.ok) {
+      console.error("RapidAPI error response status:", response.status);
       const errorText = await response.text();
       console.error("RapidAPI error response:", errorText);
       throw new Error(`RapidAPI returned status ${response.status}`);
@@ -102,63 +103,68 @@ Recommendations:
 
     console.log("Extracted analysis text:", analysisText);
 
-    // Extract scores with more lenient regex patterns
-    const getScore = (text: string, category: string) => {
-      const match = text.match(new RegExp(`${category}\\s*Score:\\s*(\\d+)`, 'i'));
-      return match ? parseInt(match[1]) : 70; // Default score if not found
+    // Extract scores and feedback using more robust regex patterns
+    const extractScore = (text: string, category: string): number => {
+      const pattern = new RegExp(`${category}\\s*Score:\\s*(\\d+)`, 'i');
+      const match = text.match(pattern);
+      if (match && match[1]) {
+        const score = parseInt(match[1]);
+        return score >= 0 && score <= 100 ? score : 70;
+      }
+      return 70; // Default score
     };
 
-    const getFeedback = (text: string, category: string) => {
-      const match = text.match(new RegExp(`${category}\\s*Feedback:\\s*([^\\n]+)`, 'i'));
-      return match ? match[1].trim() : `${category} needs improvement`; // Default feedback if not found
+    const extractFeedback = (text: string, category: string): string => {
+      const pattern = new RegExp(`${category}\\s*Feedback:\\s*([^\\n]+)`, 'i');
+      const match = text.match(pattern);
+      return match?.[1]?.trim() || `${category} shows room for improvement`;
     };
 
-    const scores = {
-      delivery: getScore(analysisText, 'Delivery'),
-      presence: getScore(analysisText, 'Presence'),
-      emotional: getScore(analysisText, 'Emotional Range')
-    };
-
-    const feedback = {
-      delivery: getFeedback(analysisText, 'Delivery'),
-      presence: getFeedback(analysisText, 'Presence'),
-      emotional: getFeedback(analysisText, 'Emotional Range')
-    };
-
-    // Extract recommendations with a more lenient pattern
-    const recommendationsMatch = analysisText.match(/Recommendations?:?\s*((?:(?:\d+\.|\-)\s*[^\n]+\s*)+)/i);
-    const recommendations = recommendationsMatch
+    // Extract recommendations
+    const recommendationsPattern = /Recommendations?:?\s*((?:(?:\d+\.|\-)\s*[^\n]+\s*)+)/i;
+    const recommendationsMatch = analysisText.match(recommendationsPattern);
+    let recommendations = recommendationsMatch
       ? recommendationsMatch[1]
           .split(/(?:\d+\.|\-)\s*/)
           .filter(text => text.trim())
           .map(text => text.trim())
           .slice(0, 3)
       : [
-          "Work on vocal clarity and projection",
-          "Practice maintaining consistent stage presence",
-          "Develop broader emotional range in performances"
+          "Focus on vocal clarity and projection",
+          "Work on maintaining consistent stage presence",
+          "Practice emotional range exercises"
         ];
+
+    // Ensure we have exactly 3 recommendations
+    while (recommendations.length < 3) {
+      recommendations.push("Continue practicing and developing your craft");
+    }
+    recommendations = recommendations.slice(0, 3);
 
     const analysis = {
       timestamp: new Date().toISOString(),
       overallScore: Math.round(
-        (scores.delivery + scores.presence + scores.emotional) / 3
+        (
+          extractScore(analysisText, 'Delivery') +
+          extractScore(analysisText, 'Presence') +
+          extractScore(analysisText, 'Emotional Range')
+        ) / 3
       ),
       categories: {
         delivery: {
-          score: scores.delivery,
-          feedback: feedback.delivery
+          score: extractScore(analysisText, 'Delivery'),
+          feedback: extractFeedback(analysisText, 'Delivery')
         },
         presence: {
-          score: scores.presence,
-          feedback: feedback.presence
+          score: extractScore(analysisText, 'Presence'),
+          feedback: extractFeedback(analysisText, 'Presence')
         },
         emotionalRange: {
-          score: scores.emotional,
-          feedback: feedback.emotional
+          score: extractScore(analysisText, 'Emotional Range'),
+          feedback: extractFeedback(analysisText, 'Emotional Range')
         }
       },
-      recommendations: recommendations.slice(0, 3)
+      recommendations
     };
 
     console.log("Final analysis:", JSON.stringify(analysis, null, 2));
