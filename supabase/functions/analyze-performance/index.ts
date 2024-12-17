@@ -29,18 +29,23 @@ serve(async (req) => {
     const encodedUrl = encodeURI(videoUrl).replace('http://', 'https://');
     console.log("Encoded URL:", encodedUrl);
 
-    const systemPrompt = "You are an acting coach. Analyze the video and provide specific, actionable feedback.";
-    const userPrompt = "Please analyze this acting performance and provide feedback in exactly this format:\n\n" +
-      "Delivery Score: [number 0-100]\n" +
-      "Delivery Feedback: [brief feedback about voice and articulation]\n\n" +
-      "Presence Score: [number 0-100]\n" +
-      "Presence Feedback: [brief feedback about body language]\n\n" +
-      "Emotional Range Score: [number 0-100]\n" +
-      "Emotional Range Feedback: [brief feedback about emotional expression]\n\n" +
-      "Recommendations:\n" +
-      "1. [specific recommendation]\n" +
-      "2. [specific recommendation]\n" +
-      "3. [specific recommendation]";
+    const systemPrompt = "You are an expert acting coach. Your task is to analyze acting performances and provide detailed, constructive feedback. Focus on delivery, presence, and emotional range.";
+    
+    const userPrompt = `Please analyze this acting performance video and provide feedback in EXACTLY this format:
+
+Delivery Score: [number between 0-100]
+Delivery Feedback: [brief feedback about voice and articulation]
+
+Presence Score: [number between 0-100]
+Presence Feedback: [brief feedback about stage presence and body language]
+
+Emotional Range Score: [number between 0-100]
+Emotional Range Feedback: [brief feedback about emotional expression]
+
+Recommendations:
+1. [specific recommendation]
+2. [specific recommendation]
+3. [specific recommendation]`;
 
     console.log("Making RapidAPI request...");
     const response = await fetch("https://chatgpt-vision1.p.rapidapi.com/matagvision2", {
@@ -91,7 +96,7 @@ serve(async (req) => {
 
     console.log("Analysis text:", analysisText);
 
-    // Parse scores with more lenient regex patterns
+    // More lenient regex patterns
     const deliveryScoreMatch = analysisText.match(/Delivery Score:?\s*(\d+)/i);
     const presenceScoreMatch = analysisText.match(/Presence Score:?\s*(\d+)/i);
     const emotionalScoreMatch = analysisText.match(/Emotional Range Score:?\s*(\d+)/i);
@@ -108,7 +113,9 @@ serve(async (req) => {
           .filter(text => text.trim())
           .map(text => text.trim())
           .slice(0, 3)
-      : ["Work on vocal projection", "Practice body language", "Develop emotional range"];
+      : ["Focus on vocal projection and clarity",
+         "Practice maintaining consistent stage presence",
+         "Work on emotional authenticity"];
 
     // Provide default values if parsing fails
     const analysis = {
@@ -132,11 +139,7 @@ serve(async (req) => {
           feedback: emotionalFeedbackMatch?.[1] || "Continue developing emotional authenticity"
         }
       },
-      recommendations: recommendations.length > 0 ? recommendations : [
-        "Practice vocal exercises daily",
-        "Record and review your performances",
-        "Study different emotional expressions"
-      ]
+      recommendations
     };
 
     console.log("Final analysis:", JSON.stringify(analysis, null, 2));
