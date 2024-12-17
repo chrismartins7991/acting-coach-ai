@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Camera, FileVideo, History, Upload } from "lucide-react";
+import { Camera, History, Upload } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
@@ -9,6 +9,9 @@ import { TopMenu } from "@/components/TopMenu";
 import { useState } from "react";
 import { useVideoAnalysis } from "@/hooks/useVideoAnalysis";
 import { PerformanceAnalysis } from "@/components/PerformanceAnalysis";
+
+// Maximum file size in bytes (50MB)
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -24,6 +27,16 @@ const Dashboard = () => {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    // Check file size
+    if (file.size > MAX_FILE_SIZE) {
+      toast({
+        title: "File too large",
+        description: "Please upload a video file smaller than 50MB.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       setIsUploading(true);
@@ -42,6 +55,9 @@ const Dashboard = () => {
 
       if (uploadError) {
         console.error("Upload error:", uploadError);
+        if (uploadError.message.includes("Payload too large")) {
+          throw new Error("File size exceeds the maximum limit. Please upload a smaller video file (max 50MB).");
+        }
         throw uploadError;
       }
 
@@ -71,7 +87,7 @@ const Dashboard = () => {
       console.error("Error processing video:", error);
       toast({
         title: "Error",
-        description: "There was an error processing your video. Please try again.",
+        description: error.message || "There was an error processing your video. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -144,7 +160,7 @@ const Dashboard = () => {
                 <div className="text-center">
                   <Upload className="w-12 h-12 text-white mb-4 mx-auto" />
                   <h3 className="text-xl font-semibold text-white mb-2">Upload Video</h3>
-                  <p className="text-white/80">Upload an existing video for analysis</p>
+                  <p className="text-white/80">Upload a video file (max 50MB) for analysis</p>
                   {(isUploading || isAnalyzing) && (
                     <p className="text-white/80 mt-2">
                       {isUploading ? 'Uploading...' : 'Analyzing...'}
