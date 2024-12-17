@@ -1,99 +1,26 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Camera, History, Upload } from "lucide-react";
-import { motion } from "framer-motion";
+import { Camera, History } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
 import { TopMenu } from "@/components/TopMenu";
 import { useState } from "react";
 import { useVideoAnalysis } from "@/hooks/useVideoAnalysis";
 import { PerformanceAnalysis } from "@/components/PerformanceAnalysis";
-
-// Maximum file size in bytes (50MB)
-const MAX_FILE_SIZE = 50 * 1024 * 1024;
+import { VideoUpload } from "@/components/VideoUpload";
+import { FeatureCard } from "@/components/FeatureCard";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
-  const { analyzeVideo, isAnalyzing } = useVideoAnalysis();
+  const { isAnalyzing } = useVideoAnalysis();
   const [currentAnalysis, setCurrentAnalysis] = useState(null);
 
   if (!user) {
     return <Navigate to="/" replace />;
   }
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Check file size
-    if (file.size > MAX_FILE_SIZE) {
-      toast({
-        title: "File too large",
-        description: "Please upload a video file smaller than 50MB.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      setCurrentAnalysis(null);
-      console.log("Starting video upload...");
-
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `${user.id}/${fileName}`;
-      
-      console.log("Uploading file to path:", filePath);
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('videos')
-        .upload(filePath, file);
-
-      if (uploadError) {
-        console.error("Upload error:", uploadError);
-        if (uploadError.message.includes("Payload too large")) {
-          throw new Error("File size exceeds the maximum limit. Please upload a smaller video file (max 50MB).");
-        }
-        throw uploadError;
-      }
-
-      console.log("Video uploaded successfully, getting public URL...");
-      
-      const { data: { publicUrl } } = supabase.storage
-        .from('videos')
-        .getPublicUrl(filePath);
-
-      console.log("Public URL generated:", publicUrl);
-      console.log("Starting AI analysis...");
-      
-      const analysis = await analyzeVideo({
-        videoUrl: publicUrl,
-        title: file.name,
-        userId: user.id
-      });
-
-      setCurrentAnalysis(analysis.ai_feedback);
-
-      toast({
-        title: "Analysis Complete",
-        description: "Your performance has been analyzed successfully!",
-      });
-
-    } catch (error) {
-      console.error("Error processing video:", error);
-      toast({
-        title: "Error",
-        description: error.message || "There was an error processing your video. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   const handleLogout = async () => {
     try {
@@ -111,6 +38,21 @@ const Dashboard = () => {
       });
     }
   };
+
+  const features = [
+    {
+      title: "Record Performance",
+      description: "Use your camera to record a new performance",
+      icon: Camera,
+      color: "from-theater-purple to-theater-gold",
+    },
+    {
+      title: "View History",
+      description: "Review your past performances and feedback",
+      icon: History,
+      color: "from-theater-purple to-theater-gold",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red">
@@ -144,59 +86,18 @@ const Dashboard = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="group cursor-pointer"
-            >
-              <label className={`block p-6 rounded-lg bg-gradient-to-br from-theater-purple to-theater-gold transform transition-all duration-300 group-hover:scale-105 shadow-xl ${isUploading || isAnalyzing ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                <input
-                  type="file"
-                  accept="video/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  disabled={isUploading || isAnalyzing}
-                />
-                <div className="text-center">
-                  <Upload className="w-12 h-12 text-white mb-4 mx-auto" />
-                  <h3 className="text-xl font-semibold text-white mb-2">Upload Video</h3>
-                  <p className="text-white/80">Upload a video file (max 50MB) for analysis</p>
-                  {(isUploading || isAnalyzing) && (
-                    <p className="text-white/80 mt-2">
-                      {isUploading ? 'Uploading...' : 'Analyzing...'}
-                    </p>
-                  )}
-                </div>
-              </label>
-            </motion.div>
-
-            {[
-              {
-                title: "Record Performance",
-                description: "Use your camera to record a new performance",
-                icon: Camera,
-                color: "from-theater-purple to-theater-gold",
-              },
-              {
-                title: "View History",
-                description: "Review your past performances and feedback",
-                icon: History,
-                color: "from-theater-purple to-theater-gold",
-              },
-            ].map((feature, index) => (
-              <motion.div
+            <VideoUpload
+              userId={user.id}
+              onAnalysisComplete={setCurrentAnalysis}
+              isUploading={isUploading}
+              isAnalyzing={isAnalyzing}
+            />
+            {features.map((feature, index) => (
+              <FeatureCard
                 key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="group cursor-pointer"
-              >
-                <div className={`p-6 rounded-lg bg-gradient-to-br ${feature.color} transform transition-all duration-300 group-hover:scale-105 shadow-xl`}>
-                  <feature.icon className="w-12 h-12 text-white mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
-                  <p className="text-white/80">{feature.description}</p>
-                </div>
-              </motion.div>
+                {...feature}
+                delay={index * 0.1}
+              />
             ))}
           </div>
         )}
