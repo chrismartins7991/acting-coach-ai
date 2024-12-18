@@ -28,20 +28,18 @@ serve(async (req) => {
     const encodedUrl = encodeURI(videoUrl).replace('http://', 'https://');
     console.log("Encoded URL:", encodedUrl);
 
-    const systemPrompt = `You are an expert acting coach analyzing a video performance. Provide detailed feedback in this EXACT format:
+    const systemPrompt = `You are an expert acting coach. Analyze this video performance and provide feedback in exactly this format:
 
-Delivery Score: [0-100]
-Delivery Feedback: [2-3 sentences about vocal clarity, pacing, and diction]
-Presence Score: [0-100]
-Presence Feedback: [2-3 sentences about body language, stage presence, and confidence]
-Emotional Range Score: [0-100]
-Emotional Range Feedback: [2-3 sentences about emotional authenticity and variety]
+Delivery Score: [score between 0-100]
+Delivery Feedback: [clear feedback about vocal delivery]
+Presence Score: [score between 0-100]
+Presence Feedback: [clear feedback about stage presence]
+Emotional Range Score: [score between 0-100]
+Emotional Range Feedback: [clear feedback about emotional expression]
 Recommendations:
-1. [specific actionable recommendation]
-2. [specific actionable recommendation]
-3. [specific actionable recommendation]`;
-    
-    const userPrompt = `Analyze this acting performance video and provide feedback following the exact format specified. Be specific and constructive.`;
+1. [specific recommendation]
+2. [specific recommendation]
+3. [specific recommendation]`;
 
     console.log("Making RapidAPI request...");
     const response = await fetch("https://chatgpt-vision1.p.rapidapi.com/matagvision2", {
@@ -62,7 +60,7 @@ Recommendations:
             content: [
               {
                 type: "text",
-                text: userPrompt
+                text: "Please analyze this acting performance video."
               },
               {
                 type: "image",
@@ -82,88 +80,86 @@ Recommendations:
     }
 
     const aiResponse = await response.json();
-    console.log("Raw AI Response:", JSON.stringify(aiResponse, null, 2));
+    console.log("Raw AI Response:", aiResponse);
 
+    // Extract the analysis text from the response
     let analysisText = '';
-    if (aiResponse.choices?.[0]?.message?.content) {
+    if (aiResponse.choices && aiResponse.choices[0] && aiResponse.choices[0].message) {
       analysisText = aiResponse.choices[0].message.content;
-    } else if (aiResponse.text) {
-      analysisText = aiResponse.text;
-    } else if (aiResponse.assistant) {
-      analysisText = aiResponse.assistant;
     } else if (typeof aiResponse === 'string') {
       analysisText = aiResponse;
     }
 
-    if (!analysisText) {
-      console.error("Could not extract analysis text from AI response:", aiResponse);
-      throw new Error("Could not extract analysis text from AI response");
-    }
-
     console.log("Extracted analysis text:", analysisText);
 
-    // Extract scores with fallback values
-    const extractScore = (text: string, category: string): number => {
-      const pattern = new RegExp(`${category}\\s*Score:\\s*(\\d+)`, 'i');
-      const match = text.match(pattern);
-      return match && match[1] ? Math.min(100, Math.max(0, parseInt(match[1]))) : 70;
-    };
-
-    // Extract feedback with default values
-    const extractFeedback = (text: string, category: string): string => {
-      const pattern = new RegExp(`${category}\\s*Feedback:\\s*([^\\n]+)`, 'i');
-      const match = text.match(pattern);
-      return match?.[1]?.trim() || `Your ${category.toLowerCase()} shows potential for improvement.`;
-    };
-
-    // Extract recommendations with defaults
-    const recommendationsPattern = /Recommendations?:?\s*((?:(?:\d+\.|\-)\s*[^\n]+\s*)+)/i;
-    const recommendationsMatch = analysisText.match(recommendationsPattern);
-    let recommendations = recommendationsMatch
-      ? recommendationsMatch[1]
-          .split(/(?:\d+\.|\-)\s*/)
-          .filter(text => text.trim())
-          .map(text => text.trim())
-          .slice(0, 3)
-      : [
-          "Focus on vocal clarity and projection",
-          "Practice maintaining consistent stage presence",
-          "Explore a wider range of emotional expressions"
-        ];
-
-    // Ensure exactly 3 recommendations
-    while (recommendations.length < 3) {
-      recommendations.push("Continue practicing and developing your craft");
+    if (!analysisText) {
+      throw new Error("No valid analysis text found in AI response");
     }
-    recommendations = recommendations.slice(0, 3);
 
+    // Parse the analysis text
     const analysis = {
       timestamp: new Date().toISOString(),
-      overallScore: Math.round(
-        (
-          extractScore(analysisText, 'Delivery') +
-          extractScore(analysisText, 'Presence') +
-          extractScore(analysisText, 'Emotional Range')
-        ) / 3
-      ),
+      overallScore: 0,
       categories: {
         delivery: {
-          score: extractScore(analysisText, 'Delivery'),
-          feedback: extractFeedback(analysisText, 'Delivery')
+          score: 70,
+          feedback: "Default delivery feedback"
         },
         presence: {
-          score: extractScore(analysisText, 'Presence'),
-          feedback: extractFeedback(analysisText, 'Presence')
+          score: 70,
+          feedback: "Default presence feedback"
         },
         emotionalRange: {
-          score: extractScore(analysisText, 'Emotional Range'),
-          feedback: extractFeedback(analysisText, 'Emotional Range')
+          score: 70,
+          feedback: "Default emotional range feedback"
         }
       },
-      recommendations
+      recommendations: [
+        "Practice vocal exercises regularly",
+        "Work on stage presence",
+        "Explore emotional range through exercises"
+      ]
     };
 
-    console.log("Final analysis:", JSON.stringify(analysis, null, 2));
+    // Extract scores and feedback
+    const categories = ['Delivery', 'Presence', 'Emotional Range'];
+    let totalScore = 0;
+
+    categories.forEach(category => {
+      const scoreMatch = analysisText.match(new RegExp(`${category} Score: (\\d+)`));
+      const feedbackMatch = analysisText.match(new RegExp(`${category} Feedback: ([^\\n]+)`));
+      
+      const categoryKey = category.replace(/\s+/g, '').charAt(0).toLowerCase() + category.replace(/\s+/g, '').slice(1);
+      
+      if (scoreMatch && scoreMatch[1]) {
+        const score = Math.min(100, Math.max(0, parseInt(scoreMatch[1])));
+        analysis.categories[categoryKey].score = score;
+        totalScore += score;
+      }
+      
+      if (feedbackMatch && feedbackMatch[1]) {
+        analysis.categories[categoryKey].feedback = feedbackMatch[1].trim();
+      }
+    });
+
+    // Calculate overall score
+    analysis.overallScore = Math.round(totalScore / categories.length);
+
+    // Extract recommendations
+    const recommendationsMatch = analysisText.match(/Recommendations:\s*((?:(?:\d+\.|\-)\s*[^\n]+\s*)+)/i);
+    if (recommendationsMatch) {
+      const recommendations = recommendationsMatch[1]
+        .split(/(?:\d+\.|\-)\s*/)
+        .filter(text => text.trim())
+        .map(text => text.trim())
+        .slice(0, 3);
+      
+      if (recommendations.length > 0) {
+        analysis.recommendations = recommendations;
+      }
+    }
+
+    console.log("Final analysis:", analysis);
 
     return new Response(
       JSON.stringify(analysis),
