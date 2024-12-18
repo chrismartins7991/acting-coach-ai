@@ -17,10 +17,16 @@ Recommendations:
 2. [specific actionable recommendation]
 3. [specific actionable recommendation]
 
-Important: Always provide scores as numbers between 0 and 100, and ensure each feedback section is 2-3 sentences long.`;
+Important: Always provide scores as numbers between 0 and 100, and ensure each feedback section is 2-3 sentences long.
+If you cannot see or access the video, please respond with 'VIDEO_NOT_ACCESSIBLE' so we can handle the error appropriately.`;
 
 export const parseAnalysis = (analysisText: string) => {
   console.log("Parsing analysis text:", analysisText);
+  
+  // Check for video accessibility error
+  if (analysisText === 'VIDEO_NOT_ACCESSIBLE') {
+    throw new Error("Could not access the video content. Please ensure the video is properly uploaded and accessible.");
+  }
   
   const analysis = {
     timestamp: new Date().toISOString(),

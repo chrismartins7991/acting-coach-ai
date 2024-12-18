@@ -28,7 +28,7 @@ serve(async (req) => {
     const systemPrompt = createSystemPrompt();
     console.log("Using system prompt:", systemPrompt);
 
-    // Make the request to the vision API
+    // Make the request to the vision API with modified content format
     const response = await fetch("https://chatgpt-vision1.p.rapidapi.com/matagvision2", {
       method: "POST",
       headers: {
@@ -50,8 +50,8 @@ serve(async (req) => {
                 text: "Please analyze this acting performance video and provide detailed feedback following the exact format specified."
               },
               {
-                type: "image_url",
-                image_url: {
+                type: "video_url",
+                video_url: {
                   url: encodedUrl
                 }
               }
@@ -75,6 +75,10 @@ serve(async (req) => {
     if (aiResponse.choices?.[0]?.message?.content) {
       analysisText = aiResponse.choices[0].message.content;
       console.log("Extracted analysis text:", analysisText);
+    } else if (aiResponse.result) {
+      // Handle the case where the response is in a different format
+      analysisText = aiResponse.result;
+      console.log("Extracted analysis text from result:", analysisText);
     } else {
       console.error("Unexpected AI response structure:", aiResponse);
       throw new Error("Could not find analysis text in AI response");
@@ -83,7 +87,8 @@ serve(async (req) => {
     // Check if the AI indicates it can't see the video
     if (analysisText.toLowerCase().includes("don't see the video") || 
         analysisText.toLowerCase().includes("cannot see the video") ||
-        analysisText.toLowerCase().includes("can't see the video")) {
+        analysisText.toLowerCase().includes("can't see the video") ||
+        analysisText.toLowerCase().includes("please provide the video")) {
       throw new Error("AI could not process the video. Please ensure the video URL is accessible and in a supported format.");
     }
 
