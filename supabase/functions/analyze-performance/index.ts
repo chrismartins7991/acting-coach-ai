@@ -28,20 +28,20 @@ serve(async (req) => {
     const encodedUrl = encodeURI(videoUrl).replace('http://', 'https://');
     console.log("Encoded URL:", encodedUrl);
 
-    const systemPrompt = `You are an expert acting coach analyzing a video performance. You must provide feedback in the exact format specified, using numbers between 0-100 for scores.`;
-    
-    const userPrompt = `Analyze this acting performance and provide feedback in this exact format, maintaining all headers and using numbers between 0-100 for scores:
+    const systemPrompt = `You are an expert acting coach analyzing a video performance. Provide detailed feedback in this EXACT format:
 
-Delivery Score: [number]
-Delivery Feedback: [feedback]
-Presence Score: [number]
-Presence Feedback: [feedback]
-Emotional Range Score: [number]
-Emotional Range Feedback: [feedback]
+Delivery Score: [0-100]
+Delivery Feedback: [2-3 sentences about vocal clarity, pacing, and diction]
+Presence Score: [0-100]
+Presence Feedback: [2-3 sentences about body language, stage presence, and confidence]
+Emotional Range Score: [0-100]
+Emotional Range Feedback: [2-3 sentences about emotional authenticity and variety]
 Recommendations:
-1. [recommendation]
-2. [recommendation]
-3. [recommendation]`;
+1. [specific actionable recommendation]
+2. [specific actionable recommendation]
+3. [specific actionable recommendation]`;
+    
+    const userPrompt = `Analyze this acting performance video and provide feedback following the exact format specified. Be specific and constructive.`;
 
     console.log("Making RapidAPI request...");
     const response = await fetch("https://chatgpt-vision1.p.rapidapi.com/matagvision2", {
@@ -84,7 +84,6 @@ Recommendations:
     const aiResponse = await response.json();
     console.log("Raw AI Response:", JSON.stringify(aiResponse, null, 2));
 
-    // Extract the response text, handling different possible response formats
     let analysisText = '';
     if (aiResponse.choices?.[0]?.message?.content) {
       analysisText = aiResponse.choices[0].message.content;
@@ -97,30 +96,27 @@ Recommendations:
     }
 
     if (!analysisText) {
-      console.error("Could not extract analysis text. AI Response:", aiResponse);
+      console.error("Could not extract analysis text from AI response:", aiResponse);
       throw new Error("Could not extract analysis text from AI response");
     }
 
     console.log("Extracted analysis text:", analysisText);
 
-    // Extract scores and feedback using more robust regex patterns
+    // Extract scores with fallback values
     const extractScore = (text: string, category: string): number => {
       const pattern = new RegExp(`${category}\\s*Score:\\s*(\\d+)`, 'i');
       const match = text.match(pattern);
-      if (match && match[1]) {
-        const score = parseInt(match[1]);
-        return score >= 0 && score <= 100 ? score : 70;
-      }
-      return 70; // Default score
+      return match && match[1] ? Math.min(100, Math.max(0, parseInt(match[1]))) : 70;
     };
 
+    // Extract feedback with default values
     const extractFeedback = (text: string, category: string): string => {
       const pattern = new RegExp(`${category}\\s*Feedback:\\s*([^\\n]+)`, 'i');
       const match = text.match(pattern);
-      return match?.[1]?.trim() || `${category} shows room for improvement`;
+      return match?.[1]?.trim() || `Your ${category.toLowerCase()} shows potential for improvement.`;
     };
 
-    // Extract recommendations
+    // Extract recommendations with defaults
     const recommendationsPattern = /Recommendations?:?\s*((?:(?:\d+\.|\-)\s*[^\n]+\s*)+)/i;
     const recommendationsMatch = analysisText.match(recommendationsPattern);
     let recommendations = recommendationsMatch
@@ -131,11 +127,11 @@ Recommendations:
           .slice(0, 3)
       : [
           "Focus on vocal clarity and projection",
-          "Work on maintaining consistent stage presence",
-          "Practice emotional range exercises"
+          "Practice maintaining consistent stage presence",
+          "Explore a wider range of emotional expressions"
         ];
 
-    // Ensure we have exactly 3 recommendations
+    // Ensure exactly 3 recommendations
     while (recommendations.length < 3) {
       recommendations.push("Continue practicing and developing your craft");
     }
