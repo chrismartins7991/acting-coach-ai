@@ -4,18 +4,20 @@ export const corsHeaders = {
 };
 
 export const createSystemPrompt = () => `You are an expert acting coach analyzing a video performance. 
-Provide feedback in EXACTLY this format:
+Your task is to provide a detailed analysis in this EXACT format:
 
-Delivery Score: [number between 0-100]
-Delivery Feedback: [brief feedback about vocal delivery]
-Presence Score: [number between 0-100]
-Presence Feedback: [brief feedback about stage presence]
-Emotional Range Score: [number between 0-100]
-Emotional Range Feedback: [brief feedback about emotional expression]
+Delivery Score: [number 0-100]
+Delivery Feedback: [2-3 sentences about vocal delivery, clarity, and timing]
+Presence Score: [number 0-100]
+Presence Feedback: [2-3 sentences about stage presence, body language, and movement]
+Emotional Range Score: [number 0-100]
+Emotional Range Feedback: [2-3 sentences about emotional expression and authenticity]
 Recommendations:
-1. [specific recommendation]
-2. [specific recommendation]
-3. [specific recommendation]`;
+1. [specific actionable recommendation]
+2. [specific actionable recommendation]
+3. [specific actionable recommendation]
+
+Important: Always provide scores as numbers between 0 and 100, and ensure each feedback section is 2-3 sentences long.`;
 
 export const parseAnalysis = (analysisText: string) => {
   console.log("Parsing analysis text:", analysisText);
@@ -31,40 +33,30 @@ export const parseAnalysis = (analysisText: string) => {
     recommendations: []
   };
 
-  // Extract scores
-  const scorePattern = /(\w+)\s+Score:\s*(\d+)/g;
+  // Extract scores and feedback
+  const categories = ['Delivery', 'Presence', 'Emotional Range'];
   let totalScore = 0;
   let scoreCount = 0;
-  let scoreMatch;
-  
-  while ((scoreMatch = scorePattern.exec(analysisText)) !== null) {
-    const category = scoreMatch[1].toLowerCase();
-    const score = Math.min(100, Math.max(0, parseInt(scoreMatch[2])));
-    
-    if (category === 'delivery' || category === 'presence' || category === 'emotional' || category === 'emotionalrange') {
-      const key = category === 'emotional' || category === 'emotionalrange' ? 'emotionalRange' : category;
-      if (analysis.categories[key]) {
-        analysis.categories[key].score = score;
-        totalScore += score;
-        scoreCount++;
-      }
-    }
-  }
 
-  // Extract feedback
-  const feedbackPattern = /(\w+)\s+Feedback:\s*([^\n]+)/g;
-  let feedbackMatch;
-  while ((feedbackMatch = feedbackPattern.exec(analysisText)) !== null) {
-    const category = feedbackMatch[1].toLowerCase();
-    const feedback = feedbackMatch[2].trim();
+  categories.forEach(category => {
+    const scoreRegex = new RegExp(`${category}\\s+Score:\\s*(\\d+)`, 'i');
+    const feedbackRegex = new RegExp(`${category}\\s+Feedback:\\s*([^\\n]+)`, 'i');
     
-    if (category === 'delivery' || category === 'presence' || category === 'emotional' || category === 'emotionalrange') {
-      const key = category === 'emotional' || category === 'emotionalrange' ? 'emotionalRange' : category;
-      if (analysis.categories[key]) {
-        analysis.categories[key].feedback = feedback;
-      }
+    const scoreMatch = analysisText.match(scoreRegex);
+    const feedbackMatch = analysisText.match(feedbackRegex);
+    
+    const key = category.replace(/\s+/g, '').toLowerCase();
+    if (scoreMatch) {
+      const score = Math.min(100, Math.max(0, parseInt(scoreMatch[1])));
+      analysis.categories[key].score = score;
+      totalScore += score;
+      scoreCount++;
     }
-  }
+    
+    if (feedbackMatch) {
+      analysis.categories[key].feedback = feedbackMatch[1].trim();
+    }
+  });
 
   // Calculate overall score
   analysis.overallScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0;
@@ -85,9 +77,9 @@ export const parseAnalysis = (analysisText: string) => {
   // Add default recommendations if none were extracted
   if (analysis.recommendations.length === 0) {
     analysis.recommendations = [
-      "Practice vocal exercises regularly",
-      "Work on stage presence",
-      "Explore emotional range through exercises"
+      "Focus on vocal exercises to improve delivery",
+      "Practice stage presence through movement exercises",
+      "Work on emotional range through character study"
     ];
   }
 

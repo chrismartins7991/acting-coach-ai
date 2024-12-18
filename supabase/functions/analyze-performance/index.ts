@@ -21,12 +21,14 @@ serve(async (req) => {
       throw new Error('No video URL provided');
     }
 
+    // Ensure the URL is HTTPS
     const encodedUrl = encodeURI(videoUrl).replace('http://', 'https://');
     console.log("Encoded URL:", encodedUrl);
 
     const systemPrompt = createSystemPrompt();
     console.log("Using system prompt:", systemPrompt);
 
+    // Make the request to the vision API
     const response = await fetch("https://chatgpt-vision1.p.rapidapi.com/matagvision2", {
       method: "POST",
       headers: {
@@ -45,11 +47,13 @@ serve(async (req) => {
             content: [
               {
                 type: "text",
-                text: "Please analyze this acting performance video and provide feedback in the exact format specified."
+                text: "Please analyze this acting performance video and provide detailed feedback following the exact format specified."
               },
               {
                 type: "image_url",
-                url: encodedUrl
+                image_url: {
+                  url: encodedUrl
+                }
               }
             ]
           }
@@ -76,8 +80,11 @@ serve(async (req) => {
       throw new Error("Could not find analysis text in AI response");
     }
 
-    if (!analysisText || analysisText.includes("don't see the video")) {
-      throw new Error("AI could not process the video. Please ensure the video URL is accessible.");
+    // Check if the AI indicates it can't see the video
+    if (analysisText.toLowerCase().includes("don't see the video") || 
+        analysisText.toLowerCase().includes("cannot see the video") ||
+        analysisText.toLowerCase().includes("can't see the video")) {
+      throw new Error("AI could not process the video. Please ensure the video URL is accessible and in a supported format.");
     }
 
     const analysis = parseAnalysis(analysisText);
