@@ -2,7 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders, createSystemPrompt, parseAnalysis } from "./utils.ts";
 
-const RAPIDAPI_KEY = Deno.env.get('RAPIDAPI_KEY');
+const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -13,30 +13,25 @@ serve(async (req) => {
     const { videoUrl } = await req.json();
     console.log("Received video URL:", videoUrl);
 
-    if (!RAPIDAPI_KEY) {
-      throw new Error('RAPIDAPI_KEY is not configured');
+    if (!OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY is not configured');
     }
 
     if (!videoUrl) {
       throw new Error('No video URL provided');
     }
 
-    // Ensure the URL is HTTPS
-    const encodedUrl = encodeURI(videoUrl).replace('http://', 'https://');
-    console.log("Encoded URL:", encodedUrl);
-
     const systemPrompt = createSystemPrompt();
     console.log("Using system prompt:", systemPrompt);
 
-    // Make the request to the vision API with modified content format
-    const response = await fetch("https://chatgpt-vision1.p.rapidapi.com/matagvision2", {
-      method: "POST",
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "X-RapidAPI-Key": RAPIDAPI_KEY,
-        "X-RapidAPI-Host": "chatgpt-vision1.p.rapidapi.com",
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
@@ -50,39 +45,33 @@ serve(async (req) => {
                 text: "Please analyze this acting performance video and provide detailed feedback following the exact format specified."
               },
               {
-                type: "video_url",
-                video_url: {
-                  url: encodedUrl
-                }
+                type: "image_url",
+                image_url: videoUrl
               }
             ]
           }
-        ]
-      })
+        ],
+        max_tokens: 1000
+      }),
     });
 
     if (!response.ok) {
-      console.error("RapidAPI error response status:", response.status);
+      console.error("OpenAI error response status:", response.status);
       const errorText = await response.text();
-      console.error("RapidAPI error response:", errorText);
-      throw new Error(`RapidAPI returned status ${response.status}`);
+      console.error("OpenAI error response:", errorText);
+      throw new Error(`OpenAI API returned status ${response.status}`);
     }
 
     const aiResponse = await response.json();
     console.log("Raw AI Response:", aiResponse);
 
-    let analysisText = '';
-    if (aiResponse.choices?.[0]?.message?.content) {
-      analysisText = aiResponse.choices[0].message.content;
-      console.log("Extracted analysis text:", analysisText);
-    } else if (aiResponse.result) {
-      // Handle the case where the response is in a different format
-      analysisText = aiResponse.result;
-      console.log("Extracted analysis text from result:", analysisText);
-    } else {
+    if (!aiResponse.choices?.[0]?.message?.content) {
       console.error("Unexpected AI response structure:", aiResponse);
       throw new Error("Could not find analysis text in AI response");
     }
+
+    const analysisText = aiResponse.choices[0].message.content;
+    console.log("Extracted analysis text:", analysisText);
 
     // Check if the AI indicates it can't see the video
     if (analysisText.toLowerCase().includes("don't see the video") || 
