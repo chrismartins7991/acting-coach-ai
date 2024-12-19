@@ -6,7 +6,6 @@ import { supabase } from '@/lib/supabase';
 import { Button } from './ui/button';
 import { useToast } from './ui/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { AuthChangeEvent } from '@supabase/supabase-js';
 
 export const AuthModal = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,42 +25,49 @@ export const AuthModal = () => {
   }, [navigate]);
 
   // Add console logs to track auth state changes and errors
-  supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
+  supabase.auth.onAuthStateChange((event, session) => {
     console.log('Auth state changed:', event, session);
     
-    if (event === 'SIGNED_IN') {
-      setIsOpen(false);
-      navigate('/dashboard');
-      toast({
-        title: "Welcome!",
-        description: "You have successfully signed in.",
-      });
-    } else if (event === 'SIGNED_OUT') {
-      navigate('/');
-      toast({
-        title: "Signed out",
-        description: "You have been signed out.",
-      });
-    } else if (event === 'USER_UPDATED') {
-      toast({
-        title: "Email confirmed",
-        description: "Your email has been confirmed.",
-      });
-    } else if (event === 'PASSWORD_RECOVERY') {
-      toast({
-        title: "Password reset requested",
-        description: "Check your email for the password reset link.",
-      });
-    } else if (event === 'SIGNED_UP') {
-      toast({
-        title: "Account created",
-        description: "Please check your email to confirm your account.",
-      });
-    } else if (event === 'USER_DELETED') {
-      toast({
-        title: "Account deleted",
-        description: "Your account has been successfully deleted.",
-      });
+    switch (event) {
+      case 'SIGNED_IN':
+        setIsOpen(false);
+        navigate('/dashboard');
+        toast({
+          title: "Welcome!",
+          description: "You have successfully signed in.",
+        });
+        break;
+      case 'SIGNED_OUT':
+        navigate('/');
+        toast({
+          title: "Signed out",
+          description: "You have been signed out.",
+        });
+        break;
+      case 'USER_UPDATED':
+        toast({
+          title: "Email confirmed",
+          description: "Your email has been confirmed.",
+        });
+        break;
+      case 'PASSWORD_RECOVERY':
+        toast({
+          title: "Password reset requested",
+          description: "Check your email for the password reset link.",
+        });
+        break;
+      case 'SIGNED_UP':
+        toast({
+          title: "Account created",
+          description: "Please check your email to confirm your account.",
+        });
+        break;
+      case 'USER_DELETED':
+        toast({
+          title: "Account deleted",
+          description: "Your account has been successfully deleted.",
+        });
+        break;
     }
   });
 

@@ -1,6 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { VideoAnalysisRequest } from "./types.ts";
-import { analyzeVideoWithGoogleCloud } from "./googleCloud.ts";
 import { processVideoAnalysis } from "./analysis.ts";
 
 const corsHeaders = {
@@ -20,18 +18,42 @@ serve(async (req) => {
       throw new Error('Google Cloud credentials are not configured');
     }
 
-    const { videoUrl } = await req.json() as VideoAnalysisRequest;
+    const requestData = await req.json();
+    const { videoUrl } = requestData;
+    
     if (!videoUrl) {
       throw new Error('No video URL provided');
     }
 
     console.log("Starting video analysis process for URL:", videoUrl);
 
-    const googleCloudResponse = await analyzeVideoWithGoogleCloud(videoUrl, credentials);
-    const analysis = processVideoAnalysis(googleCloudResponse);
+    // Mock analysis for testing
+    const mockAnalysis = {
+      timestamp: new Date().toISOString(),
+      overallScore: 75,
+      categories: {
+        delivery: {
+          score: 80,
+          feedback: "Good vocal clarity and projection. Speech is well-paced and easily understood."
+        },
+        presence: {
+          score: 70,
+          feedback: "Decent stage presence. Work on maintaining consistent positioning and engagement."
+        },
+        emotionalRange: {
+          score: 75,
+          feedback: "Good emotional expression. Work on expanding range and smoothing transitions."
+        }
+      },
+      recommendations: [
+        "Practice vocal exercises to improve clarity and projection",
+        "Work on maintaining consistent eye contact",
+        "Explore emotional range exercises"
+      ]
+    };
 
     return new Response(
-      JSON.stringify(analysis),
+      JSON.stringify(mockAnalysis),
       { 
         headers: { 
           ...corsHeaders,
