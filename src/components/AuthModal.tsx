@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { Button } from './ui/button';
 import { useToast } from './ui/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { AuthChangeEvent } from '@supabase/gotrue-js';
+import { AuthChangeEvent } from '@supabase/supabase-js';
 
 export const AuthModal = () => {
   const [isOpen, setIsOpen] = useState(false);
