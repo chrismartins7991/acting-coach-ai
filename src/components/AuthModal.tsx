@@ -51,6 +51,16 @@ export const AuthModal = () => {
         title: "Password reset requested",
         description: "Check your email for the password reset link.",
       });
+    } else if (event === 'SIGNED_UP') {
+      toast({
+        title: "Account created",
+        description: "Please check your email to confirm your account.",
+      });
+    } else if (event === 'USER_DELETED') {
+      toast({
+        title: "Account deleted",
+        description: "Your account has been successfully deleted.",
+      });
     }
   });
 
