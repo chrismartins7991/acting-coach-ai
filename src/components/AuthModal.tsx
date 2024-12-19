@@ -57,7 +57,7 @@ export const AuthModal = () => {
           description: "Check your email for the password reset link.",
         });
         break;
-      case 'SIGNED_UP':
+      case 'TOKEN_REFRESHED':
         toast({
           title: "Account created",
           description: "Please check your email to confirm your account.",
