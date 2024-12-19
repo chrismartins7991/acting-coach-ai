@@ -14,10 +14,12 @@ serve(async (req) => {
   }
 
   try {
-    const credentials = JSON.parse(Deno.env.get('GOOGLE_CLOUD_CREDENTIALS') || '{}');
-    if (!credentials.api_key) {
+    const credentials = Deno.env.get('GOOGLE_CLOUD_CREDENTIALS');
+    if (!credentials) {
       throw new Error('Google Cloud credentials are not configured');
     }
+
+    console.log("Retrieved Google Cloud credentials");
 
     const requestData = await req.json();
     const { videoUrl } = requestData;
@@ -48,10 +50,13 @@ serve(async (req) => {
 
   } catch (error) {
     console.error("Error in analyze-performance function:", error);
+    
+    // Return a more detailed error response
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        details: error.stack
       }),
       { 
         status: 500,
