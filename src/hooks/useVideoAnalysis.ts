@@ -21,11 +21,6 @@ export const useVideoAnalysis = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        // Add retry configuration
-        options: {
-          retry: 3,
-          retryDelay: 1000,
-        }
       });
 
       if (error) {
