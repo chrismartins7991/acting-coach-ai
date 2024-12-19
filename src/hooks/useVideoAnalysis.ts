@@ -25,10 +25,7 @@ export const useVideoAnalysis = () => {
 
       if (error) {
         console.error("Edge function error:", error);
-        if (error.message.includes("Failed to fetch")) {
-          throw new Error("Network error: Please check your internet connection and try again");
-        }
-        throw new Error('Failed to analyze video: ' + error.message);
+        throw new Error(`Failed to analyze video: ${error.message}`);
       }
 
       if (!analysis) {
@@ -57,7 +54,7 @@ export const useVideoAnalysis = () => {
       console.log("Performance saved to database:", data);
       return data;
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error in video analysis:", error);
       throw error;
     } finally {
