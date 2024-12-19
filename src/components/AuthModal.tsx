@@ -63,12 +63,6 @@ export const AuthModal = () => {
           description: "Please check your email to confirm your account.",
         });
         break;
-      case 'USER_DELETED':
-        toast({
-          title: "Account deleted",
-          description: "Your account has been successfully deleted.",
-        });
-        break;
     }
   });
 
