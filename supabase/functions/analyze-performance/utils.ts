@@ -3,29 +3,8 @@ export const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-export const createSystemPrompt = () => `You are an expert acting coach analyzing a video performance. 
-Your task is to provide a detailed analysis in this EXACT format:
-
-Delivery Score: [number 0-100]
-Delivery Feedback: [2-3 sentences about vocal delivery, clarity, and timing]
-Presence Score: [number 0-100]
-Presence Feedback: [2-3 sentences about stage presence, body language, and movement]
-Emotional Range Score: [number 0-100]
-Emotional Range Feedback: [2-3 sentences about emotional expression and authenticity]
-Recommendations:
-1. [specific actionable recommendation]
-2. [specific actionable recommendation]
-3. [specific actionable recommendation]
-
-Important: Always provide scores as numbers between 0 and 100, and ensure each feedback section is 2-3 sentences long.`;
-
 export const parseAnalysis = (analysisText: string) => {
   console.log("Parsing analysis text:", analysisText);
-  
-  // Check for video accessibility error
-  if (analysisText === 'VIDEO_NOT_ACCESSIBLE') {
-    throw new Error("Could not access the video content. Please ensure the video is properly uploaded and accessible.");
-  }
   
   const analysis = {
     timestamp: new Date().toISOString(),
@@ -35,7 +14,7 @@ export const parseAnalysis = (analysisText: string) => {
       presence: { score: 0, feedback: "" },
       emotionalRange: { score: 0, feedback: "" }
     },
-    recommendations: []
+    recommendations: [] as string[]
   };
 
   // Extract scores and feedback
@@ -50,7 +29,7 @@ export const parseAnalysis = (analysisText: string) => {
     const scoreMatch = analysisText.match(scoreRegex);
     const feedbackMatch = analysisText.match(feedbackRegex);
     
-    const key = category.replace(/\s+/g, '').toLowerCase();
+    const key = category.replace(/\s+/g, '').toLowerCase() as keyof typeof analysis.categories;
     if (scoreMatch) {
       const score = Math.min(100, Math.max(0, parseInt(scoreMatch[1])));
       analysis.categories[key].score = score;

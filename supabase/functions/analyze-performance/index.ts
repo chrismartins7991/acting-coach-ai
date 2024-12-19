@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { parseAnalysis } from "./utils.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -6,54 +7,82 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    console.log("Handling CORS preflight request");
-    return new Response(null, { 
-      headers: corsHeaders,
-      status: 204
-    });
+    return new Response(null, { headers: corsHeaders, status: 204 });
   }
 
   try {
     console.log("Starting analyze-performance function");
-    
     const { videoUrl } = await req.json();
-    console.log("Received video URL:", videoUrl);
     
     if (!videoUrl) {
       throw new Error('No video URL provided');
     }
 
-    // For now, return a mock analysis while we debug the connection
-    const mockAnalysis = {
-      timestamp: new Date().toISOString(),
-      overallScore: 85,
-      categories: {
-        delivery: {
-          score: 80,
-          feedback: "Good vocal clarity and pacing."
-        },
-        presence: {
-          score: 85,
-          feedback: "Strong stage presence and engagement."
-        },
-        emotionalRange: {
-          score: 90,
-          feedback: "Excellent emotional expression and authenticity."
-        }
-      },
-      recommendations: [
-        "Practice varying your vocal tone for more dynamic delivery",
-        "Continue working on maintaining consistent eye contact",
-        "Explore more subtle emotional transitions"
-      ]
-    };
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
 
-    console.log("Returning mock analysis for testing");
-    
+    console.log("Analyzing video:", videoUrl);
+
+    // Call OpenAI API for analysis
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'system',
+            content: `You are an expert acting coach analyzing a video performance. 
+            Your task is to provide a detailed analysis in this EXACT format:
+
+            Delivery Score: [number 0-100]
+            Delivery Feedback: [2-3 sentences about vocal delivery, clarity, and timing]
+            Presence Score: [number 0-100]
+            Presence Feedback: [2-3 sentences about stage presence, body language, and movement]
+            Emotional Range Score: [number 0-100]
+            Emotional Range Feedback: [2-3 sentences about emotional expression and authenticity]
+            Recommendations:
+            1. [specific actionable recommendation]
+            2. [specific actionable recommendation]
+            3. [specific actionable recommendation]`
+          },
+          {
+            role: 'user',
+            content: `Please analyze this video performance: ${videoUrl}
+            
+            Focus on:
+            1. Delivery (voice, clarity, timing)
+            2. Stage presence and body language
+            3. Emotional range and authenticity
+            
+            Provide specific, actionable feedback that will help the performer improve.`
+          }
+        ],
+        max_tokens: 1000,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error("OpenAI API error:", error);
+      throw new Error(`OpenAI API error: ${error}`);
+    }
+
+    const aiResponse = await response.json();
+    console.log("OpenAI response received:", aiResponse);
+
+    const analysis = parseAnalysis(aiResponse.choices[0].message.content);
+    console.log("Parsed analysis:", analysis);
+
     return new Response(
-      JSON.stringify(mockAnalysis),
+      JSON.stringify(analysis),
       { 
         headers: { 
           ...corsHeaders,
