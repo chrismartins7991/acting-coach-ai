@@ -9,8 +9,11 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log("Received request to analyze-performance function");
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log("Handling CORS preflight request");
     return new Response(null, { 
       headers: corsHeaders,
       status: 204
@@ -33,16 +36,7 @@ serve(async (req) => {
     
     if (!videoUrl) {
       console.error("No video URL provided in request");
-      return new Response(
-        JSON.stringify({ error: 'No video URL provided' }),
-        { 
-          status: 400,
-          headers: { 
-            ...corsHeaders,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      throw new Error('No video URL provided');
     }
 
     console.log("Starting video analysis process for URL:", videoUrl);

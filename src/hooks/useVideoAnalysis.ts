@@ -17,10 +17,7 @@ export const useVideoAnalysis = () => {
     try {
       // Call the analyze-performance edge function using Supabase client
       const { data: analysis, error } = await supabase.functions.invoke('analyze-performance', {
-        body: { videoUrl },
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        body: { videoUrl }
       });
 
       if (error) {
