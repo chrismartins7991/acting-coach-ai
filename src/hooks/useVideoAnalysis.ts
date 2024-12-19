@@ -17,12 +17,27 @@ export const useVideoAnalysis = () => {
     try {
       // Call the analyze-performance edge function using Supabase client
       const { data: analysis, error } = await supabase.functions.invoke('analyze-performance', {
-        body: { videoUrl }
+        body: { videoUrl },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // Add retry configuration
+        options: {
+          retry: 3,
+          retryDelay: 1000,
+        }
       });
 
       if (error) {
         console.error("Edge function error:", error);
-        throw new Error('Failed to analyze video');
+        if (error.message.includes("Failed to fetch")) {
+          throw new Error("Network error: Please check your internet connection and try again");
+        }
+        throw new Error('Failed to analyze video: ' + error.message);
+      }
+
+      if (!analysis) {
+        throw new Error('No analysis results received');
       }
 
       console.log("Analysis received:", analysis);
@@ -39,7 +54,10 @@ export const useVideoAnalysis = () => {
         .select()
         .single();
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error("Database error:", dbError);
+        throw dbError;
+      }
 
       console.log("Performance saved to database:", data);
       return data;

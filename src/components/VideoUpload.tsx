@@ -18,6 +18,7 @@ interface VideoUploadProps {
 export const VideoUpload = ({ userId, onAnalysisComplete, isUploading, isAnalyzing }: VideoUploadProps) => {
   const { toast } = useToast();
   const { analyzeVideo } = useVideoAnalysis();
+  const [retryCount, setRetryCount] = useState(0);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -69,6 +70,7 @@ export const VideoUpload = ({ userId, onAnalysisComplete, isUploading, isAnalyzi
         userId: userId
       });
 
+      setRetryCount(0); // Reset retry count on success
       onAnalysisComplete(analysis.ai_feedback);
 
       toast({
@@ -76,8 +78,22 @@ export const VideoUpload = ({ userId, onAnalysisComplete, isUploading, isAnalyzi
         description: "Your performance has been analyzed successfully!",
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error processing video:", error);
+      
+      // Handle network errors with retry logic
+      if (error.message.includes("Network error") && retryCount < 3) {
+        setRetryCount(prev => prev + 1);
+        toast({
+          title: "Connection Error",
+          description: "Retrying analysis... Please wait.",
+          variant: "destructive",
+        });
+        // Retry after a delay
+        setTimeout(() => handleFileUpload(event), 2000);
+        return;
+      }
+
       toast({
         title: "Error",
         description: error.message || "There was an error processing your video. Please try again.",
@@ -107,6 +123,7 @@ export const VideoUpload = ({ userId, onAnalysisComplete, isUploading, isAnalyzi
           {(isUploading || isAnalyzing) && (
             <p className="text-white/80 mt-2">
               {isUploading ? 'Uploading...' : 'Analyzing...'}
+              {retryCount > 0 && ` (Retry ${retryCount}/3)`}
             </p>
           )}
         </div>
