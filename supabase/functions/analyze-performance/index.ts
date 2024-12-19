@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { analyzeVideoWithGoogleCloud } from "./googleCloud.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -7,8 +6,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  console.log("Received request to analyze-performance function");
-
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     console.log("Handling CORS preflight request");
@@ -21,28 +18,42 @@ serve(async (req) => {
   try {
     console.log("Starting analyze-performance function");
     
-    const credentials = Deno.env.get('GOOGLE_CLOUD_CREDENTIALS');
-    if (!credentials) {
-      console.error("Missing Google Cloud credentials");
-      throw new Error('Google Cloud credentials are not configured');
-    }
-
-    const requestData = await req.json();
-    const { videoUrl } = requestData;
+    const { videoUrl } = await req.json();
+    console.log("Received video URL:", videoUrl);
     
     if (!videoUrl) {
-      console.error("No video URL provided in request");
       throw new Error('No video URL provided');
     }
 
-    console.log("Starting video analysis process for URL:", videoUrl);
+    // For now, return a mock analysis while we debug the connection
+    const mockAnalysis = {
+      timestamp: new Date().toISOString(),
+      overallScore: 85,
+      categories: {
+        delivery: {
+          score: 80,
+          feedback: "Good vocal clarity and pacing."
+        },
+        presence: {
+          score: 85,
+          feedback: "Strong stage presence and engagement."
+        },
+        emotionalRange: {
+          score: 90,
+          feedback: "Excellent emotional expression and authenticity."
+        }
+      },
+      recommendations: [
+        "Practice varying your vocal tone for more dynamic delivery",
+        "Continue working on maintaining consistent eye contact",
+        "Explore more subtle emotional transitions"
+      ]
+    };
 
-    // Call Google Cloud Vision API
-    const analysis = await analyzeVideoWithGoogleCloud(videoUrl, credentials);
-    console.log("Analysis completed successfully");
-
+    console.log("Returning mock analysis for testing");
+    
     return new Response(
-      JSON.stringify(analysis),
+      JSON.stringify(mockAnalysis),
       { 
         headers: { 
           ...corsHeaders,
