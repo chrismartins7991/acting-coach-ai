@@ -18,8 +18,11 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Starting analyze-performance function");
+    
     const credentials = Deno.env.get('GOOGLE_CLOUD_CREDENTIALS');
     if (!credentials) {
+      console.error("Missing Google Cloud credentials");
       throw new Error('Google Cloud credentials are not configured');
     }
 
@@ -29,6 +32,7 @@ serve(async (req) => {
     const { videoUrl } = requestData;
     
     if (!videoUrl) {
+      console.error("No video URL provided in request");
       return new Response(
         JSON.stringify({ error: 'No video URL provided' }),
         { 
@@ -66,7 +70,7 @@ serve(async (req) => {
     
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: error.message || 'An unexpected error occurred',
         timestamp: new Date().toISOString(),
         details: error.stack
       }),
