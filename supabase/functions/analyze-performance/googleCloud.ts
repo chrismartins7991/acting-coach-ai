@@ -67,16 +67,14 @@ export async function analyzeVideoWithGoogleCloud(videoUrl: string, credentials:
       features: [
         "FACE_DETECTION",
         "PERSON_DETECTION",
-        "SPEECH_TRANSCRIPTION",
-        "LABEL_DETECTION",
-        "SHOT_CHANGE_DETECTION"
+        "SPEECH_TRANSCRIPTION"
       ],
       videoContext: {
         speechTranscriptionConfig: {
           languageCode: "en-US",
-          enableAutomaticPunctuation: true,
-        },
-      },
+          enableAutomaticPunctuation: true
+        }
+      }
     };
 
     console.log("Making request to Google Cloud Video Intelligence API");
@@ -90,9 +88,9 @@ export async function analyzeVideoWithGoogleCloud(videoUrl: string, credentials:
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Google Cloud API error response:", errorText);
-      throw new Error(`Google Cloud API returned status ${response.status}: ${errorText}`);
+      const error = await response.text();
+      console.error("Google Cloud API error:", error);
+      throw new Error(`Google Cloud API returned status ${response.status}: ${error}`);
     }
 
     const data = await response.json();
@@ -128,21 +126,20 @@ async function pollOperationStatus(operationId: string, accessToken: string): Pr
       );
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to check operation status: ${response.status} - ${errorText}`);
+        throw new Error(`Failed to check operation status: ${await response.text()}`);
       }
 
       const data = await response.json();
 
       if (data.done) {
-        console.log("Video analysis operation completed");
+        console.log("Operation completed successfully");
         return data.response;
       }
 
-      // Wait before next attempt
+      console.log("Operation still in progress, waiting...");
       await new Promise(resolve => setTimeout(resolve, delayMs));
     } catch (error) {
-      console.error("Error polling operation status:", error);
+      console.error("Error checking operation status:", error);
       throw error;
     }
   }

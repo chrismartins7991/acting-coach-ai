@@ -5,12 +5,16 @@ import { processVideoAnalysis } from "./analysis.ts";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { 
+      headers: corsHeaders,
+      status: 204
+    });
   }
 
   try {
@@ -25,7 +29,16 @@ serve(async (req) => {
     const { videoUrl } = requestData;
     
     if (!videoUrl) {
-      throw new Error('No video URL provided');
+      return new Response(
+        JSON.stringify({ error: 'No video URL provided' }),
+        { 
+          status: 400,
+          headers: { 
+            ...corsHeaders,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
     }
 
     console.log("Starting video analysis process for URL:", videoUrl);
@@ -51,7 +64,6 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error in analyze-performance function:", error);
     
-    // Return a more detailed error response
     return new Response(
       JSON.stringify({ 
         error: error.message,
