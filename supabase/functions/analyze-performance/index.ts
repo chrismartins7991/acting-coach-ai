@@ -1,11 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { analyzeVideoWithGoogleCloud } from "./googleCloud.ts";
-import { processVideoAnalysis } from "./analysis.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 serve(async (req) => {
@@ -29,8 +27,6 @@ serve(async (req) => {
       throw new Error('Google Cloud credentials are not configured');
     }
 
-    console.log("Retrieved Google Cloud credentials");
-
     const requestData = await req.json();
     const { videoUrl } = requestData;
     
@@ -42,12 +38,8 @@ serve(async (req) => {
     console.log("Starting video analysis process for URL:", videoUrl);
 
     // Call Google Cloud Vision API
-    const googleCloudResponse = await analyzeVideoWithGoogleCloud(videoUrl, credentials);
-    console.log("Received response from Google Cloud Vision API");
-
-    // Process the response
-    const analysis = processVideoAnalysis(googleCloudResponse);
-    console.log("Analysis processed successfully");
+    const analysis = await analyzeVideoWithGoogleCloud(videoUrl, credentials);
+    console.log("Analysis completed successfully");
 
     return new Response(
       JSON.stringify(analysis),
@@ -65,8 +57,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: error.message || 'An unexpected error occurred',
-        timestamp: new Date().toISOString(),
-        details: error.stack
+        timestamp: new Date().toISOString()
       }),
       { 
         status: 500,
