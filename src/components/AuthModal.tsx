@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { Button } from './ui/button';
 import { useToast } from './ui/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { AuthChangeEvent } from '@supabase/supabase-js';
 
 export const AuthModal = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +26,7 @@ export const AuthModal = () => {
   }, [navigate]);
 
   // Add console logs to track auth state changes and errors
-  supabase.auth.onAuthStateChange((event, session) => {
+  supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
     console.log('Auth state changed:', event, session);
     
     if (event === 'SIGNED_IN') {
