@@ -30,29 +30,38 @@ const VideoUploader = () => {
       // Upload to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `videos/${fileName}`;
+      const filePath = `${fileName}`;
+      
+      console.log("Uploading to path:", filePath);
       
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('videos')
         .upload(filePath, file);
 
       if (uploadError) {
+        console.error("Upload error:", uploadError);
         throw uploadError;
       }
+
+      console.log("Upload successful:", uploadData);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
         .getPublicUrl(filePath);
 
-      console.log("Video uploaded, URL:", publicUrl);
+      console.log("Generated public URL:", publicUrl);
 
       // Call analysis function
+      console.log("Calling analyze-performance function...");
       const { data, error } = await supabase.functions.invoke('analyze-performance', {
         body: { videoUrl: publicUrl }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Analysis error:", error);
+        throw error;
+      }
 
       console.log("Analysis complete:", data);
       setAnalysis(data);
