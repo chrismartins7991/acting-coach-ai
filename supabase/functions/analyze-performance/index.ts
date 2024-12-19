@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { analyzeVideoWithGoogleCloud } from "./googleCloud.ts";
 import { processVideoAnalysis } from "./analysis.ts";
 
 const corsHeaders = {
@@ -27,33 +28,16 @@ serve(async (req) => {
 
     console.log("Starting video analysis process for URL:", videoUrl);
 
-    // Mock analysis for testing
-    const mockAnalysis = {
-      timestamp: new Date().toISOString(),
-      overallScore: 75,
-      categories: {
-        delivery: {
-          score: 80,
-          feedback: "Good vocal clarity and projection. Speech is well-paced and easily understood."
-        },
-        presence: {
-          score: 70,
-          feedback: "Decent stage presence. Work on maintaining consistent positioning and engagement."
-        },
-        emotionalRange: {
-          score: 75,
-          feedback: "Good emotional expression. Work on expanding range and smoothing transitions."
-        }
-      },
-      recommendations: [
-        "Practice vocal exercises to improve clarity and projection",
-        "Work on maintaining consistent eye contact",
-        "Explore emotional range exercises"
-      ]
-    };
+    // Call Google Cloud Vision API
+    const googleCloudResponse = await analyzeVideoWithGoogleCloud(videoUrl, credentials);
+    console.log("Received response from Google Cloud Vision API");
+
+    // Process the response
+    const analysis = processVideoAnalysis(googleCloudResponse);
+    console.log("Analysis processed successfully");
 
     return new Response(
-      JSON.stringify(mockAnalysis),
+      JSON.stringify(analysis),
       { 
         headers: { 
           ...corsHeaders,
