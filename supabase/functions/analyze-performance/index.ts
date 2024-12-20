@@ -10,8 +10,11 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log("Received request:", req.method);
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log("Handling OPTIONS request");
     return new Response(null, { 
       status: 204,
       headers: corsHeaders 
@@ -22,12 +25,17 @@ serve(async (req) => {
     console.log("Starting analyze-performance function");
     
     if (req.method !== 'POST') {
+      console.error("Invalid method:", req.method);
       throw new Error('Method not allowed');
     }
 
-    const { videoUrl } = await req.json();
+    const body = await req.json();
+    console.log("Received request body:", body);
+
+    const { videoUrl } = body;
     
     if (!videoUrl) {
+      console.error("No video URL provided");
       throw new Error('No video URL provided');
     }
 
@@ -42,6 +50,7 @@ serve(async (req) => {
       client_id: Deno.env.get('GOOGLE_CLOUD_CLIENT_ID'),
     };
 
+    // Validate credentials
     if (!credentials.private_key || !credentials.client_email) {
       console.error("Missing Google Cloud credentials");
       throw new Error('Google Cloud credentials not properly configured');
@@ -71,7 +80,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: error.message || 'An unexpected error occurred',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        details: error.stack
       }),
       { 
         status: error.message === 'Method not allowed' ? 405 : 500,
