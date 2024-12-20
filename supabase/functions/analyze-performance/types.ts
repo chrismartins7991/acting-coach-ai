@@ -1,7 +1,3 @@
-export interface VideoAnalysisRequest {
-  videoUrl: string;
-}
-
 export interface AnalysisResult {
   timestamp: string;
   overallScore: number;

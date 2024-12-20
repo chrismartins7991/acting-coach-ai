@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { analyzeVideoWithGoogleCloud } from "./googleCloud.ts";
-import { parseAnalysis } from "./utils.ts";
+import { processVideoAnalysis } from "./analysis.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,6 +21,8 @@ serve(async (req) => {
       throw new Error('No video URL provided');
     }
 
+    console.log("Video URL received:", videoUrl);
+
     // Get Google Cloud credentials from environment
     const credentials = {
       type: Deno.env.get('GOOGLE_CLOUD_CREDENTIALS_TYPE'),
@@ -31,16 +33,17 @@ serve(async (req) => {
     };
 
     if (!credentials.private_key || !credentials.client_email) {
+      console.error("Missing Google Cloud credentials");
       throw new Error('Google Cloud credentials not properly configured');
     }
 
-    console.log("Analyzing video with Google Cloud API:", videoUrl);
+    console.log("Analyzing video with Google Cloud API");
     const googleCloudResponse = await analyzeVideoWithGoogleCloud(videoUrl, credentials);
     console.log("Google Cloud analysis complete");
 
-    // Parse the response into our standard format
-    const analysis = parseAnalysis(googleCloudResponse);
-    console.log("Analysis parsed:", analysis);
+    // Process the response into our standard format
+    const analysis = processVideoAnalysis(googleCloudResponse);
+    console.log("Analysis processed:", analysis);
 
     return new Response(
       JSON.stringify(analysis),
