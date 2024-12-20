@@ -5,16 +5,26 @@ import { processVideoAnalysis } from "./analysis.ts";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Max-Age': '86400',
 };
 
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { 
+      status: 204,
+      headers: corsHeaders 
+    });
   }
 
   try {
     console.log("Starting analyze-performance function");
+    
+    if (req.method !== 'POST') {
+      throw new Error('Method not allowed');
+    }
+
     const { videoUrl } = await req.json();
     
     if (!videoUrl) {
@@ -64,7 +74,7 @@ serve(async (req) => {
         timestamp: new Date().toISOString()
       }),
       { 
-        status: 500,
+        status: error.message === 'Method not allowed' ? 405 : 500,
         headers: { 
           ...corsHeaders,
           'Content-Type': 'application/json'
