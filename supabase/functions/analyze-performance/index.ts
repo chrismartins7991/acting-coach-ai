@@ -10,11 +10,8 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  console.log("Received request:", req.method);
-
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    console.log("Handling OPTIONS request");
     return new Response(null, { 
       status: 204,
       headers: corsHeaders 
@@ -25,7 +22,6 @@ serve(async (req) => {
     console.log("Starting analyze-performance function");
     
     if (req.method !== 'POST') {
-      console.error("Invalid method:", req.method);
       throw new Error('Method not allowed');
     }
 
@@ -35,7 +31,6 @@ serve(async (req) => {
     const { videoUrl } = body;
     
     if (!videoUrl) {
-      console.error("No video URL provided");
       throw new Error('No video URL provided');
     }
 
