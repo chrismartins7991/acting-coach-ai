@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/lib/supabase";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
@@ -27,44 +26,39 @@ const VideoUploader = () => {
       setIsProcessing(true);
       console.log("Starting video upload...");
 
-      // Upload to Supabase Storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `${fileName}`;
-      
-      console.log("Uploading to path:", filePath);
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('videos')
-        .upload(filePath, file);
+      // Create a FormData object to send the file
+      const formData = new FormData();
+      formData.append('video', file);
 
-      if (uploadError) {
-        console.error("Upload error:", uploadError);
-        throw uploadError;
-      }
-
-      console.log("Upload successful:", uploadData);
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('videos')
-        .getPublicUrl(filePath);
-
-      console.log("Generated public URL:", publicUrl);
-
-      // Call analysis function
-      console.log("Calling analyze-performance function...");
-      const { data, error } = await supabase.functions.invoke('analyze-performance', {
-        body: { videoUrl: publicUrl }
+      // Upload the video to your server or cloud storage
+      const uploadResponse = await fetch('YOUR_UPLOAD_ENDPOINT', {
+        method: 'POST',
+        body: formData
       });
 
-      if (error) {
-        console.error("Analysis error:", error);
-        throw error;
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload video');
       }
 
-      console.log("Analysis complete:", data);
-      setAnalysis(data);
+      const { videoUrl } = await uploadResponse.json();
+      console.log("Video uploaded successfully:", videoUrl);
+
+      // Call video analysis API
+      const analysisResponse = await fetch('YOUR_ANALYSIS_ENDPOINT', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ videoUrl })
+      });
+
+      if (!analysisResponse.ok) {
+        throw new Error('Failed to analyze video');
+      }
+
+      const analysisData = await analysisResponse.json();
+      console.log("Analysis complete:", analysisData);
+      setAnalysis(analysisData);
       
       toast({
         title: "Analysis Complete",
