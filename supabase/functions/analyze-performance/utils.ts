@@ -1,71 +1,139 @@
-export const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+import { AnalysisResult } from "./types.ts";
+
+export const parseAnalysis = (googleCloudResponse: any): AnalysisResult => {
+  console.log("Parsing Google Cloud analysis response");
+
+  try {
+    // Extract relevant data from Google Cloud response
+    const faceAnnotations = googleCloudResponse?.annotationResults?.[0]?.faceAnnotations || [];
+    const personAnnotations = googleCloudResponse?.annotationResults?.[0]?.personDetectionAnnotations || [];
+    const speechTranscriptions = googleCloudResponse?.annotationResults?.[0]?.speechTranscriptions || [];
+
+    // Calculate scores based on Google Cloud data
+    const deliveryScore = calculateDeliveryScore(speechTranscriptions);
+    const presenceScore = calculatePresenceScore(faceAnnotations, personAnnotations);
+    const emotionalScore = calculateEmotionalScore(faceAnnotations);
+
+    return {
+      timestamp: new Date().toISOString(),
+      overallScore: Math.round((deliveryScore + presenceScore + emotionalScore) / 3),
+      categories: {
+        delivery: {
+          score: deliveryScore,
+          feedback: generateDeliveryFeedback(deliveryScore, speechTranscriptions)
+        },
+        presence: {
+          score: presenceScore,
+          feedback: generatePresenceFeedback(presenceScore, personAnnotations)
+        },
+        emotionalRange: {
+          score: emotionalScore,
+          feedback: generateEmotionalFeedback(emotionalScore, faceAnnotations)
+        }
+      },
+      recommendations: generateRecommendations(deliveryScore, presenceScore, emotionalScore)
+    };
+  } catch (error) {
+    console.error("Error parsing Google Cloud response:", error);
+    throw new Error(`Failed to parse analysis: ${error.message}`);
+  }
 };
 
-export const parseAnalysis = (analysisText: string) => {
-  console.log("Parsing analysis text:", analysisText);
+function calculateDeliveryScore(speechTranscriptions: any[]): number {
+  if (!speechTranscriptions.length) return 0;
   
-  const analysis = {
-    timestamp: new Date().toISOString(),
-    overallScore: 0,
-    categories: {
-      delivery: { score: 0, feedback: "" },
-      presence: { score: 0, feedback: "" },
-      emotionalRange: { score: 0, feedback: "" }
-    },
-    recommendations: [] as string[]
-  };
+  const confidenceScores = speechTranscriptions.flatMap(t => 
+    t.alternatives?.[0]?.words?.map(w => w.confidence) || []
+  );
+  
+  const avgConfidence = confidenceScores.length 
+    ? confidenceScores.reduce((a, b) => a + b, 0) / confidenceScores.length 
+    : 0;
+  
+  return Math.round(avgConfidence * 100);
+}
 
-  // Extract scores and feedback
-  const categories = ['Delivery', 'Presence', 'Emotional Range'];
-  let totalScore = 0;
-  let scoreCount = 0;
+function calculatePresenceScore(faceAnnotations: any[], personAnnotations: any[]): number {
+  const faceConfidence = faceAnnotations.reduce((acc, face) => 
+    acc + (face.detectionConfidence || 0), 0) / (faceAnnotations.length || 1);
+  
+  const personConfidence = personAnnotations.reduce((acc, person) => 
+    acc + (person.confidence || 0), 0) / (personAnnotations.length || 1);
+  
+  return Math.round(((faceConfidence + personConfidence) / 2) * 100);
+}
 
-  categories.forEach(category => {
-    const scoreRegex = new RegExp(`${category}\\s+Score:\\s*(\\d+)`, 'i');
-    const feedbackRegex = new RegExp(`${category}\\s+Feedback:\\s*([^\\n]+)`, 'i');
-    
-    const scoreMatch = analysisText.match(scoreRegex);
-    const feedbackMatch = analysisText.match(feedbackRegex);
-    
-    const key = category.replace(/\s+/g, '').toLowerCase() as keyof typeof analysis.categories;
-    if (scoreMatch) {
-      const score = Math.min(100, Math.max(0, parseInt(scoreMatch[1])));
-      analysis.categories[key].score = score;
-      totalScore += score;
-      scoreCount++;
-    }
-    
-    if (feedbackMatch) {
-      analysis.categories[key].feedback = feedbackMatch[1].trim();
-    }
-  });
+function calculateEmotionalScore(faceAnnotations: any[]): number {
+  if (!faceAnnotations.length) return 0;
+  
+  const emotionVariety = new Set(
+    faceAnnotations.flatMap(face => 
+      Object.entries(face.emotionLikelihood || {})
+        .filter(([_, value]) => value === "LIKELY" || value === "VERY_LIKELY")
+        .map(([emotion]) => emotion)
+    )
+  ).size;
+  
+  return Math.round((emotionVariety / 8) * 100); // 8 is max number of different emotions
+}
 
-  // Calculate overall score
-  analysis.overallScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0;
-
-  // Extract recommendations
-  const recommendationsMatch = analysisText.match(/Recommendations:\s*((?:(?:\d+\.|\-)\s*[^\n]+\s*)+)/i);
-  if (recommendationsMatch) {
-    const recommendations = recommendationsMatch[1]
-      .split(/(?:\d+\.|\-)\s*/)
-      .filter(text => text.trim())
-      .map(text => text.trim());
-    
-    if (recommendations.length > 0) {
-      analysis.recommendations = recommendations.slice(0, 3);
-    }
+function generateDeliveryFeedback(score: number, transcriptions: any[]): string {
+  const wordCount = transcriptions.reduce((acc, t) => 
+    acc + (t.alternatives?.[0]?.words?.length || 0), 0);
+  
+  if (score > 80) {
+    return `Excellent vocal clarity with ${wordCount} words clearly recognized. Speech is well-paced and easily understood.`;
   }
-
-  // Add default recommendations if none were extracted
-  if (analysis.recommendations.length === 0) {
-    analysis.recommendations = [
-      "Focus on vocal exercises to improve delivery",
-      "Practice stage presence through movement exercises",
-      "Work on emotional range through character study"
-    ];
+  if (score > 60) {
+    return `Good vocal delivery with room for improvement. ${wordCount} words detected with varying clarity levels.`;
   }
+  return `Focus on improving vocal clarity and projection. Only ${wordCount} words were clearly detected.`;
+}
 
-  return analysis;
-};
+function generatePresenceFeedback(score: number, personAnnotations: any[]): string {
+  const detectionCount = personAnnotations.length;
+  
+  if (score > 80) {
+    return `Strong stage presence maintained throughout ${detectionCount} tracked segments with excellent positioning.`;
+  }
+  if (score > 60) {
+    return `Good stage presence with ${detectionCount} tracked movements. Work on maintaining consistent positioning.`;
+  }
+  return `Presence needs improvement. Only ${detectionCount} clear positioning moments detected.`;
+}
+
+function generateEmotionalFeedback(score: number, faceAnnotations: any[]): string {
+  const emotionChanges = faceAnnotations.length;
+  
+  if (score > 80) {
+    return `Excellent emotional range with ${emotionChanges} distinct emotional expressions detected.`;
+  }
+  if (score > 60) {
+    return `Good emotional expression with ${emotionChanges} emotional changes. Work on transitions.`;
+  }
+  return `Limited emotional range detected. Only ${emotionChanges} clear emotional expressions found.`;
+}
+
+function generateRecommendations(deliveryScore: number, presenceScore: number, emotionalScore: number): string[] {
+  const recommendations = [];
+  
+  if (deliveryScore < 80) {
+    recommendations.push("Practice vocal exercises focusing on clarity and projection");
+  }
+  if (presenceScore < 80) {
+    recommendations.push("Work on maintaining consistent stage positioning and camera engagement");
+  }
+  if (emotionalScore < 80) {
+    recommendations.push("Explore emotional range exercises to develop more varied expressions");
+  }
+  
+  if (recommendations.length === 0) {
+    recommendations.push(
+      "Continue developing your unique style while maintaining current strengths",
+      "Consider experimenting with more challenging performance pieces",
+      "Share your techniques with other performers"
+    );
+  }
+  
+  return recommendations.slice(0, 3); // Return top 3 recommendations
+}
