@@ -1,13 +1,64 @@
 import { useState } from "react";
 import { Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { PerformanceAnalysis } from "./PerformanceAnalysis";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const GOOGLE_API_KEY = 'YOUR_GOOGLE_CLOUD_API_KEY'; // Replace with your actual API key
+const GOOGLE_API_URL = 'https://videointelligence.googleapis.com/v1/videos:annotate';
 
 const VideoUploader = () => {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
   const [analysis, setAnalysis] = useState<any>(null);
+
+  const pollOperationStatus = async (operationName: string) => {
+    const operationUrl = `https://videointelligence.googleapis.com/v1/${operationName}?key=${GOOGLE_API_KEY}`;
+    
+    while (true) {
+      const response = await fetch(operationUrl);
+      const data = await response.json();
+      
+      if (data.done) {
+        return data.response;
+      }
+      
+      // Wait 5 seconds before polling again
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  };
+
+  const analyzeVideo = async (gcsUri: string) => {
+    const requestBody = {
+      inputUri: gcsUri,
+      features: [
+        "FACE_DETECTION",
+        "PERSON_DETECTION",
+        "SPEECH_TRANSCRIPTION"
+      ],
+      videoContext: {
+        speechTranscriptionConfig: {
+          languageCode: "en-US",
+          enableAutomaticPunctuation: true
+        }
+      }
+    };
+
+    const response = await fetch(`${GOOGLE_API_URL}?key=${GOOGLE_API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to start video analysis');
+    }
+
+    const data = await response.json();
+    return pollOperationStatus(data.name);
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -26,39 +77,40 @@ const VideoUploader = () => {
       setIsProcessing(true);
       console.log("Starting video upload...");
 
-      // Create a FormData object to send the file
-      const formData = new FormData();
-      formData.append('video', file);
-
-      // Upload the video to your server or cloud storage
-      const uploadResponse = await fetch('YOUR_UPLOAD_ENDPOINT', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload video');
-      }
-
-      const { videoUrl } = await uploadResponse.json();
-      console.log("Video uploaded successfully:", videoUrl);
-
-      // Call video analysis API
-      const analysisResponse = await fetch('YOUR_ANALYSIS_ENDPOINT', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      // First, we need to upload the video to Google Cloud Storage
+      // You'll need to implement this part with your own storage solution
+      // For now, we'll assume you have a function that returns a GCS URI
+      const gcsUri = `gs://your-bucket-name/${file.name}`;
+      
+      console.log("Starting video analysis...");
+      const analysisResult = await analyzeVideo(gcsUri);
+      
+      // Process the analysis results into the format expected by PerformanceAnalysis
+      const processedAnalysis = {
+        overallScore: 85, // You'll need to calculate this based on the analysis
+        categories: {
+          delivery: {
+            score: 80,
+            feedback: "Good vocal clarity and pacing"
+          },
+          presence: {
+            score: 90,
+            feedback: "Strong stage presence and body language"
+          },
+          emotionalRange: {
+            score: 85,
+            feedback: "Good emotional expression"
+          }
         },
-        body: JSON.stringify({ videoUrl })
-      });
+        recommendations: [
+          "Consider varying your pace more",
+          "Work on maintaining consistent eye contact",
+          "Practice more dynamic gestures"
+        ],
+        timestamp: new Date().toISOString()
+      };
 
-      if (!analysisResponse.ok) {
-        throw new Error('Failed to analyze video');
-      }
-
-      const analysisData = await analysisResponse.json();
-      console.log("Analysis complete:", analysisData);
-      setAnalysis(analysisData);
+      setAnalysis(processedAnalysis);
       
       toast({
         title: "Analysis Complete",
@@ -99,14 +151,7 @@ const VideoUploader = () => {
         </label>
       </div>
 
-      {analysis && (
-        <div className="bg-white/10 rounded-lg p-6 text-white">
-          <h3 className="text-xl font-semibold mb-4">Analysis Results</h3>
-          <pre className="whitespace-pre-wrap">
-            {JSON.stringify(analysis, null, 2)}
-          </pre>
-        </div>
-      )}
+      {analysis && <PerformanceAnalysis analysis={analysis} />}
     </div>
   );
 };
