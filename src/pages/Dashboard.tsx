@@ -15,7 +15,6 @@ import { Chat } from "@/components/Chat";
 const Dashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [isUploading, setIsUploading] = useState(false);
   const { isAnalyzing } = useVideoAnalysis();
   const [currentAnalysis, setCurrentAnalysis] = useState(null);
 
@@ -92,7 +91,6 @@ const Dashboard = () => {
                 <VideoUpload
                   userId={user.id}
                   onAnalysisComplete={setCurrentAnalysis}
-                  isUploading={isUploading}
                   isAnalyzing={isAnalyzing}
                 />
                 {features.map((feature, index) => (
