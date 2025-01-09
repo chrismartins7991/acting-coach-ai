@@ -4,7 +4,7 @@ import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "./ui/use-toast";
-import { Send } from "lucide-react";
+import { Mic, Send } from "lucide-react";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -15,6 +15,7 @@ export const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const { toast } = useToast();
 
   const sendMessage = async (e: React.FormEvent) => {
@@ -46,6 +47,34 @@ export const Chat = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const toggleRecording = async () => {
+    if (!isRecording) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        setIsRecording(true);
+        // TODO: Implement voice recording logic
+        toast({
+          title: "Recording started",
+          description: "Speak your message...",
+        });
+      } catch (error) {
+        console.error('Error accessing microphone:', error);
+        toast({
+          title: "Error",
+          description: "Could not access microphone. Please check your permissions.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      setIsRecording(false);
+      // TODO: Implement stop recording and send logic
+      toast({
+        title: "Recording stopped",
+        description: "Processing your message...",
+      });
     }
   };
 
@@ -84,12 +113,25 @@ export const Chat = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask your acting coach..."
-            disabled={isLoading}
+            disabled={isLoading || isRecording}
             className="flex-1"
           />
+          <Button
+            type="button"
+            onClick={toggleRecording}
+            disabled={isLoading}
+            variant="outline"
+            className={`${
+              isRecording 
+                ? 'bg-red-500 hover:bg-red-600 text-white' 
+                : 'text-theater-gold hover:text-theater-gold/90'
+            }`}
+          >
+            <Mic className={`h-4 w-4 ${isRecording ? 'animate-pulse' : ''}`} />
+          </Button>
           <Button 
             type="submit" 
-            disabled={isLoading}
+            disabled={isLoading || isRecording}
             className="bg-theater-gold hover:bg-theater-gold/90 text-theater-purple"
           >
             <Send className="h-4 w-4" />
