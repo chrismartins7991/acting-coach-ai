@@ -1,21 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-
-interface Category {
-  score: number;
-  feedback: string;
-}
-
-interface Analysis {
-  overallScore: number;
-  categories: {
-    delivery: Category;
-    presence: Category;
-    emotionalRange: Category;
-  };
-  recommendations: string[];
-  timestamp: string;
-}
+import { Analysis } from "@/utils/videoAnalysis/types";
 
 interface PerformanceAnalysisProps {
   analysis: Analysis | null;
@@ -42,7 +27,7 @@ export const PerformanceAnalysis = ({ analysis }: PerformanceAnalysisProps) => {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {analysis.categories && Object.entries(analysis.categories).map(([category, data]) => (
+        {Object.entries(analysis.categories).map(([category, data]) => (
           <Card key={category}>
             <CardHeader>
               <CardTitle className="capitalize">{category}</CardTitle>
