@@ -10,6 +10,7 @@ import { useVideoAnalysis } from "@/hooks/useVideoAnalysis";
 import { PerformanceAnalysis } from "@/components/PerformanceAnalysis";
 import { VideoUpload } from "@/components/VideoUpload";
 import { FeatureCard } from "@/components/FeatureCard";
+import { Chat } from "@/components/Chat";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -70,37 +71,45 @@ const Dashboard = () => {
           </Button>
         </div>
 
-        {currentAnalysis ? (
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-white">Performance Analysis</h2>
-              <Button
-                variant="outline"
-                onClick={() => setCurrentAnalysis(null)}
-                className="text-white hover:text-theater-gold"
-              >
-                Upload Another Video
-              </Button>
-            </div>
-            <PerformanceAnalysis analysis={currentAnalysis} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div>
+            {currentAnalysis ? (
+              <div className="mb-8">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold text-white">Performance Analysis</h2>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentAnalysis(null)}
+                    className="text-white hover:text-theater-gold"
+                  >
+                    Upload Another Video
+                  </Button>
+                </div>
+                <PerformanceAnalysis analysis={currentAnalysis} />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <VideoUpload
+                  userId={user.id}
+                  onAnalysisComplete={setCurrentAnalysis}
+                  isUploading={isUploading}
+                  isAnalyzing={isAnalyzing}
+                />
+                {features.map((feature, index) => (
+                  <FeatureCard
+                    key={feature.title}
+                    {...feature}
+                    delay={index * 0.1}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <VideoUpload
-              userId={user.id}
-              onAnalysisComplete={setCurrentAnalysis}
-              isUploading={isUploading}
-              isAnalyzing={isAnalyzing}
-            />
-            {features.map((feature, index) => (
-              <FeatureCard
-                key={feature.title}
-                {...feature}
-                delay={index * 0.1}
-              />
-            ))}
+          
+          <div>
+            <Chat />
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
