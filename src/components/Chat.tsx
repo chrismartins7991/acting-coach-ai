@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { useToast } from "./ui/use-toast";
 import { Mic, Send } from "lucide-react";
 import { ChatHistory } from "./ChatHistory";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -21,6 +22,7 @@ export const Chat = () => {
   const { toast } = useToast();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (currentConversationId) {
@@ -49,10 +51,16 @@ export const Chat = () => {
   };
 
   const createNewConversation = async (firstMessage: string) => {
+    if (!user) {
+      console.error('No user found');
+      return null;
+    }
+
     const { data, error } = await supabase
       .from('conversations')
       .insert({
         title: firstMessage.slice(0, 50) + (firstMessage.length > 50 ? '...' : ''),
+        user_id: user.id
       })
       .select()
       .single();
