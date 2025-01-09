@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { ScrollArea } from "./ui/scroll-area";
@@ -17,6 +17,8 @@ export const Chat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const { toast } = useToast();
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,31 +52,107 @@ export const Chat = () => {
     }
   };
 
-  const toggleRecording = async () => {
-    if (!isRecording) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        setIsRecording(true);
-        // TODO: Implement voice recording logic
-        toast({
-          title: "Recording started",
-          description: "Speak your message...",
-        });
-      } catch (error) {
-        console.error('Error accessing microphone:', error);
-        toast({
-          title: "Error",
-          description: "Could not access microphone. Please check your permissions.",
-          variant: "destructive",
-        });
-      }
-    } else {
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        await processAudioAndSend(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      toast({
+        title: "Recording started",
+        description: "Speak your message...",
+      });
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      toast({
+        title: "Error",
+        description: "Could not access microphone. Please check your permissions.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
       setIsRecording(false);
-      // TODO: Implement stop recording and send logic
       toast({
         title: "Recording stopped",
         description: "Processing your message...",
       });
+    }
+  };
+
+  const processAudioAndSend = async (audioBlob: Blob) => {
+    try {
+      setIsLoading(true);
+      // Convert blob to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(audioBlob);
+      
+      reader.onloadend = async () => {
+        const base64Audio = (reader.result as string).split(',')[1];
+        
+        // Send to voice-to-text function
+        const { data: transcriptionData, error: transcriptionError } = await supabase.functions.invoke(
+          'voice-to-text',
+          {
+            body: { audio: base64Audio },
+          }
+        );
+
+        if (transcriptionError) throw transcriptionError;
+
+        // Set the transcribed text as input
+        setInput(transcriptionData.text);
+        
+        // Automatically send the transcribed message
+        const { data: chatData, error: chatError } = await supabase.functions.invoke('chat', {
+          body: { message: transcriptionData.text },
+        });
+
+        if (chatError) throw chatError;
+
+        // Update messages
+        setMessages(prev => [
+          ...prev,
+          { role: 'user', content: transcriptionData.text },
+          { role: 'assistant', content: chatData.reply }
+        ]);
+
+      };
+    } catch (error) {
+      console.error('Error processing audio:', error);
+      toast({
+        title: "Error",
+        description: "Failed to process audio. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
     }
   };
 
