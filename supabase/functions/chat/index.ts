@@ -21,14 +21,14 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured')
     }
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4-turbo-preview',
         messages: [
           {
             role: 'system',
@@ -39,14 +39,23 @@ serve(async (req) => {
             content: message
           }
         ],
+        temperature: 0.7,
+        max_tokens: 500,
       }),
     })
 
-    const data = await response.json()
+    if (!openAIResponse.ok) {
+      const errorData = await openAIResponse.json()
+      console.error('OpenAI API error:', errorData)
+      throw new Error(`OpenAI API error: ${errorData.error?.message || 'Unknown error'}`)
+    }
+
+    const data = await openAIResponse.json()
     console.log('OpenAI response:', data)
 
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      throw new Error('Invalid response from OpenAI')
+    if (!data.choices?.[0]?.message?.content) {
+      console.error('Invalid OpenAI response structure:', data)
+      throw new Error('Invalid response structure from OpenAI')
     }
 
     return new Response(
