@@ -40,6 +40,15 @@ serve(async (req) => {
       client_id: Deno.env.get('GOOGLE_CLOUD_CLIENT_ID'),
     };
 
+    // Log credentials presence (not the values)
+    console.log("Credentials check:", {
+      hasType: !!credentials.type,
+      hasProjectId: !!credentials.project_id,
+      hasPrivateKey: !!credentials.private_key,
+      hasClientEmail: !!credentials.client_email,
+      hasClientId: !!credentials.client_id
+    });
+
     // Validate credentials
     if (!credentials.private_key || !credentials.client_email) {
       console.error("Missing Google Cloud credentials");
@@ -52,7 +61,7 @@ serve(async (req) => {
 
     // Process the response into our standard format
     const analysis = processVideoAnalysis(googleCloudResponse);
-    console.log("Analysis processed:", analysis);
+    console.log("Analysis processed successfully");
 
     return new Response(
       JSON.stringify(analysis),
