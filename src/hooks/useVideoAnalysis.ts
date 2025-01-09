@@ -1,5 +1,5 @@
-import { supabase } from "@/lib/supabase";
 import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface AnalyzeVideoParams {
   videoUrl: string;
