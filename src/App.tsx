@@ -1,21 +1,46 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import VideoUploader from "./components/VideoUploader";
 import { AuthProvider } from "./contexts/AuthContext";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
+import { useAuth } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
+
+// Protected Route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+};
 
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <div className="min-h-screen bg-gradient-to-br from-purple-900 to-black p-8">
-          <div className="max-w-2xl mx-auto">
-            <h1 className="text-3xl font-bold text-white mb-8">Video Analysis Demo</h1>
-            <VideoUploader />
-          </div>
-        </div>
-        <Toaster />
+        <Router>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route
+              path="/dashboard/*"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+          <Toaster />
+        </Router>
       </AuthProvider>
     </QueryClientProvider>
   );
