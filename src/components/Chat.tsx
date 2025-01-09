@@ -118,10 +118,7 @@ export const Chat = () => {
 
         if (transcriptionError) throw transcriptionError;
 
-        // Set the transcribed text as input
-        setInput(transcriptionData.text);
-        
-        // Automatically send the transcribed message
+        // Send the transcribed message directly without setting it to input
         const { data: chatData, error: chatError } = await supabase.functions.invoke('chat', {
           body: { message: transcriptionData.text },
         });
@@ -134,7 +131,6 @@ export const Chat = () => {
           { role: 'user', content: transcriptionData.text },
           { role: 'assistant', content: chatData.reply }
         ]);
-
       };
     } catch (error) {
       console.error('Error processing audio:', error);
