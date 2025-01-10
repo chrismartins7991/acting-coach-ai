@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { SparklesCore } from "./ui/sparkles";
-import { FollowerPointerCard } from "./ui/following-pointer";
 
 interface HeroProps {
   onLoginSuccess: () => void;
@@ -35,28 +34,20 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             Your AI Acting Coach
           </motion.h1>
           
-          {/* Lighting line effect with focused sparkles */}
-          <div className="relative w-full h-[200px]">
-            {/* Primary lighting line */}
-            <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-[2px] w-3/4 blur-sm" />
-            <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-px w-3/4" />
+          {/* Lighting line effect */}
+          <div className="relative w-full h-[60px] mb-6">
+            <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-[2px] w-1/2 blur-sm" />
+            <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-px w-1/2" />
             
-            {/* Secondary lighting line */}
-            <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold/50 to-transparent h-[3px] w-1/2 blur-md" />
-            
-            {/* Sparkles container with mask */}
-            <div className="w-full h-full relative">
-              <SparklesCore
-                background="transparent"
-                minSize={0.2}
-                maxSize={0.6}
-                particleDensity={20}
-                className="w-full h-full"
-                particleColor="#FFD700"
-              />
-              {/* Mask for downward particle flow */}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black [mask-image:radial-gradient(350px_200px_at_top,transparent_20%,white)]" />
-            </div>
+            {/* Subtle particles below title */}
+            <SparklesCore
+              background="transparent"
+              minSize={0.2}
+              maxSize={0.6}
+              particleDensity={40}
+              className="w-full h-full"
+              particleColor="#FFD700"
+            />
           </div>
           
           <motion.p 
@@ -74,19 +65,19 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
           >
-            {/* Start Free Trial button with enhanced hover effects */}
-            <FollowerPointerCard>
-              <div className="relative group">
-                <div className="absolute -inset-0.5 bg-theater-gold opacity-30 blur group-hover:opacity-70 transition duration-500 group-hover:duration-200 animate-pulse"></div>
-                <Button 
-                  onClick={onLoginSuccess}
-                  size="lg"
-                  className="relative bg-black/50 hover:bg-black/80 text-theater-gold font-semibold border border-theater-gold/50 hover:border-theater-gold transition-all duration-300"
-                >
-                  Start Free Trial
-                </Button>
-              </div>
-            </FollowerPointerCard>
+            {/* Start Free Trial button with beam effect wrapper */}
+            <div className="relative group">
+              {/* Beam effect container */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-theater-gold to-transparent rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-500 animate-pulse"></div>
+              
+              <Button 
+                onClick={onLoginSuccess}
+                size="lg"
+                className="relative bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
+              >
+                Start Free Trial
+              </Button>
+            </div>
             
             <Button 
               variant="link" 
@@ -97,6 +88,8 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
           </motion.div>
         </div>
       </div>
+      
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent" />
     </div>
   );
 };
