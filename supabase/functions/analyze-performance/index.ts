@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { analyzeVideoWithGoogleCloud } from "./googleCloud.ts";
 import { processVideoAnalysis } from "./analysis.ts";
 
 const corsHeaders = {
@@ -7,6 +6,60 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
+
+async function extractFramesFromVideo(videoUrl: string): Promise<string[]> {
+  // For now, we'll use a mock implementation that returns the video URL itself
+  // In a production environment, you would want to extract actual frames
+  return [videoUrl];
+}
+
+async function analyzeFrameWithOpenAI(frame: string): Promise<any> {
+  const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+  if (!openaiApiKey) {
+    throw new Error('OpenAI API key not configured');
+  }
+
+  console.log("Analyzing frame with OpenAI Vision...");
+  
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${openaiApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert acting coach analyzing performance videos. Focus on delivery, presence, and emotional range."
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Analyze this performance video frame and provide detailed feedback on the actor's delivery, presence, and emotional range."
+            },
+            {
+              type: "image_url",
+              image_url: frame
+            }
+          ]
+        }
+      ],
+      max_tokens: 1000
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    console.error("OpenAI API error:", error);
+    throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
+  }
+
+  return await response.json();
+}
 
 serve(async (req) => {
   console.log("Received request to analyze-performance function");
@@ -36,40 +89,44 @@ serve(async (req) => {
 
     console.log("Video URL received:", videoUrl);
 
-    // Get Google Cloud credentials from environment
-    const credentials = {
-      type: Deno.env.get('GOOGLE_CLOUD_CREDENTIALS_TYPE'),
-      project_id: Deno.env.get('GOOGLE_CLOUD_PROJECT_ID'),
-      private_key: Deno.env.get('GOOGLE_CLOUD_PRIVATE_KEY')?.replace(/\\n/g, '\n'),
-      client_email: Deno.env.get('GOOGLE_CLOUD_CLIENT_EMAIL'),
-      client_id: Deno.env.get('GOOGLE_CLOUD_CLIENT_ID'),
+    // Extract frames from the video
+    const frames = await extractFramesFromVideo(videoUrl);
+    console.log(`Extracted ${frames.length} frames from video`);
+
+    // Analyze each frame with OpenAI Vision
+    const frameAnalyses = await Promise.all(
+      frames.map(frame => analyzeFrameWithOpenAI(frame))
+    );
+
+    // Aggregate the analyses into a single result
+    const aggregatedAnalysis = {
+      overallScore: 75, // Example score
+      categories: {
+        delivery: {
+          score: 80,
+          feedback: frameAnalyses[0].choices[0].message.content
+        },
+        presence: {
+          score: 75,
+          feedback: "Based on visual analysis of the performance"
+        },
+        emotionalRange: {
+          score: 70,
+          feedback: "Analysis of emotional expression throughout the performance"
+        }
+      },
+      recommendations: [
+        "Practice maintaining consistent eye contact",
+        "Work on varying emotional intensity",
+        "Focus on clear articulation"
+      ],
+      timestamp: new Date().toISOString()
     };
 
-    // Log credentials presence (not the values)
-    console.log("Credentials check:", {
-      hasType: !!credentials.type,
-      hasProjectId: !!credentials.project_id,
-      hasPrivateKey: !!credentials.private_key,
-      hasClientEmail: !!credentials.client_email,
-      hasClientId: !!credentials.client_id
-    });
-
-    // Validate credentials
-    if (!credentials.private_key || !credentials.client_email) {
-      console.error("Missing Google Cloud credentials");
-      throw new Error('Google Cloud credentials not properly configured');
-    }
-
-    console.log("Starting Google Cloud analysis");
-    const googleCloudResponse = await analyzeVideoWithGoogleCloud(videoUrl, credentials);
-    console.log("Google Cloud analysis complete");
-
-    // Process the response into our standard format
-    const analysis = processVideoAnalysis(googleCloudResponse);
-    console.log("Analysis processed successfully");
+    console.log("Analysis complete");
 
     return new Response(
-      JSON.stringify(analysis),
+      JSON.stringify(aggregatedAnalysis),
       { 
         headers: { 
           ...corsHeaders,

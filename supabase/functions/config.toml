@@ -1,4 +1,2 @@
 project_id = "etqdfxnyvrjyabjduhpk"
-
-[functions.analyze-performance]
 verify_jwt = false
