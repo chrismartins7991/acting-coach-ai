@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { analyzeFrameWithOpenAI } from "./openAiAnalyzer.ts";
 import { aggregateAnalyses } from "./resultsAggregator.ts";
+import { analyzeAudioWithGoogleCloud } from "./googleCloudAnalyzer.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -34,29 +35,42 @@ serve(async (req) => {
     );
     console.log("OpenAI frame analyses completed");
 
-    // Process audio with Whisper
-    console.log("Starting audio transcription...");
-    const formData = new FormData();
+    // Process audio with both Whisper and Google Cloud
+    console.log("Starting audio analysis...");
+    
+    // Convert base64 audio to blob for processing
     const audioBlob = Uint8Array.from(atob(audio), c => c.charCodeAt(0));
-    formData.append('file', new Blob([audioBlob], { type: 'audio/webm' }), 'audio.webm');
-    formData.append('model', 'whisper-1');
 
-    const transcriptionResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
-      },
-      body: formData,
-    });
+    // Parallel processing of audio with both services
+    const [whisperResult, googleCloudResult] = await Promise.all([
+      // Whisper Transcription
+      (async () => {
+        const formData = new FormData();
+        formData.append('file', new Blob([audioBlob], { type: 'audio/webm' }), 'audio.webm');
+        formData.append('model', 'whisper-1');
 
-    if (!transcriptionResponse.ok) {
-      throw new Error(`Failed to transcribe audio: ${await transcriptionResponse.text()}`);
-    }
+        const transcriptionResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+          },
+          body: formData,
+        });
 
-    const transcriptionResult = await transcriptionResponse.json();
-    console.log("Audio transcription completed");
+        if (!transcriptionResponse.ok) {
+          throw new Error(`Failed to transcribe audio: ${await transcriptionResponse.text()}`);
+        }
 
-    // Analyze speech content with GPT-4
+        return await transcriptionResponse.json();
+      })(),
+      
+      // Google Cloud Speech-to-Text Analysis
+      analyzeAudioWithGoogleCloud(audioBlob)
+    ]);
+
+    console.log("Audio analysis completed");
+
+    // Analyze speech content and characteristics with GPT-4
     const speechAnalysisResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -68,11 +82,19 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'Analyze the following speech transcript from an acting performance. Focus on vocal delivery, emotional expression, and clarity. Provide scores out of 100 for each aspect and brief feedback.'
+            content: 'Analyze the following speech transcript and audio characteristics for an acting performance. Consider vocal delivery, emotional expression, clarity, and technical aspects. Provide scores out of 100 for each aspect and detailed feedback.'
           },
           {
             role: 'user',
-            content: transcriptionResult.text
+            content: `
+              Transcript: ${whisperResult.text}
+              
+              Audio Characteristics from Google Cloud:
+              - Emotion: ${googleCloudResult.emotion}
+              - Pitch: ${googleCloudResult.pitch}
+              - Speaking Rate: ${googleCloudResult.speakingRate}
+              - Volume Variation: ${googleCloudResult.volumeVariation}
+            `
           }
         ],
       }),
@@ -85,11 +107,12 @@ serve(async (req) => {
     const speechAnalysis = await speechAnalysisResponse.json();
     console.log("Speech analysis completed");
 
-    // Combine visual and audio analyses
+    // Combine all analyses
     const combinedAnalysis = {
       ...aggregateAnalyses(frameAnalyses),
-      speech: {
-        transcript: transcriptionResult.text,
+      audio: {
+        transcript: whisperResult.text,
+        characteristics: googleCloudResult,
         analysis: speechAnalysis.choices[0].message.content
       }
     };

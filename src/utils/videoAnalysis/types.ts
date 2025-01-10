@@ -3,6 +3,24 @@ export interface Category {
   feedback: string;
 }
 
+export interface AudioCharacteristics {
+  confidence: number;
+  emotion: string;
+  emotionConfidence: number;
+  speakingRate: number;
+  pitch: {
+    variations: Array<{
+      time?: number;
+      value?: number;
+    }>;
+    average: number;
+  };
+  volumeVariation: Array<{
+    time?: number;
+    value?: number;
+  }>;
+}
+
 export interface Analysis {
   overallScore: number;
   categories: {
@@ -12,6 +30,11 @@ export interface Analysis {
   };
   recommendations: string[];
   timestamp: string;
+  audio?: {
+    transcript: string;
+    characteristics: AudioCharacteristics;
+    analysis: string;
+  };
 }
 
 export interface AnalyzeVideoParams {
