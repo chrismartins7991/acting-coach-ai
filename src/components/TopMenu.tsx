@@ -167,11 +167,11 @@ const DesktopMenu = () => {
   };
 
   return (
-    <div className="flex items-center gap-4">
-      <NavigationMenu className="relative mx-auto bg-background/80 backdrop-blur-md rounded-lg shadow-lg border border-theater-purple/20">
+    <div className="flex items-center gap-4 group">
+      <NavigationMenu className="relative mx-auto bg-background/80 backdrop-blur-md rounded-lg shadow-lg border border-theater-purple/20 transition-all duration-300 ease-in-out w-[3.5rem] group-hover:w-auto overflow-hidden">
         <NavigationMenuList className="px-4 py-2">
           {menuItems.map((item) => (
-            <NavigationMenuItem key={item.title}>
+            <NavigationMenuItem key={item.title} className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <NavigationMenuTrigger 
                 className="h-9 text-theater-purple hover:text-theater-gold hover:bg-theater-purple/10 data-[state=open]:bg-theater-purple/10 data-[state=open]:text-theater-gold"
               >
