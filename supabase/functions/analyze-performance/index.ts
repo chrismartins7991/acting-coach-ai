@@ -89,27 +89,33 @@ async function createJWT(credentials: any, scope: string) {
   const encodedHeader = base64UrlEncode(JSON.stringify(header));
   const encodedPayload = base64UrlEncode(JSON.stringify(payload));
   const signatureInput = `${encodedHeader}.${encodedPayload}`;
-  
-  // Convert private key to proper format
-  const privateKey = credentials.private_key
-    .replace(/\\n/g, '\n')
-    .replace(/-----BEGIN PRIVATE KEY-----\n/, '')
-    .replace(/\n-----END PRIVATE KEY-----/, '')
-    .trim();
-
-  // Convert base64 private key to binary array
-  const binaryKey = new Uint8Array(
-    atob(privateKey)
-      .split('')
-      .map(char => char.charCodeAt(0))
-  );
-  
-  const algorithm = {
-    name: 'RSASSA-PKCS1-v1_5',
-    hash: { name: 'SHA-256' },
-  };
 
   try {
+    // Clean and prepare the private key
+    const privateKeyPEM = credentials.private_key
+      .replace(/\\n/g, '\n')
+      .replace('-----BEGIN PRIVATE KEY-----\n', '')
+      .replace('\n-----END PRIVATE KEY-----', '')
+      .trim();
+
+    // Decode the base64 private key
+    let binaryKey;
+    try {
+      binaryKey = new Uint8Array(
+        atob(privateKeyPEM)
+          .split('')
+          .map(char => char.charCodeAt(0))
+      );
+    } catch (error) {
+      console.error("Error decoding private key:", error);
+      throw new Error(`Failed to decode private key: ${error.message}`);
+    }
+
+    const algorithm = {
+      name: 'RSASSA-PKCS1-v1_5',
+      hash: { name: 'SHA-256' },
+    };
+
     const cryptoKey = await crypto.subtle.importKey(
       'pkcs8',
       binaryKey,
@@ -128,19 +134,22 @@ async function createJWT(credentials: any, scope: string) {
     const encodedSignature = base64UrlEncode(
       String.fromCharCode(...new Uint8Array(signature))
     );
-    
+
     return `${signatureInput}.${encodedSignature}`;
   } catch (error) {
-    console.error("Error signing JWT:", error);
-    throw new Error(`Failed to sign JWT: ${error.message}`);
+    console.error("Error creating JWT:", error);
+    throw new Error(`Failed to create JWT: ${error.message}`);
   }
 }
 
-// Helper function to create base64url encoded strings
 function base64UrlEncode(str: string): string {
-  // First regular base64 encoding
-  const base64 = btoa(str);
-  // Convert to base64url encoding
+  let base64;
+  try {
+    base64 = btoa(str);
+  } catch (error) {
+    console.error("Error in base64 encoding:", error);
+    throw new Error(`Failed to encode string to base64: ${error.message}`);
+  }
   return base64
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
