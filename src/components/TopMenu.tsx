@@ -168,32 +168,38 @@ const DesktopMenu = () => {
 
   return (
     <div className="flex items-center gap-4 group">
-      <NavigationMenu className="relative mx-auto bg-background/80 backdrop-blur-md rounded-lg shadow-lg border border-theater-purple/20 transition-all duration-300 ease-in-out w-[3.5rem] group-hover:w-auto overflow-hidden">
-        <NavigationMenuList className="px-4 py-2">
-          {menuItems.map((item) => (
-            <NavigationMenuItem key={item.title} className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <NavigationMenuTrigger 
-                className="h-9 text-theater-purple hover:text-theater-gold hover:bg-theater-purple/10 data-[state=open]:bg-theater-purple/10 data-[state=open]:text-theater-gold"
+      <div className="relative flex items-center">
+        <Menu className="absolute left-4 z-10 h-5 w-5 text-theater-gold" />
+        <NavigationMenu className="relative mx-auto bg-background/80 backdrop-blur-md rounded-lg shadow-lg border border-theater-purple/20 transition-all duration-500 ease-in-out w-[3.5rem] group-hover:w-auto overflow-hidden pl-12">
+          <NavigationMenuList className="px-4 py-2">
+            {menuItems.map((item) => (
+              <NavigationMenuItem 
+                key={item.title} 
+                className="opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100"
               >
-                <item.icon className="h-4 w-4 mr-2" />
-                {item.title}
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 bg-background/95 backdrop-blur-md rounded-lg shadow-lg">
-                  <ListItem
-                    key={item.title}
-                    title={item.title}
-                    href={item.href}
-                    icon={item.icon}
-                  >
-                    {item.description}
-                  </ListItem>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          ))}
-        </NavigationMenuList>
-      </NavigationMenu>
+                <NavigationMenuTrigger 
+                  className="h-9 text-theater-purple hover:text-theater-gold hover:bg-theater-purple/10 data-[state=open]:bg-theater-purple/10 data-[state=open]:text-theater-gold"
+                >
+                  <item.icon className="h-4 w-4 mr-2" />
+                  {item.title}
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[400px] gap-3 p-4 bg-background/95 backdrop-blur-md rounded-lg shadow-lg">
+                    <ListItem
+                      key={item.title}
+                      title={item.title}
+                      href={item.href}
+                      icon={item.icon}
+                    >
+                      {item.description}
+                    </ListItem>
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            ))}
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
       <Button
         variant="outline"
         onClick={handleLogout}
