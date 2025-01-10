@@ -8,9 +8,49 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 
 export const DesktopMenu = () => {
-  const { toast } = useToast();
   const [isHovered, setIsHovered] = useState(false);
 
+  return (
+    <div 
+      className="relative group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <Menu className="h-6 w-6 text-theater-gold hover:text-theater-purple transition-colors duration-300 relative z-10" />
+      
+      <AnimatePresence>
+        {isHovered && (
+          <motion.div
+            initial={{ opacity: 0, scaleX: 0 }}
+            animate={{ opacity: 1, scaleX: 1 }}
+            exit={{ opacity: 0, scaleX: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-black/80 backdrop-blur-md rounded-lg border border-white/20 shadow-xl overflow-hidden"
+            style={{ transformOrigin: "center" }}
+          >
+            <div className="flex items-center gap-2 p-2 whitespace-nowrap">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.title}
+                  to={item.href}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white/10 transition-colors"
+                >
+                  <item.icon className="h-5 w-5 text-theater-gold" />
+                  <span className="text-white">{item.title}</span>
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+// Separate logout component for top-right positioning
+DesktopMenu.Logout = function DesktopMenuLogout() {
+  const { toast } = useToast();
+  
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
@@ -29,59 +69,13 @@ export const DesktopMenu = () => {
   };
 
   return (
-    <div className="flex items-center gap-4">
-      <div 
-        className="relative group"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <Menu className="h-6 w-6 text-theater-gold hover:text-theater-purple transition-colors duration-300 relative z-10" />
-        
-        <AnimatePresence>
-          {isHovered && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, x: "-50%" }}
-              animate={{ opacity: 1, scale: 1, x: "-50%" }}
-              exit={{ opacity: 0, scale: 0.95, x: "-50%" }}
-              transition={{ duration: 0.2 }}
-              className="absolute top-full left-1/2 mt-2 bg-black/80 backdrop-blur-md rounded-lg border border-white/20 shadow-xl overflow-hidden origin-top"
-              style={{ width: "600px", transformOrigin: "top center" }}
-            >
-              <div className="grid grid-cols-3 gap-2 p-4">
-                {menuItems.map((item) => (
-                  <Link
-                    key={item.title}
-                    to={item.href}
-                    className="relative overflow-hidden rounded-lg p-3 hover:bg-white/10 transition-colors group/item"
-                  >
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="flex items-start gap-3"
-                    >
-                      <item.icon className="h-5 w-5 text-theater-gold" />
-                      <div>
-                        <div className="font-medium text-white">{item.title}</div>
-                        <p className="text-sm text-white/60">{item.description}</p>
-                      </div>
-                    </motion.div>
-                  </Link>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      <Button
-        variant="outline"
-        onClick={handleLogout}
-        className="text-white border-white/20 hover:text-theater-gold hover:bg-white/10 bg-black/30 backdrop-blur-md"
-      >
-        <LogOut className="h-4 w-4 mr-2" />
-        Logout
-      </Button>
-    </div>
+    <Button
+      variant="outline"
+      onClick={handleLogout}
+      className="text-white border-white/20 hover:text-theater-gold hover:bg-white/10 bg-black/30 backdrop-blur-md"
+    >
+      <LogOut className="h-4 w-4 mr-2" />
+      Logout
+    </Button>
   );
 };

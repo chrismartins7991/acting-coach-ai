@@ -6,8 +6,15 @@ export const TopMenu = () => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
-      {isMobile ? <MobileMenu /> : <DesktopMenu />}
-    </div>
+    <>
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+        {isMobile ? <MobileMenu /> : <DesktopMenu />}
+      </div>
+      {!isMobile && (
+        <div className="fixed top-4 right-4 z-50">
+          <DesktopMenu.Logout />
+        </div>
+      )}
+    </>
   );
 };
