@@ -13,15 +13,10 @@ import { Chat } from "@/components/Chat";
 import { SparklesCore } from "@/components/ui/sparkles";
 
 const Dashboard = () => {
-  const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { isAnalyzing } = useVideoAnalysis();
   const [currentAnalysis, setCurrentAnalysis] = useState(null);
-
-  if (!user) {
-    return <Navigate to="/" replace />;
-  }
 
   const handleViewHistory = () => {
     navigate('/history');

@@ -1,19 +1,41 @@
 import { motion } from "framer-motion";
-import { AuthModal } from "./AuthModal";
 import { Button } from "./ui/button";
+import { useNavigate } from "react-router-dom";
+import { SparklesCore } from "./ui/sparkles";
 
 export const Hero = () => {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    navigate('/dashboard');
+  };
+
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-br from-theater-purple via-black to-theater-red">
       <div className="absolute inset-0 bg-[url('/lovable-uploads/67fe6e0d-76fa-4723-8927-0f8ecb2f2409.png')] opacity-10 bg-center bg-cover" />
       
+      {/* Particles animation */}
+      <div className="absolute inset-0">
+        <SparklesCore
+          background="transparent"
+          minSize={0.4}
+          maxSize={1}
+          particleDensity={100}
+          className="w-full h-full"
+          particleColor="#FFD700"
+        />
+      </div>
+      
       {/* Login button positioned in upper right */}
       <div className="absolute top-4 right-4 z-10">
-        <AuthModal 
-          buttonText="Login" 
-          variant="outline" 
+        <Button 
+          onClick={handleLogin}
+          size="lg"
+          variant="outline"
           className="bg-black/30 hover:bg-white/20 text-white border-white/50 hover:border-white"
-        />
+        >
+          Login
+        </Button>
       </div>
 
       <div className="relative w-full flex items-center justify-center min-h-screen px-4 py-12 sm:py-32">
@@ -33,7 +55,7 @@ export const Hero = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl leading-7 sm:leading-8 text-gray-300 mb-8 sm:mb-12 px-4"
           >
-            Master your craft with personalized feedback based on Stanislavski, Brecht, and Chekhov methods.
+            Master your craft with personalized feedback based on Stanislavski, Brecht, Lee Strasberg and Chekhov methods.
           </motion.p>
           
           <motion.div 
@@ -42,7 +64,13 @@ export const Hero = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
           >
-            <AuthModal buttonText="Start Free Trial" variant="primary" />
+            <Button 
+              onClick={handleLogin}
+              size="lg"
+              className="bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
+            >
+              Start Free Trial
+            </Button>
             <Button 
               variant="link" 
               className="text-white hover:text-theater-gold"
