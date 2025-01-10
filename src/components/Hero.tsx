@@ -14,18 +14,6 @@ export const Hero = () => {
     <div className="relative min-h-screen w-full bg-gradient-to-br from-theater-purple via-black to-theater-red">
       <div className="absolute inset-0 bg-[url('/lovable-uploads/67fe6e0d-76fa-4723-8927-0f8ecb2f2409.png')] opacity-10 bg-center bg-cover" />
       
-      {/* Particles animation */}
-      <div className="absolute inset-0">
-        <SparklesCore
-          background="transparent"
-          minSize={0.4}
-          maxSize={1}
-          particleDensity={100}
-          className="w-full h-full"
-          particleColor="#FFD700"
-        />
-      </div>
-      
       {/* Login button positioned in upper right */}
       <div className="absolute top-4 right-4 z-10">
         <Button 
@@ -48,6 +36,22 @@ export const Hero = () => {
           >
             Your AI Acting Coach
           </motion.h1>
+          
+          {/* Lighting line effect */}
+          <div className="relative w-full h-[60px] mb-6">
+            <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-[2px] w-1/2 blur-sm" />
+            <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-px w-1/2" />
+            
+            {/* Subtle particles below title */}
+            <SparklesCore
+              background="transparent"
+              minSize={0.2}
+              maxSize={0.6}
+              particleDensity={40}
+              className="w-full h-full"
+              particleColor="#FFD700"
+            />
+          </div>
           
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
