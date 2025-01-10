@@ -21,21 +21,19 @@ export const DesktopMenu = () => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Menu className="h-6 w-6 text-theater-gold hover:text-theater-purple transition-colors duration-300" />
-      
       <AnimatePresence>
-        {isHovered && (
+        {isHovered ? (
           <motion.div
             initial={{ opacity: 0, scaleX: 0 }}
             animate={{ opacity: 1, scaleX: 1 }}
             exit={{ opacity: 0, scaleX: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="absolute top-0 left-1/2 -translate-x-1/2 h-full"
+            className="absolute left-1/2 -translate-x-1/2 h-10"
             style={{ transformOrigin: "center" }}
           >
-            <div className="flex items-center h-full bg-black/30 backdrop-blur-sm rounded-lg px-4">
+            <div className="flex items-center h-full bg-black/30 backdrop-blur-sm rounded-lg">
               {/* Left side items */}
-              <div className="flex items-center gap-6 h-full">
+              <div className="flex items-center gap-6 h-full pl-4">
                 {leftItems.map((item) => (
                   <Link
                     key={item.title}
@@ -48,11 +46,13 @@ export const DesktopMenu = () => {
                 ))}
               </div>
 
-              {/* Center divider */}
-              <div className="w-6" />
+              {/* Center hamburger icon */}
+              <div className="px-4">
+                <Menu className="h-6 w-6 text-theater-gold" />
+              </div>
 
               {/* Right side items */}
-              <div className="flex items-center gap-6 h-full">
+              <div className="flex items-center gap-6 h-full pr-4">
                 {rightItems.map((item) => (
                   <Link
                     key={item.title}
@@ -66,6 +66,8 @@ export const DesktopMenu = () => {
               </div>
             </div>
           </motion.div>
+        ) : (
+          <Menu className="h-6 w-6 text-theater-gold hover:text-theater-purple transition-colors duration-300" />
         )}
       </AnimatePresence>
     </div>
