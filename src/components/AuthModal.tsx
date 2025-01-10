@@ -47,11 +47,6 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
         setError(null);
       }
 
-      if (event === 'USER_DELETED') {
-        setError('Account not found. Please check your credentials.');
-        return;
-      }
-
       if (event === 'PASSWORD_RECOVERY') {
         toast({
           title: "Password reset requested",
@@ -78,15 +73,12 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
           break;
         case 'USER_UPDATED':
           toast({
-            title: "Email confirmed",
-            description: "Your email has been confirmed.",
+            title: "Profile updated",
+            description: "Your profile has been updated successfully.",
           });
           break;
         case 'TOKEN_REFRESHED':
-          toast({
-            title: "Account created",
-            description: "Please check your email to confirm your account.",
-          });
+          console.log('Auth token refreshed');
           break;
       }
     });
@@ -96,7 +88,7 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
     };
   }, [navigate, toast, isOpen]);
 
-  const handleError = (error: AuthError) => {
+  const handleAuthError = (error: AuthError) => {
     console.error('Auth error:', error);
     let errorMessage = 'An error occurred during authentication.';
     
@@ -118,6 +110,24 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
     
     setError(errorMessage);
   };
+
+  // Set up auth state change listener for error handling
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        // Check for auth errors when session is null
+        supabase.auth.getSession().then(({ error }) => {
+          if (error) {
+            handleAuthError(error);
+          }
+        });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const buttonStyle = variant === "primary" 
     ? "bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
@@ -160,7 +170,6 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
           providers={['google']}
           redirectTo={`${window.location.origin}/auth/callback`}
           onlyThirdPartyProviders={false}
-          onError={handleError}
           localization={{
             variables: {
               sign_up: {
