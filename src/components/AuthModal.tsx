@@ -8,7 +8,12 @@ import { useToast } from './ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { AuthChangeEvent } from '@supabase/supabase-js';
 
-export const AuthModal = () => {
+interface AuthModalProps {
+  buttonText: string;
+  variant?: "primary" | "outline";
+}
+
+export const AuthModal = ({ buttonText, variant = "primary" }: AuthModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -66,14 +71,19 @@ export const AuthModal = () => {
     }
   });
 
+  const buttonStyle = variant === "primary" 
+    ? "bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
+    : "border-2 border-white text-white hover:bg-white/10";
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button 
           size="lg"
-          className="bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
+          variant={variant === "primary" ? "default" : "outline"}
+          className={buttonStyle}
         >
-          Start Free Trial
+          {buttonText}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

@@ -33,7 +33,8 @@ export const Hero = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-6"
           >
-            <AuthModal />
+            <AuthModal buttonText="Start Free Trial" variant="primary" />
+            <AuthModal buttonText="Login" variant="outline" />
             <Button 
               variant="link" 
               className="text-white hover:text-theater-gold"
