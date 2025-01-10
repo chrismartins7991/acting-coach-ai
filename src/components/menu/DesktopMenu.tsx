@@ -10,6 +10,11 @@ import { useState } from "react";
 export const DesktopMenu = () => {
   const [isHovered, setIsHovered] = useState(false);
 
+  // Split menu items into left and right sides
+  const midPoint = Math.floor(menuItems.length / 2);
+  const leftItems = menuItems.slice(0, midPoint);
+  const rightItems = menuItems.slice(midPoint);
+
   return (
     <div 
       className="relative"
@@ -25,16 +30,34 @@ export const DesktopMenu = () => {
             animate={{ opacity: 1, scaleX: 1 }}
             exit={{ opacity: 0, scaleX: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="absolute top-full left-1/2 -translate-x-1/2 mt-2"
+            className="absolute top-1/2 left-1/2 -translate-y-1/2 min-w-[800px]"
             style={{ transformOrigin: "center" }}
           >
-            <div className="flex items-center justify-center bg-black/80 backdrop-blur-md rounded-lg border border-white/20 shadow-xl">
-              <div className="flex items-center gap-4 px-6 py-2">
-                {menuItems.map((item) => (
+            <div className="flex items-center justify-center">
+              {/* Left side items */}
+              <div className="flex items-center justify-end gap-4 flex-1 pr-8">
+                {leftItems.map((item) => (
                   <Link
                     key={item.title}
                     to={item.href}
-                    className="flex items-center gap-2 rounded-lg hover:bg-white/10 transition-colors px-3 py-2"
+                    className="flex items-center gap-2 rounded-lg hover:bg-black/30 backdrop-blur-sm transition-colors px-3 py-2"
+                  >
+                    <item.icon className="h-5 w-5 text-theater-gold" />
+                    <span className="text-white whitespace-nowrap">{item.title}</span>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Center divider */}
+              <div className="w-6" /> {/* Space for the hamburger icon */}
+
+              {/* Right side items */}
+              <div className="flex items-center justify-start gap-4 flex-1 pl-8">
+                {rightItems.map((item) => (
+                  <Link
+                    key={item.title}
+                    to={item.href}
+                    className="flex items-center gap-2 rounded-lg hover:bg-black/30 backdrop-blur-sm transition-colors px-3 py-2"
                   >
                     <item.icon className="h-5 w-5 text-theater-gold" />
                     <span className="text-white whitespace-nowrap">{item.title}</span>
