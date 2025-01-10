@@ -14,9 +14,10 @@ export const useVideoUpload = (userId: string, onAnalysisComplete: (analysis: an
       console.log("Starting video upload and analysis...");
 
       // Extract frames and audio
+      console.log("Extracting frames and audio from video on client side...");
       const { frames, audioBlob } = await extractFramesFromVideo(file);
       
-      if (frames.length < 3) {
+      if (!frames || frames.length < 3) {
         throw new Error("Failed to extract enough frames from video");
       }
 

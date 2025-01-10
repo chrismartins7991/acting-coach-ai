@@ -40,25 +40,23 @@ serve(async (req) => {
 
     console.log("Starting frame and audio analysis process...");
 
-    // Analyze frames with OpenAI Vision
+    // Process frames in smaller batches
     const framePositions = ['beginning', 'middle', 'end'];
-    const frameAnalyses = await Promise.all(
-      frames.map((frame, index) => {
-        console.log(`Analyzing frame ${index + 1}/${frames.length}`);
-        return analyzeFrameWithOpenAI(frame, framePositions[index]);
-      })
-    );
-    console.log("OpenAI frame analyses completed");
+    const frameAnalysisPromises = frames.map((frame, index) => {
+      console.log(`Analyzing frame ${index + 1}/${frames.length}`);
+      return analyzeFrameWithOpenAI(frame, framePositions[index]);
+    });
 
-    // Process audio
+    // Process audio separately
     console.log("Starting audio analysis...");
     
     // Convert base64 audio to blob
     const audioBlob = Uint8Array.from(atob(audio), c => c.charCodeAt(0));
     console.log("Audio blob size:", audioBlob.length);
 
-    // Parallel processing of audio
-    const [whisperResult, googleCloudResult] = await Promise.all([
+    // Parallel processing of frames and audio
+    const [frameResults, whisperResult, googleCloudResult] = await Promise.all([
+      Promise.all(frameAnalysisPromises),
       // Whisper Transcription
       (async () => {
         console.log("Starting Whisper transcription...");
@@ -94,55 +92,15 @@ serve(async (req) => {
       })()
     ]);
 
-    console.log("Audio analysis completed");
-
-    // Analyze speech content with GPT-4
-    console.log("Starting GPT-4 speech analysis...");
-    const speechAnalysisResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: 'Analyze the following speech transcript and audio characteristics for an acting performance. Consider vocal delivery, emotional expression, clarity, and technical aspects. Provide detailed feedback.'
-          },
-          {
-            role: 'user',
-            content: `
-              Transcript: ${whisperResult.text}
-              
-              Audio Characteristics:
-              - Emotion: ${googleCloudResult.emotion}
-              - Speaking Rate: ${googleCloudResult.speakingRate} words/minute
-              - Volume Variation: ${JSON.stringify(googleCloudResult.volumeVariation)}
-              - Pitch Analysis: ${JSON.stringify(googleCloudResult.pitch)}
-            `
-          }
-        ],
-      }),
-    });
-
-    if (!speechAnalysisResponse.ok) {
-      const error = await speechAnalysisResponse.text();
-      console.error("GPT-4 API error:", error);
-      throw new Error(`Failed to analyze speech: ${error}`);
-    }
-
-    const speechAnalysis = await speechAnalysisResponse.json();
-    console.log("Speech analysis completed");
+    console.log("All analyses completed, aggregating results...");
 
     // Combine all analyses
     const combinedAnalysis = {
-      ...aggregateAnalyses(frameAnalyses),
+      ...aggregateAnalyses(frameResults),
       audio: {
         transcript: whisperResult.text,
         characteristics: googleCloudResult,
-        analysis: speechAnalysis.choices[0].message.content
+        analysis: await analyzeAudioContent(whisperResult.text, googleCloudResult)
       }
     };
 
@@ -177,3 +135,43 @@ serve(async (req) => {
     );
   }
 });
+
+async function analyzeAudioContent(transcript: string, audioCharacteristics: any) {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'Analyze the following speech transcript and audio characteristics for an acting performance. Consider vocal delivery, emotional expression, clarity, and technical aspects. Provide detailed feedback.'
+        },
+        {
+          role: 'user',
+          content: `
+            Transcript: ${transcript}
+            
+            Audio Characteristics:
+            - Emotion: ${audioCharacteristics.emotion}
+            - Speaking Rate: ${audioCharacteristics.speakingRate} words/minute
+            - Volume Variation: ${JSON.stringify(audioCharacteristics.volumeVariation)}
+            - Pitch Analysis: ${JSON.stringify(audioCharacteristics.pitch)}
+          `
+        }
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    console.error("GPT-4 API error:", error);
+    throw new Error(`Failed to analyze speech: ${error}`);
+  }
+
+  const result = await response.json();
+  return result.choices[0].message.content;
+}
