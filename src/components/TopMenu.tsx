@@ -31,7 +31,7 @@ const menuItems = [
   },
   {
     title: "History",
-    href: "/dashboard/history",
+    href: "/history",  // Updated this path to match the route in App.tsx
     icon: History,
     description: "View your past performances and feedback",
   },
