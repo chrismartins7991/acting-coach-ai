@@ -8,6 +8,9 @@ import { TopMenu } from "@/components/TopMenu";
 import { PerformanceAnalysis } from "@/components/PerformanceAnalysis";
 import { Analysis } from "@/utils/videoAnalysis/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface Performance {
   id: string;
@@ -53,8 +56,8 @@ const History = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red">
         <TopMenu />
-        <div className="container mx-auto px-4 py-8 pt-32">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="container mx-auto px-4 py-8 pt-32 max-w-7xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
               <Skeleton key={i} className="h-48 w-full" />
             ))}
@@ -67,42 +70,58 @@ const History = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red">
       <TopMenu />
-      <div className="container mx-auto px-4 py-8 pt-32">
-        <h1 className="text-3xl font-bold text-white mb-8">Performance History</h1>
+      <div className="container mx-auto px-4 py-8 pt-32 max-w-7xl">
+        <div className="flex items-center gap-4 mb-8">
+          {selectedPerformance && (
+            <Button
+              variant="ghost"
+              onClick={() => setSelectedPerformance(null)}
+              className="text-white hover:text-theater-gold hover:bg-white/10"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to History
+            </Button>
+          )}
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
+            {selectedPerformance ? selectedPerformance.title : "Performance History"}
+          </h1>
+        </div>
         
         {selectedPerformance ? (
-          <div className="mb-8">
-            <button
-              onClick={() => setSelectedPerformance(null)}
-              className="mb-4 text-white hover:text-theater-gold"
-            >
-              ← Back to History
-            </button>
-            <h2 className="text-2xl font-bold text-white mb-4">{selectedPerformance.title}</h2>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10"
+          >
             <PerformanceAnalysis analysis={selectedPerformance.ai_feedback} />
-          </div>
+          </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {performances.map((performance) => (
-              <Card
+              <motion.div
                 key={performance.id}
-                className="cursor-pointer hover:scale-105 transition-transform duration-200"
-                onClick={() => setSelectedPerformance(performance)}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
               >
-                <CardHeader>
-                  <CardTitle>{performance.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    {format(new Date(performance.created_at), "PPpp")}
-                  </p>
-                  <div className="mt-4">
-                    <div className="text-lg font-semibold">
-                      Score: {performance.ai_feedback.overallScore}%
+                <Card
+                  className="cursor-pointer hover:scale-105 transition-transform duration-200 bg-black/30 backdrop-blur-sm border-white/10"
+                  onClick={() => setSelectedPerformance(performance)}
+                >
+                  <CardHeader>
+                    <CardTitle className="text-white">{performance.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-white/60">
+                      {format(new Date(performance.created_at), "PPpp")}
+                    </p>
+                    <div className="mt-4">
+                      <div className="text-lg font-semibold text-theater-gold">
+                        Score: {performance.ai_feedback.overallScore}%
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         )}
