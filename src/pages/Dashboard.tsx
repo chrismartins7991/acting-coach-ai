@@ -1,5 +1,4 @@
-import { useAuth } from "@/contexts/AuthContext";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Camera, History } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -38,6 +37,9 @@ const Dashboard = () => {
       onClick: handleViewHistory,
     },
   ];
+
+  // Since authentication is temporarily disabled, we'll use a placeholder user ID
+  const temporaryUserId = "temp-user-id";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red relative overflow-hidden">
@@ -103,7 +105,7 @@ const Dashboard = () => {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <VideoUpload
-                  userId={user.id}
+                  userId={temporaryUserId}
                   onAnalysisComplete={setCurrentAnalysis}
                   isAnalyzing={isAnalyzing}
                 />
