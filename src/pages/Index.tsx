@@ -3,7 +3,6 @@ import { Features } from "@/components/Features";
 import { WhyUseSection } from "@/components/WhyUseSection";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { SparklesCore } from "@/components/ui/sparkles";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -33,23 +32,6 @@ const Index = () => {
           <Features />
           <WhyUseSection />
         </div>
-        
-        <motion.div 
-          className="fixed inset-0 pointer-events-none z-50"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1 }}
-        >
-          <SparklesCore
-            background="transparent"
-            minSize={0.2}
-            maxSize={0.8}
-            particleDensity={70}
-            className="w-full h-full"
-            particleColor="#FFD700"
-          />
-        </motion.div>
       </motion.main>
     </AnimatePresence>
   );
