@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Camera, History } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -15,6 +15,7 @@ import { Chat } from "@/components/Chat";
 const Dashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { isAnalyzing } = useVideoAnalysis();
   const [currentAnalysis, setCurrentAnalysis] = useState(null);
 
@@ -39,18 +40,24 @@ const Dashboard = () => {
     }
   };
 
+  const handleViewHistory = () => {
+    navigate('/history');
+  };
+
   const features = [
     {
       title: "Record Performance",
       description: "Use your camera to record a new performance",
       icon: Camera,
       color: "from-theater-purple to-theater-gold",
+      onClick: () => console.log("Record performance clicked"),
     },
     {
       title: "View History",
       description: "Review your past performances and feedback",
       icon: History,
       color: "from-theater-purple to-theater-gold",
+      onClick: handleViewHistory,
     },
   ];
 
