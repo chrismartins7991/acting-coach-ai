@@ -20,6 +20,10 @@ import { Button } from "./ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "./ui/use-toast";
+import { useCallback } from "react";
+import Particles from "@tsparticles/react";
+import { loadSlim } from "@tsparticles/slim";
+import type { Container, Engine } from "@tsparticles/engine";
 
 const menuItems = [
   {
@@ -149,6 +153,10 @@ const MobileMenu = () => {
 const DesktopMenu = () => {
   const { toast } = useToast();
   
+  const particlesInit = useCallback(async (engine: Engine) => {
+    await loadSlim(engine);
+  }, []);
+
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
@@ -167,11 +175,61 @@ const DesktopMenu = () => {
   };
 
   return (
-    <div className="flex items-center gap-4 group">
-      <div className="relative flex items-center">
-        <Menu className="h-6 w-6 text-theater-gold hover:text-theater-purple transition-colors duration-300" />
-        <NavigationMenu className="absolute left-0 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-md rounded-lg shadow-lg border border-theater-purple/20 transition-all duration-500 ease-in-out w-0 group-hover:w-auto overflow-hidden opacity-0 group-hover:opacity-100 invisible group-hover:visible pl-10">
-          <NavigationMenuList className="px-4 py-2">
+    <div className="flex items-center gap-4 group relative">
+      <div className="absolute inset-0 w-screen h-screen pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+        <Particles
+          id="tsparticles"
+          init={particlesInit}
+          options={{
+            particles: {
+              color: {
+                value: "#FFD700",
+              },
+              number: {
+                density: {
+                  enable: true,
+                  area: 800,
+                },
+                value: 30,
+              },
+              opacity: {
+                value: { min: 0.1, max: 0.5 },
+              },
+              shape: {
+                type: "circle",
+              },
+              size: {
+                value: { min: 1, max: 3 },
+              },
+              move: {
+                enable: true,
+                direction: "none",
+                speed: 2,
+                random: true,
+                straight: false,
+                outModes: {
+                  default: "out",
+                },
+              },
+            },
+            detectRetina: true,
+            fpsLimit: 60,
+            fullScreen: {
+              enable: false,
+              zIndex: 1,
+            },
+            background: {
+              color: {
+                value: "transparent",
+              },
+            },
+          }}
+        />
+      </div>
+      <div className="relative flex items-center justify-center">
+        <Menu className="h-6 w-6 text-theater-gold hover:text-theater-purple transition-colors duration-300 z-20" />
+        <NavigationMenu className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background/40 backdrop-blur-md rounded-lg shadow-lg border border-theater-purple/20 transition-all duration-700 ease-in-out w-0 group-hover:w-[600px] overflow-hidden opacity-0 group-hover:opacity-100 invisible group-hover:visible">
+          <NavigationMenuList className="px-4 py-2 flex justify-center">
             {menuItems.map((item) => (
               <NavigationMenuItem 
                 key={item.title} 
@@ -203,7 +261,7 @@ const DesktopMenu = () => {
       <Button
         variant="outline"
         onClick={handleLogout}
-        className="text-white border-white/20 hover:text-theater-gold hover:bg-white/10 bg-black/30"
+        className="text-white border-white/20 hover:text-theater-gold hover:bg-white/10 bg-black/30 z-20"
       >
         <LogOut className="h-4 w-4 mr-2" />
         Logout
