@@ -63,6 +63,11 @@ export const useChat = () => {
   const saveMessage = async (message: Message, conversationId: string) => {
     console.log('Saving message:', { message, conversationId });
     
+    if (!conversationId) {
+      console.error('No conversation ID provided');
+      throw new Error('No conversation ID provided');
+    }
+
     // First verify the conversation exists and belongs to the user
     const { data: conversation, error: conversationError } = await supabase
       .from('conversations')
@@ -73,7 +78,7 @@ export const useChat = () => {
 
     if (conversationError || !conversation) {
       console.error('Error verifying conversation ownership:', conversationError);
-      return;
+      throw new Error('Failed to verify conversation ownership');
     }
 
     const { error } = await supabase
@@ -105,17 +110,21 @@ export const useChat = () => {
         const newConversationId = await createNewConversation(content);
         if (!newConversationId) {
           console.error('Failed to create new conversation');
-          setIsLoading(false);
-          return;
+          throw new Error('Failed to create new conversation');
         }
         console.log('Setting current conversation ID:', newConversationId);
         setCurrentConversationId(newConversationId);
+        
+        // Add and save user message with the new conversation ID
+        const newUserMessage = { role: 'user' as const, content };
+        setMessages(prev => [...prev, newUserMessage]);
+        await saveMessage(newUserMessage, newConversationId);
+      } else {
+        // Add and save user message with existing conversation ID
+        const newUserMessage = { role: 'user' as const, content };
+        setMessages(prev => [...prev, newUserMessage]);
+        await saveMessage(newUserMessage, currentConversationId);
       }
-
-      // Add and save user message
-      const newUserMessage = { role: 'user' as const, content };
-      setMessages(prev => [...prev, newUserMessage]);
-      await saveMessage(newUserMessage, currentConversationId!);
 
       // Get AI response
       const { data, error } = await supabase.functions.invoke('chat', {
