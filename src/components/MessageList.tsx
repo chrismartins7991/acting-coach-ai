@@ -1,4 +1,5 @@
 import { ScrollArea } from "./ui/scroll-area";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -10,6 +11,8 @@ interface MessageListProps {
 }
 
 export const MessageList = ({ messages }: MessageListProps) => {
+  const isMobile = useIsMobile();
+
   return (
     <ScrollArea className="flex-1 p-4">
       <div className="space-y-4">
@@ -21,7 +24,7 @@ export const MessageList = ({ messages }: MessageListProps) => {
             }`}
           >
             <div
-              className={`max-w-[80%] rounded-lg p-3 ${
+              className={`${isMobile ? 'max-w-[90%]' : 'max-w-[80%]'} rounded-lg p-3 ${
                 message.role === 'user'
                   ? 'bg-theater-purple text-white ml-4'
                   : 'bg-theater-gold/10 text-theater-gold mr-4'

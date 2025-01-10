@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Conversation {
   id: string;
@@ -17,6 +18,7 @@ interface ChatHistoryProps {
 
 export const ChatHistory = ({ onSelectConversation, currentConversationId }: ChatHistoryProps) => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     loadConversations();
@@ -37,7 +39,7 @@ export const ChatHistory = ({ onSelectConversation, currentConversationId }: Cha
   };
 
   return (
-    <ScrollArea className="h-[500px] w-64 rounded-lg border border-theater-purple/20">
+    <ScrollArea className={`${isMobile ? 'h-[300px]' : 'h-[500px]'} w-full md:w-64 rounded-lg border border-theater-purple/20`}>
       <div className="p-4 space-y-2">
         <h3 className="font-semibold text-theater-gold mb-4">Chat History</h3>
         <Button
