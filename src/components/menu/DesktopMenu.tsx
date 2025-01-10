@@ -17,11 +17,11 @@ export const DesktopMenu = () => {
 
   return (
     <div 
-      className="relative"
+      className="relative inline-flex items-center"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Menu className="h-6 w-6 text-theater-gold hover:text-theater-purple transition-colors duration-300 relative z-10" />
+      <Menu className="h-6 w-6 text-theater-gold hover:text-theater-purple transition-colors duration-300" />
       
       <AnimatePresence>
         {isHovered && (
@@ -30,17 +30,17 @@ export const DesktopMenu = () => {
             animate={{ opacity: 1, scaleX: 1 }}
             exit={{ opacity: 0, scaleX: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-            style={{ transformOrigin: "center", width: "max-content" }}
+            className="absolute top-0 left-1/2 -translate-x-1/2 h-full"
+            style={{ transformOrigin: "center" }}
           >
-            <div className="flex items-center justify-center bg-black/30 backdrop-blur-sm rounded-lg px-4">
+            <div className="flex items-center h-full bg-black/30 backdrop-blur-sm rounded-lg px-4">
               {/* Left side items */}
-              <div className="flex items-center justify-end gap-6">
+              <div className="flex items-center gap-6 h-full">
                 {leftItems.map((item) => (
                   <Link
                     key={item.title}
                     to={item.href}
-                    className="flex items-center gap-2 rounded-lg hover:bg-black/30 transition-colors px-3 py-2 whitespace-nowrap"
+                    className="flex items-center gap-2 rounded-lg hover:bg-black/30 transition-colors px-3 py-2 whitespace-nowrap h-full"
                   >
                     <item.icon className="h-5 w-5 text-theater-gold" />
                     <span className="text-white">{item.title}</span>
@@ -49,15 +49,15 @@ export const DesktopMenu = () => {
               </div>
 
               {/* Center divider */}
-              <div className="w-6" /> {/* Space for the hamburger icon */}
+              <div className="w-6" />
 
               {/* Right side items */}
-              <div className="flex items-center justify-start gap-6">
+              <div className="flex items-center gap-6 h-full">
                 {rightItems.map((item) => (
                   <Link
                     key={item.title}
                     to={item.href}
-                    className="flex items-center gap-2 rounded-lg hover:bg-black/30 transition-colors px-3 py-2 whitespace-nowrap"
+                    className="flex items-center gap-2 rounded-lg hover:bg-black/30 transition-colors px-3 py-2 whitespace-nowrap h-full"
                   >
                     <item.icon className="h-5 w-5 text-theater-gold" />
                     <span className="text-white">{item.title}</span>
