@@ -2,7 +2,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Camera, History } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
 import { TopMenu } from "@/components/TopMenu";
 import { useState } from "react";
@@ -22,23 +21,6 @@ const Dashboard = () => {
   if (!user) {
     return <Navigate to="/" replace />;
   }
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Logged out successfully",
-        description: "Come back soon!",
-      });
-    } catch (error) {
-      console.error("Error logging out:", error);
-      toast({
-        title: "Error logging out",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleViewHistory = () => {
     navigate('/history');
@@ -66,18 +48,9 @@ const Dashboard = () => {
       <TopMenu />
       
       <div className="container mx-auto px-4 py-8 pt-32 max-w-7xl">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
-            Welcome to Your Acting Studio
-          </h1>
-          <Button 
-            variant="outline" 
-            onClick={handleLogout}
-            className="text-white border-white/20 hover:text-theater-gold hover:bg-white/10 bg-black/30"
-          >
-            Logout
-          </Button>
-        </div>
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-8">
+          Welcome to Your Acting Studio
+        </h1>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           <div className="space-y-8">

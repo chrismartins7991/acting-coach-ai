@@ -7,7 +7,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
-import { Camera, FileVideo, History, Home, Menu, User, Settings, MessageSquare } from "lucide-react";
+import { Camera, FileVideo, History, Home, Menu, User, Settings, MessageSquare, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -16,6 +16,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "./ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "./ui/use-toast";
 
 const menuItems = [
   {
@@ -86,59 +90,121 @@ const ListItem = ({ className, title, href, children, icon: Icon }: any) => {
   );
 };
 
-const MobileMenu = () => (
-  <DropdownMenu>
-    <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg bg-background/80 px-4 py-2 text-theater-purple hover:text-theater-gold hover:bg-theater-purple/10">
-      <Menu className="h-5 w-5" />
-      <span>Menu</span>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent className="w-64 bg-background/95 backdrop-blur-md">
-      {menuItems.map((item) => (
-        <DropdownMenuItem key={item.title} asChild>
-          <Link
-            to={item.href}
-            className="flex items-center gap-2 p-2 hover:bg-theater-purple/10 hover:text-theater-gold"
-          >
-            <item.icon className="h-4 w-4" />
-            <div>
-              <div className="font-medium">{item.title}</div>
-              <p className="text-xs text-muted-foreground">{item.description}</p>
-            </div>
-          </Link>
-        </DropdownMenuItem>
-      ))}
-    </DropdownMenuContent>
-  </DropdownMenu>
-);
+const MobileMenu = () => {
+  const { toast } = useToast();
+  
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Logged out successfully",
+        description: "Come back soon!",
+      });
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast({
+        title: "Error logging out",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
 
-const DesktopMenu = () => (
-  <NavigationMenu className="relative mx-auto bg-background/80 backdrop-blur-md rounded-lg shadow-lg border border-theater-purple/20">
-    <NavigationMenuList className="px-4 py-2">
-      {menuItems.map((item) => (
-        <NavigationMenuItem key={item.title}>
-          <NavigationMenuTrigger 
-            className="h-9 text-theater-purple hover:text-theater-gold hover:bg-theater-purple/10 data-[state=open]:bg-theater-purple/10 data-[state=open]:text-theater-gold"
-          >
-            <item.icon className="h-4 w-4 mr-2" />
-            {item.title}
-          </NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[400px] gap-3 p-4 bg-background/95 backdrop-blur-md rounded-lg shadow-lg">
-              <ListItem
-                key={item.title}
-                title={item.title}
-                href={item.href}
-                icon={item.icon}
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg bg-background/80 px-4 py-2 text-theater-purple hover:text-theater-gold hover:bg-theater-purple/10">
+        <Menu className="h-5 w-5" />
+        <span>Menu</span>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-64 bg-background/95 backdrop-blur-md">
+        {menuItems.map((item) => (
+          <DropdownMenuItem key={item.title} asChild>
+            <Link
+              to={item.href}
+              className="flex items-center gap-2 p-2 hover:bg-theater-purple/10 hover:text-theater-gold"
+            >
+              <item.icon className="h-4 w-4" />
+              <div>
+                <div className="font-medium">{item.title}</div>
+                <p className="text-xs text-muted-foreground">{item.description}</p>
+              </div>
+            </Link>
+          </DropdownMenuItem>
+        ))}
+        <DropdownMenuItem 
+          onClick={handleLogout}
+          className="flex items-center gap-2 p-2 hover:bg-theater-purple/10 hover:text-theater-gold text-theater-red"
+        >
+          <LogOut className="h-4 w-4" />
+          <div>
+            <div className="font-medium">Logout</div>
+            <p className="text-xs text-muted-foreground">Sign out of your account</p>
+          </div>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+const DesktopMenu = () => {
+  const { toast } = useToast();
+  
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast({
+        title: "Logged out successfully",
+        description: "Come back soon!",
+      });
+    } catch (error) {
+      console.error("Error logging out:", error);
+      toast({
+        title: "Error logging out",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-4">
+      <NavigationMenu className="relative mx-auto bg-background/80 backdrop-blur-md rounded-lg shadow-lg border border-theater-purple/20">
+        <NavigationMenuList className="px-4 py-2">
+          {menuItems.map((item) => (
+            <NavigationMenuItem key={item.title}>
+              <NavigationMenuTrigger 
+                className="h-9 text-theater-purple hover:text-theater-gold hover:bg-theater-purple/10 data-[state=open]:bg-theater-purple/10 data-[state=open]:text-theater-gold"
               >
-                {item.description}
-              </ListItem>
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-      ))}
-    </NavigationMenuList>
-  </NavigationMenu>
-);
+                <item.icon className="h-4 w-4 mr-2" />
+                {item.title}
+              </NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid w-[400px] gap-3 p-4 bg-background/95 backdrop-blur-md rounded-lg shadow-lg">
+                  <ListItem
+                    key={item.title}
+                    title={item.title}
+                    href={item.href}
+                    icon={item.icon}
+                  >
+                    {item.description}
+                  </ListItem>
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+          ))}
+        </NavigationMenuList>
+      </NavigationMenu>
+      <Button
+        variant="outline"
+        onClick={handleLogout}
+        className="text-white border-white/20 hover:text-theater-gold hover:bg-white/10 bg-black/30"
+      >
+        <LogOut className="h-4 w-4 mr-2" />
+        Logout
+      </Button>
+    </div>
+  );
+};
 
 export const TopMenu = () => {
   const isMobile = useIsMobile();
