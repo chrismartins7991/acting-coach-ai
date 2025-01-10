@@ -30,8 +30,8 @@ const Index = () => {
       >
         <div className="relative z-10">
           <Hero onLoginSuccess={handleLoginTransition} />
-          <WhyUseSection />
           <Features />
+          <WhyUseSection />
         </div>
         
         <motion.div 

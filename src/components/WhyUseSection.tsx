@@ -5,25 +5,25 @@ export const WhyUseSection = () => {
     {
       title: "Learn from the Masters",
       description: "Study techniques from legendary performances in cinema history",
-      image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&auto=format&fit=crop",
-      alt: "Classic movie scene"
+      image: "/lovable-uploads/deadpool.jpg",
+      alt: "Deadpool movie scene showing Ryan Reynolds' expressive performance"
     },
     {
       title: "Real-time Feedback",
       description: "Get instant analysis of your performance using advanced AI",
-      image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&auto=format&fit=crop",
-      alt: "Actor performing"
+      image: "/lovable-uploads/there-will-be-blood.jpg",
+      alt: "Daniel Day-Lewis in There Will Be Blood"
     },
     {
       title: "Personalized Growth",
       description: "Track your progress and receive tailored recommendations",
-      image: "https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=800&auto=format&fit=crop",
-      alt: "Performance analysis"
+      image: "/lovable-uploads/forrest-gump.jpg",
+      alt: "Tom Hanks in Forrest Gump"
     }
   ];
 
   return (
-    <section className="py-20 bg-black">
+    <section className="py-20 bg-gradient-to-br from-black to-theater-purple">
       <div className="container mx-auto px-4">
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
