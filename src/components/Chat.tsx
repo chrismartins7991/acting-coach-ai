@@ -4,6 +4,7 @@ import { MessageList } from "./MessageList";
 import { useChat } from "@/hooks/useChat";
 import { useVoiceRecording } from "@/hooks/useVoiceRecording";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLocation } from "react-router-dom";
 
 export const Chat = () => {
   const { 
@@ -17,6 +18,13 @@ export const Chat = () => {
 
   const { isRecording, toggleRecording } = useVoiceRecording(sendMessage);
   const isMobile = useIsMobile();
+  const location = useLocation();
+  const isOnChatPage = location.pathname === "/chat";
+
+  // Hide chat on dashboard when on mobile
+  if (isMobile && !isOnChatPage) {
+    return null;
+  }
 
   return (
     <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-4 w-full max-w-6xl mx-auto`}>

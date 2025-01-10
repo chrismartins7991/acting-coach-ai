@@ -7,7 +7,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
-import { Camera, FileVideo, History, Home, Menu, User, Settings } from "lucide-react";
+import { Camera, FileVideo, History, Home, Menu, User, Settings, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -41,6 +41,12 @@ const menuItems = [
     href: "/history",
     icon: History,
     description: "View your past performances and feedback",
+  },
+  {
+    title: "Chat",
+    href: "/chat",
+    icon: MessageSquare,
+    description: "Chat with your AI acting coach",
   },
   {
     title: "Profile",
