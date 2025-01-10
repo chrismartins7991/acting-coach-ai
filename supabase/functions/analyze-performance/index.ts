@@ -6,156 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-async function analyzeVideoWithGoogleCloud(videoUrl: string) {
-  console.log("Starting Google Cloud Video analysis for:", videoUrl);
-  
-  const credentials = {
-    type: Deno.env.get('GOOGLE_CLOUD_CREDENTIALS_TYPE'),
-    project_id: Deno.env.get('GOOGLE_CLOUD_PROJECT_ID'),
-    client_email: Deno.env.get('GOOGLE_CLOUD_CLIENT_EMAIL'),
-    client_id: Deno.env.get('GOOGLE_CLOUD_CLIENT_ID'),
-    private_key: Deno.env.get('GOOGLE_CLOUD_PRIVATE_KEY')?.replace(/\\n/g, '\n'),
-  };
-
-  // Get access token for Google Cloud API
-  const accessToken = await getGoogleAccessToken(credentials);
-  console.log("Got Google Cloud access token");
-
-  const response = await fetch('https://videointelligence.googleapis.com/v1/videos:annotate', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      inputUri: videoUrl,
-      features: ['FACE_DETECTION', 'SPEECH_TRANSCRIPTION', 'PERSON_DETECTION'],
-      videoContext: {
-        speechTranscriptionConfig: {
-          languageCode: 'en-US',
-          enableAutomaticPunctuation: true,
-        },
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Google Cloud API error:", errorText);
-    throw new Error(`Google Cloud API error: ${errorText}`);
-  }
-
-  return await response.json();
-}
-
-async function getGoogleAccessToken(credentials: any) {
-  const tokenEndpoint = 'https://oauth2.googleapis.com/token';
-  const scope = 'https://www.googleapis.com/auth/cloud-platform';
-  
-  const jwt = await createJWT(credentials, scope);
-  
-  const response = await fetch(tokenEndpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Failed to get Google access token:", errorText);
-    throw new Error('Failed to get Google access token');
-  }
-
-  const data = await response.json();
-  return data.access_token;
-}
-
-async function createJWT(credentials: any, scope: string) {
-  const header = {
-    alg: 'RS256',
-    typ: 'JWT',
-  };
-
-  const now = Math.floor(Date.now() / 1000);
-  const payload = {
-    iss: credentials.client_email,
-    scope: scope,
-    aud: 'https://oauth2.googleapis.com/token',
-    exp: now + 3600,
-    iat: now,
-  };
-
-  // Base64Url encode header and payload
-  const encodedHeader = base64UrlEncode(JSON.stringify(header));
-  const encodedPayload = base64UrlEncode(JSON.stringify(payload));
-  const signatureInput = `${encodedHeader}.${encodedPayload}`;
-
-  try {
-    // Clean and prepare the private key
-    const privateKeyPEM = credentials.private_key
-      .replace(/\\n/g, '\n')
-      .replace('-----BEGIN PRIVATE KEY-----\n', '')
-      .replace('\n-----END PRIVATE KEY-----', '')
-      .trim();
-
-    // Decode the base64 private key
-    let binaryKey;
-    try {
-      binaryKey = new Uint8Array(
-        atob(privateKeyPEM)
-          .split('')
-          .map(char => char.charCodeAt(0))
-      );
-    } catch (error) {
-      console.error("Error decoding private key:", error);
-      throw new Error(`Failed to decode private key: ${error.message}`);
-    }
-
-    const algorithm = {
-      name: 'RSASSA-PKCS1-v1_5',
-      hash: { name: 'SHA-256' },
-    };
-
-    const cryptoKey = await crypto.subtle.importKey(
-      'pkcs8',
-      binaryKey,
-      algorithm,
-      false,
-      ['sign']
-    );
-
-    const encoder = new TextEncoder();
-    const signature = await crypto.subtle.sign(
-      algorithm,
-      cryptoKey,
-      encoder.encode(signatureInput)
-    );
-
-    const encodedSignature = base64UrlEncode(
-      String.fromCharCode(...new Uint8Array(signature))
-    );
-
-    return `${signatureInput}.${encodedSignature}`;
-  } catch (error) {
-    console.error("Error creating JWT:", error);
-    throw new Error(`Failed to create JWT: ${error.message}`);
-  }
-}
-
-function base64UrlEncode(str: string): string {
-  let base64;
-  try {
-    base64 = btoa(str);
-  } catch (error) {
-    console.error("Error in base64 encoding:", error);
-    throw new Error(`Failed to encode string to base64: ${error.message}`);
-  }
-  return base64
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-}
-
 async function analyzeFrameWithOpenAI(imageUrl: string, position: string) {
   console.log(`Analyzing frame at ${position} with OpenAI Vision...`);
   
@@ -200,19 +50,39 @@ async function analyzeFrameWithOpenAI(imageUrl: string, position: string) {
   return result;
 }
 
-function aggregateAnalyses(googleCloudAnalysis: any, frameAnalyses: any[]) {
-  console.log("Aggregating analyses from multiple sources...");
+function aggregateAnalyses(frameAnalyses: any[]) {
+  console.log("Aggregating analyses from OpenAI...");
   
-  const faceAnnotations = googleCloudAnalysis?.annotationResults?.[0]?.faceAnnotations || [];
-  const personAnnotations = googleCloudAnalysis?.annotationResults?.[0]?.personDetectionAnnotations || [];
-  const speechTranscriptions = googleCloudAnalysis?.annotationResults?.[0]?.speechTranscriptions || [];
-
-  // Calculate base scores from Google Cloud data
-  const presenceScore = calculatePresenceScore(personAnnotations);
-  const emotionalScore = calculateEmotionalScore(faceAnnotations);
-  const deliveryScore = calculateDeliveryScore(speechTranscriptions);
-
-  // Combine with OpenAI frame analyses
+  // Extract feedback and scores from OpenAI analyses
+  const feedbackByCategory = {
+    delivery: [],
+    presence: [],
+    emotionalRange: []
+  };
+  
+  // Process each frame analysis
+  frameAnalyses.forEach(analysis => {
+    const content = analysis.choices[0].message.content;
+    
+    // Extract scores using regex (assuming OpenAI provides numerical scores)
+    const presenceScore = (content.match(/presence.*?(\d+)/i)?.[1] || 70);
+    const emotionalScore = (content.match(/emotional.*?(\d+)/i)?.[1] || 70);
+    const deliveryScore = (content.match(/delivery.*?(\d+)/i)?.[1] || 70);
+    
+    feedbackByCategory.presence.push(presenceScore);
+    feedbackByCategory.emotionalRange.push(emotionalScore);
+    feedbackByCategory.delivery.push(deliveryScore);
+  });
+  
+  // Calculate average scores
+  const getAverageScore = (scores: number[]) => 
+    Math.round(scores.reduce((a, b) => a + Number(b), 0) / scores.length);
+  
+  const presenceScore = getAverageScore(feedbackByCategory.presence);
+  const emotionalScore = getAverageScore(feedbackByCategory.emotionalRange);
+  const deliveryScore = getAverageScore(feedbackByCategory.delivery);
+  
+  // Extract feedback from OpenAI responses
   const openAIFeedback = frameAnalyses.map(analysis => analysis.choices[0].message.content);
   
   return {
@@ -221,78 +91,48 @@ function aggregateAnalyses(googleCloudAnalysis: any, frameAnalyses: any[]) {
     categories: {
       delivery: {
         score: deliveryScore,
-        feedback: generateDeliveryFeedback(speechTranscriptions, deliveryScore)
+        feedback: generateDeliveryFeedback(openAIFeedback)
       },
       presence: {
         score: presenceScore,
-        feedback: generatePresenceFeedback(personAnnotations, openAIFeedback, presenceScore)
+        feedback: generatePresenceFeedback(openAIFeedback)
       },
       emotionalRange: {
         score: emotionalScore,
-        feedback: generateEmotionalFeedback(faceAnnotations, openAIFeedback, emotionalScore)
+        feedback: generateEmotionalFeedback(openAIFeedback)
       }
     },
     recommendations: generateRecommendations(deliveryScore, presenceScore, emotionalScore, openAIFeedback)
   };
 }
 
-function calculatePresenceScore(personAnnotations: any[]): number {
-  if (!personAnnotations.length) return 70;
-  const avgConfidence = personAnnotations.reduce((sum, anno) => 
-    sum + (anno.confidence || 0), 0) / personAnnotations.length;
-  return Math.round(avgConfidence * 100);
+function generateDeliveryFeedback(openAIFeedback: string[]): string {
+  return openAIFeedback
+    .map(feedback => feedback.match(/(?:delivery|voice|speech).*?([^.]+)/i)?.[1] || '')
+    .filter(Boolean)
+    .join('\n');
 }
 
-function calculateEmotionalScore(faceAnnotations: any[]): number {
-  if (!faceAnnotations.length) return 70;
-  const emotionVariety = new Set(
-    faceAnnotations.flatMap(face => 
-      Object.entries(face.emotionLikelihood || {})
-        .filter(([_, value]) => value === "LIKELY" || value === "VERY_LIKELY")
-        .map(([emotion]) => emotion)
-    )
-  ).size;
-  return Math.round((emotionVariety / 8) * 100);
+function generatePresenceFeedback(openAIFeedback: string[]): string {
+  return openAIFeedback
+    .map(feedback => feedback.match(/(?:presence|posture|movement).*?([^.]+)/i)?.[1] || '')
+    .filter(Boolean)
+    .join('\n');
 }
 
-function calculateDeliveryScore(speechTranscriptions: any[]): number {
-  if (!speechTranscriptions.length) return 70;
-  const confidenceScores = speechTranscriptions.flatMap(t => 
-    t.alternatives?.[0]?.words?.map(w => w.confidence) || []
-  );
-  return confidenceScores.length 
-    ? Math.round((confidenceScores.reduce((a, b) => a + b, 0) / confidenceScores.length) * 100)
-    : 70;
+function generateEmotionalFeedback(openAIFeedback: string[]): string {
+  return openAIFeedback
+    .map(feedback => feedback.match(/(?:emotional|expression|feeling).*?([^.]+)/i)?.[1] || '')
+    .filter(Boolean)
+    .join('\n');
 }
 
-function generateDeliveryFeedback(transcriptions: any[], score: number): string {
-  const wordCount = transcriptions.reduce((acc, t) => 
-    acc + (t.alternatives?.[0]?.words?.length || 0), 0);
-  
-  if (score > 80) {
-    return `Excellent vocal clarity with ${wordCount} words clearly recognized. Speech is well-paced and easily understood.`;
-  }
-  if (score > 60) {
-    return `Good vocal delivery with room for improvement. ${wordCount} words detected with varying clarity levels.`;
-  }
-  return `Focus on improving vocal clarity and projection. Only ${wordCount} words were clearly detected.`;
-}
-
-function generatePresenceFeedback(personAnnotations: any[], openAIFeedback: string[], score: number): string {
-  const detectionCount = personAnnotations.length;
-  const openAIInsights = openAIFeedback.join('\n\n');
-  
-  return `${score > 80 ? 'Strong' : score > 60 ? 'Good' : 'Developing'} stage presence with ${detectionCount} tracked movements.\n\nDetailed Analysis:\n${openAIInsights}`;
-}
-
-function generateEmotionalFeedback(faceAnnotations: any[], openAIFeedback: string[], score: number): string {
-  const emotionChanges = faceAnnotations.length;
-  const openAIInsights = openAIFeedback.join('\n\n');
-  
-  return `${score > 80 ? 'Excellent' : score > 60 ? 'Good' : 'Limited'} emotional range with ${emotionChanges} distinct expressions.\n\nDetailed Analysis:\n${openAIInsights}`;
-}
-
-function generateRecommendations(deliveryScore: number, presenceScore: number, emotionalScore: number, openAIFeedback: string[]): string[] {
+function generateRecommendations(
+  deliveryScore: number,
+  presenceScore: number,
+  emotionalScore: number,
+  openAIFeedback: string[]
+): string[] {
   const recommendations = [];
   
   if (deliveryScore < 80) {
@@ -352,11 +192,7 @@ serve(async (req) => {
 
     console.log("Starting video analysis process...");
 
-    // Get video analysis from Google Cloud
-    const googleCloudAnalysis = await analyzeVideoWithGoogleCloud(videoUrl);
-    console.log("Google Cloud analysis completed");
-
-    // Extract frames and analyze with OpenAI Vision
+    // Analyze frames with OpenAI Vision
     const framePositions = ['beginning', 'middle', 'end'];
     const frameAnalyses = await Promise.all(
       framePositions.map(position => analyzeFrameWithOpenAI(videoUrl, position))
@@ -364,7 +200,7 @@ serve(async (req) => {
     console.log("OpenAI frame analyses completed");
 
     // Combine analyses
-    const aggregatedAnalysis = aggregateAnalyses(googleCloudAnalysis, frameAnalyses);
+    const aggregatedAnalysis = aggregateAnalyses(frameAnalyses);
     console.log("Analysis aggregated:", aggregatedAnalysis);
 
     return new Response(
