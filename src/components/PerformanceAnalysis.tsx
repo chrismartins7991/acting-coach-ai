@@ -1,12 +1,47 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Analysis } from "@/utils/videoAnalysis/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PerformanceAnalysisProps {
   analysis: Analysis | null;
+  isLoading?: boolean;
 }
 
-export const PerformanceAnalysis = ({ analysis }: PerformanceAnalysisProps) => {
+export const PerformanceAnalysis = ({ analysis, isLoading }: PerformanceAnalysisProps) => {
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-3/4" />
+            <Skeleton className="h-4 w-1/2 mt-2" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-8 w-16" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-1/2" />
+                <Skeleton className="h-4 w-full mt-2" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-20 w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (!analysis) {
     return null;
   }

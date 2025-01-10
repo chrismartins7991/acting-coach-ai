@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Upload } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { PerformanceAnalysis } from "./PerformanceAnalysis";
 import { supabase } from "@/lib/supabase";
 
@@ -123,7 +123,11 @@ const VideoUploader = () => {
         </label>
       </div>
 
-      {analysis && <PerformanceAnalysis analysis={analysis} />}
+      {isProcessing ? (
+        <PerformanceAnalysis analysis={null} isLoading={true} />
+      ) : (
+        analysis && <PerformanceAnalysis analysis={analysis} />
+      )}
     </div>
   );
 };
