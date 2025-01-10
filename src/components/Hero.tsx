@@ -9,7 +9,7 @@ interface HeroProps {
 export const Hero = ({ onLoginSuccess }: HeroProps) => {
   return (
     <div className="relative h-screen w-full overflow-hidden bg-gradient-to-br from-theater-purple via-black to-theater-red">
-      <div className="absolute inset-0 bg-[url('/lovable-uploads/67fe6e0d-76fa-4723-8927-0f8ecb2f2409.png')] opacity-10 bg-center bg-contain bg-no-repeat translate-y-[5vh]" />
+      <div className="absolute inset-0 bg-[url('/lovable-uploads/67fe6e0d-76fa-4723-8927-0f8ecb2f2409.png')] opacity-10 bg-center bg-contain bg-no-repeat" />
       
       {/* Login button positioned in upper right */}
       <div className="absolute top-4 right-4 z-10">
