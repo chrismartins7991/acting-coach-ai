@@ -6,11 +6,14 @@ import { analyzeAudioWithGoogleCloud } from "./googleCloudAnalyzer.ts";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Max-Age': '86400',
 };
 
 serve(async (req) => {
   console.log("Received request to analyze-performance function");
 
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     console.log("Handling OPTIONS preflight request");
     return new Response(null, { 
@@ -20,10 +23,19 @@ serve(async (req) => {
   }
 
   try {
-    const { videoUrl, frames, audio } = await req.json();
+    // Increase request read limit to 50MB
+    const bodyText = await req.text();
+    console.log("Request body size:", bodyText.length);
+    
+    if (bodyText.length > 50 * 1024 * 1024) { // 50MB limit
+      throw new Error('Request too large - maximum size is 50MB');
+    }
+
+    const { videoUrl, frames, audio } = JSON.parse(bodyText);
     
     if (!videoUrl || !frames || !Array.isArray(frames) || !audio) {
-      throw new Error('Invalid request data');
+      console.error("Invalid request data:", { videoUrl: !!videoUrl, frames: !!frames, audio: !!audio });
+      throw new Error('Invalid request data - missing required fields');
     }
 
     console.log("Starting frame and audio analysis process...");
@@ -31,20 +43,25 @@ serve(async (req) => {
     // Analyze frames with OpenAI Vision
     const framePositions = ['beginning', 'middle', 'end'];
     const frameAnalyses = await Promise.all(
-      frames.map((frame, index) => analyzeFrameWithOpenAI(frame, framePositions[index]))
+      frames.map((frame, index) => {
+        console.log(`Analyzing frame ${index + 1}/${frames.length}`);
+        return analyzeFrameWithOpenAI(frame, framePositions[index]);
+      })
     );
     console.log("OpenAI frame analyses completed");
 
-    // Process audio with both Whisper and Google Cloud
+    // Process audio
     console.log("Starting audio analysis...");
     
-    // Convert base64 audio to blob for processing
+    // Convert base64 audio to blob
     const audioBlob = Uint8Array.from(atob(audio), c => c.charCodeAt(0));
+    console.log("Audio blob size:", audioBlob.length);
 
-    // Parallel processing of audio with both services
+    // Parallel processing of audio
     const [whisperResult, googleCloudResult] = await Promise.all([
       // Whisper Transcription
       (async () => {
+        console.log("Starting Whisper transcription...");
         const formData = new FormData();
         formData.append('file', new Blob([audioBlob], { type: 'audio/webm' }), 'audio.webm');
         formData.append('model', 'whisper-1');
@@ -58,19 +75,29 @@ serve(async (req) => {
         });
 
         if (!transcriptionResponse.ok) {
-          throw new Error(`Failed to transcribe audio: ${await transcriptionResponse.text()}`);
+          const error = await transcriptionResponse.text();
+          console.error("Whisper API error:", error);
+          throw new Error(`Failed to transcribe audio: ${error}`);
         }
 
-        return await transcriptionResponse.json();
+        const result = await transcriptionResponse.json();
+        console.log("Whisper transcription completed");
+        return result;
       })(),
       
-      // Google Cloud Speech-to-Text Analysis
-      analyzeAudioWithGoogleCloud(audioBlob)
+      // Google Cloud Analysis
+      (async () => {
+        console.log("Starting Google Cloud audio analysis...");
+        const result = await analyzeAudioWithGoogleCloud(audioBlob);
+        console.log("Google Cloud analysis completed");
+        return result;
+      })()
     ]);
 
     console.log("Audio analysis completed");
 
-    // Analyze speech content and characteristics with GPT-4
+    // Analyze speech content with GPT-4
+    console.log("Starting GPT-4 speech analysis...");
     const speechAnalysisResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -82,18 +109,18 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'Analyze the following speech transcript and audio characteristics for an acting performance. Consider vocal delivery, emotional expression, clarity, and technical aspects. Provide scores out of 100 for each aspect and detailed feedback.'
+            content: 'Analyze the following speech transcript and audio characteristics for an acting performance. Consider vocal delivery, emotional expression, clarity, and technical aspects. Provide detailed feedback.'
           },
           {
             role: 'user',
             content: `
               Transcript: ${whisperResult.text}
               
-              Audio Characteristics from Google Cloud:
+              Audio Characteristics:
               - Emotion: ${googleCloudResult.emotion}
-              - Pitch: ${googleCloudResult.pitch}
-              - Speaking Rate: ${googleCloudResult.speakingRate}
-              - Volume Variation: ${googleCloudResult.volumeVariation}
+              - Speaking Rate: ${googleCloudResult.speakingRate} words/minute
+              - Volume Variation: ${JSON.stringify(googleCloudResult.volumeVariation)}
+              - Pitch Analysis: ${JSON.stringify(googleCloudResult.pitch)}
             `
           }
         ],
@@ -101,7 +128,9 @@ serve(async (req) => {
     });
 
     if (!speechAnalysisResponse.ok) {
-      throw new Error(`Failed to analyze speech: ${await speechAnalysisResponse.text()}`);
+      const error = await speechAnalysisResponse.text();
+      console.error("GPT-4 API error:", error);
+      throw new Error(`Failed to analyze speech: ${error}`);
     }
 
     const speechAnalysis = await speechAnalysisResponse.json();
@@ -117,14 +146,15 @@ serve(async (req) => {
       }
     };
 
+    console.log("Analysis complete, sending response");
+
     return new Response(
       JSON.stringify(combinedAnalysis),
       { 
         headers: { 
           ...corsHeaders,
           'Content-Type': 'application/json'
-        },
-        status: 200
+        }
       }
     );
 
@@ -138,7 +168,7 @@ serve(async (req) => {
         details: error.stack
       }),
       { 
-        status: error.message === 'Method not allowed' ? 405 : 500,
+        status: 500,
         headers: { 
           ...corsHeaders,
           'Content-Type': 'application/json'
