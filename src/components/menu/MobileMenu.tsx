@@ -3,6 +3,7 @@ import { Menu, LogOut } from "lucide-react";
 import { menuItems } from "./menuItems";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
+import { SparklesCore } from "@/components/ui/sparkles";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,16 +33,36 @@ export const MobileMenu = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg bg-background/80 px-4 py-2 text-theater-purple hover:text-theater-gold hover:bg-theater-purple/10">
-        <Menu className="h-5 w-5" />
-        <span>Menu</span>
+      <DropdownMenuTrigger className="relative flex items-center gap-2 rounded-lg bg-background/80 px-4 py-2 text-theater-purple hover:text-theater-gold hover:bg-theater-purple/10 overflow-hidden">
+        <div className="absolute inset-0">
+          <SparklesCore
+            background="transparent"
+            minSize={0.2}
+            maxSize={0.5}
+            particleDensity={50}
+            className="w-full h-full"
+            particleColor="#FFD700"
+          />
+        </div>
+        <Menu className="h-5 w-5 relative z-10" />
+        <span className="relative z-10">Menu</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64 bg-background/95 backdrop-blur-md">
+      <DropdownMenuContent className="w-64 bg-background/95 backdrop-blur-md relative overflow-hidden">
+        <div className="absolute inset-0">
+          <SparklesCore
+            background="transparent"
+            minSize={0.2}
+            maxSize={0.5}
+            particleDensity={50}
+            className="w-full h-full"
+            particleColor="#FFD700"
+          />
+        </div>
         {menuItems.map((item) => (
           <DropdownMenuItem key={item.title} asChild>
             <Link
               to={item.href}
-              className="flex items-center gap-2 p-2 hover:bg-theater-purple/10 hover:text-theater-gold"
+              className="flex items-center gap-2 p-2 hover:bg-theater-purple/10 hover:text-theater-gold relative z-10"
             >
               <item.icon className="h-4 w-4" />
               <div>
@@ -53,7 +74,7 @@ export const MobileMenu = () => {
         ))}
         <DropdownMenuItem 
           onClick={handleLogout}
-          className="flex items-center gap-2 p-2 hover:bg-theater-purple/10 hover:text-theater-gold text-theater-red"
+          className="flex items-center gap-2 p-2 hover:bg-theater-purple/10 hover:text-theater-gold text-theater-red relative z-10"
         >
           <LogOut className="h-4 w-4" />
           <div>
