@@ -17,10 +17,14 @@ async function analyzeVideoWithGoogleCloud(videoUrl: string) {
     private_key: Deno.env.get('GOOGLE_CLOUD_PRIVATE_KEY')?.replace(/\\n/g, '\n'),
   };
 
+  // Get access token for Google Cloud API
+  const accessToken = await getGoogleAccessToken(credentials);
+  console.log("Got Google Cloud access token");
+
   const response = await fetch('https://videointelligence.googleapis.com/v1/videos:annotate', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${await getGoogleAccessToken(credentials)}`,
+      'Authorization': `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -36,7 +40,9 @@ async function analyzeVideoWithGoogleCloud(videoUrl: string) {
   });
 
   if (!response.ok) {
-    throw new Error(`Google Cloud API error: ${await response.text()}`);
+    const errorText = await response.text();
+    console.error("Google Cloud API error:", errorText);
+    throw new Error(`Google Cloud API error: ${errorText}`);
   }
 
   return await response.json();
@@ -55,6 +61,8 @@ async function getGoogleAccessToken(credentials: any) {
   });
 
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Failed to get Google access token:", errorText);
     throw new Error('Failed to get Google access token');
   }
 
@@ -63,59 +71,60 @@ async function getGoogleAccessToken(credentials: any) {
 }
 
 async function createJWT(credentials: any, scope: string) {
-  const header = btoa(JSON.stringify({
+  const header = {
     alg: 'RS256',
     typ: 'JWT',
-  }));
+  };
 
   const now = Math.floor(Date.now() / 1000);
-  const payload = btoa(JSON.stringify({
+  const payload = {
     iss: credentials.client_email,
     scope: scope,
     aud: 'https://oauth2.googleapis.com/token',
     exp: now + 3600,
     iat: now,
-  }));
+  };
 
-  const signatureInput = `${header}.${payload}`;
-  const signature = await signWithPrivateKey(signatureInput, credentials.private_key);
+  const encodedHeader = btoa(JSON.stringify(header));
+  const encodedPayload = btoa(JSON.stringify(payload));
+  const signatureInput = `${encodedHeader}.${encodedPayload}`;
   
-  return `${signatureInput}.${signature}`;
-}
+  // Convert private key to proper format
+  const privateKey = credentials.private_key
+    .replace(/\\n/g, '\n')
+    .replace(/-----BEGIN PRIVATE KEY-----\n/, '')
+    .replace(/\n-----END PRIVATE KEY-----/, '')
+    .trim();
 
-async function signWithPrivateKey(input: string, privateKey: string) {
-  const encoder = new TextEncoder();
-  const keyData = privateKey;
+  const binaryKey = Uint8Array.from(atob(privateKey), c => c.charCodeAt(0));
   
   const algorithm = {
     name: 'RSASSA-PKCS1-v1_5',
     hash: { name: 'SHA-256' },
   };
 
-  const cryptoKey = await crypto.subtle.importKey(
-    'pkcs8',
-    str2ab(keyData),
-    algorithm,
-    false,
-    ['sign']
-  );
+  try {
+    const cryptoKey = await crypto.subtle.importKey(
+      'pkcs8',
+      binaryKey,
+      algorithm,
+      false,
+      ['sign']
+    );
 
-  const signature = await crypto.subtle.sign(
-    algorithm,
-    cryptoKey,
-    encoder.encode(input)
-  );
+    const encoder = new TextEncoder();
+    const signature = await crypto.subtle.sign(
+      algorithm,
+      cryptoKey,
+      encoder.encode(signatureInput)
+    );
 
-  return btoa(String.fromCharCode(...new Uint8Array(signature)));
-}
-
-function str2ab(str: string) {
-  const buf = new ArrayBuffer(str.length);
-  const bufView = new Uint8Array(buf);
-  for (let i = 0, strLen = str.length; i < strLen; i++) {
-    bufView[i] = str.charCodeAt(i);
+    const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)));
+    return `${signatureInput}.${encodedSignature}`;
+  } catch (error) {
+    console.error("Error signing JWT:", error);
+    throw new Error(`Failed to sign JWT: ${error.message}`);
   }
-  return buf;
 }
 
 async function analyzeFrameWithOpenAI(imageUrl: string, position: string) {
