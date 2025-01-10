@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { Button } from './ui/button';
 import { useToast } from './ui/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { AuthChangeEvent, AuthError } from '@supabase/supabase-js';
+import { AuthChangeEvent, AuthError, AuthApiError } from '@supabase/supabase-js';
 import { cn } from '@/lib/utils';
 import { Alert, AlertDescription } from './ui/alert';
 
@@ -38,7 +38,6 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
     checkUser();
   }, [navigate]);
 
-  // Add console logs to track auth state changes and errors
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
       console.log('Auth state changed:', event, session);
@@ -46,6 +45,19 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
       // Clear error when modal is closed or on successful actions
       if (!isOpen || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
         setError(null);
+      }
+
+      if (event === 'USER_DELETED') {
+        setError('Account not found. Please check your credentials.');
+        return;
+      }
+
+      if (event === 'PASSWORD_RECOVERY') {
+        toast({
+          title: "Password reset requested",
+          description: "Check your email for the password reset link.",
+        });
+        return;
       }
 
       switch (event) {
@@ -70,12 +82,6 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
             description: "Your email has been confirmed.",
           });
           break;
-        case 'PASSWORD_RECOVERY':
-          toast({
-            title: "Password reset requested",
-            description: "Check your email for the password reset link.",
-          });
-          break;
         case 'TOKEN_REFRESHED':
           toast({
             title: "Account created",
@@ -94,10 +100,20 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
     console.error('Auth error:', error);
     let errorMessage = 'An error occurred during authentication.';
     
-    if (error.message.includes('invalid_credentials')) {
-      errorMessage = 'Invalid email or password. Please try again.';
-    } else if (error.message.includes('Email not confirmed')) {
-      errorMessage = 'Please verify your email address before signing in.';
+    if (error instanceof AuthApiError) {
+      switch (error.message) {
+        case 'Invalid login credentials':
+          errorMessage = 'Invalid email or password. Please try again.';
+          break;
+        case 'Email not confirmed':
+          errorMessage = 'Please verify your email address before signing in.';
+          break;
+        case 'Invalid email or password':
+          errorMessage = 'Invalid email or password. Please try again.';
+          break;
+        default:
+          errorMessage = error.message;
+      }
     }
     
     setError(errorMessage);
@@ -144,6 +160,7 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
           providers={['google']}
           redirectTo={`${window.location.origin}/auth/callback`}
           onlyThirdPartyProviders={false}
+          onError={handleError}
           localization={{
             variables: {
               sign_up: {
