@@ -1,15 +1,12 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
-import { useNavigate } from "react-router-dom";
 import { SparklesCore } from "./ui/sparkles";
 
-export const Hero = () => {
-  const navigate = useNavigate();
+interface HeroProps {
+  onLoginSuccess: () => void;
+}
 
-  const handleLogin = () => {
-    navigate('/dashboard');
-  };
-
+export const Hero = ({ onLoginSuccess }: HeroProps) => {
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-br from-theater-purple via-black to-theater-red">
       <div className="absolute inset-0 bg-[url('/lovable-uploads/67fe6e0d-76fa-4723-8927-0f8ecb2f2409.png')] opacity-10 bg-center bg-cover" />
@@ -17,7 +14,7 @@ export const Hero = () => {
       {/* Login button positioned in upper right */}
       <div className="absolute top-4 right-4 z-10">
         <Button 
-          onClick={handleLogin}
+          onClick={onLoginSuccess}
           size="lg"
           variant="outline"
           className="bg-black/30 hover:bg-white/20 text-white border-white/50 hover:border-white"
@@ -69,7 +66,7 @@ export const Hero = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
           >
             <Button 
-              onClick={handleLogin}
+              onClick={onLoginSuccess}
               size="lg"
               className="bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
             >
