@@ -17,3 +17,11 @@ export interface AnalysisResult {
   };
   recommendations: string[];
 }
+
+export interface FrameAnalysis {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
