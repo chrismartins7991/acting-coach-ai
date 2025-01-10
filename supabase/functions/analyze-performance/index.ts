@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { decode as base64Decode } from "https://deno.land/std@0.182.0/encoding/base64.ts";
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { toBlobURL } from '@ffmpeg/util';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,34 +21,50 @@ async function downloadVideo(url: string): Promise<Uint8Array> {
 async function extractFramesFromVideo(videoData: Uint8Array): Promise<string[]> {
   console.log("Extracting frames from video...");
   
-  // Create FFmpeg command to extract frames
+  // Initialize FFmpeg
   const ffmpeg = new FFmpeg();
-  await ffmpeg.load();
+  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+  
+  // Load FFmpeg
+  await ffmpeg.load({
+    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+  });
   
   // Write video data to FFmpeg's virtual filesystem
-  ffmpeg.FS('writeFile', 'input.mp4', videoData);
+  ffmpeg.writeFile('input.mp4', videoData);
   
-  // Extract frames at specific intervals (e.g., 25%, 50%, 75% of video duration)
-  await ffmpeg.run(
+  // Extract frames at specific intervals
+  await ffmpeg.exec([
     '-i', 'input.mp4',
-    '-vf', 'select=eq(n\,0)+eq(n\,floor(n_frames*0.25))+eq(n\,floor(n_frames*0.5))+eq(n\,floor(n_frames*0.75))',
+    '-vf', 'select=eq(n\\,0)+eq(n\\,floor(n_frames*0.25))+eq(n\\,floor(n_frames*0.5))+eq(n\\,floor(n_frames*0.75))',
     '-vsync', '0',
     '-frame_pts', '1',
     '-f', 'image2',
     'frame_%d.jpg'
-  );
+  ]);
   
   // Read the extracted frames
   const frames: string[] = [];
   for (let i = 0; i < 4; i++) {
-    const frameData = ffmpeg.FS('readFile', `frame_${i}.jpg`);
-    const base64Frame = btoa(String.fromCharCode(...frameData));
-    frames.push(`data:image/jpeg;base64,${base64Frame}`);
+    try {
+      const frameData = await ffmpeg.readFile(`frame_${i}.jpg`);
+      const base64Frame = btoa(String.fromCharCode(...frameData));
+      frames.push(`data:image/jpeg;base64,${base64Frame}`);
+    } catch (error) {
+      console.error(`Error reading frame ${i}:`, error);
+    }
   }
   
   // Cleanup
-  ffmpeg.FS('unlink', 'input.mp4');
-  frames.forEach((_, i) => ffmpeg.FS('unlink', `frame_${i}.jpg`));
+  await ffmpeg.deleteFile('input.mp4');
+  for (let i = 0; i < 4; i++) {
+    try {
+      await ffmpeg.deleteFile(`frame_${i}.jpg`);
+    } catch (error) {
+      console.error(`Error deleting frame ${i}:`, error);
+    }
+  }
   
   return frames;
 }
@@ -91,8 +107,7 @@ async function analyzeFrameWithOpenAI(frame: string, position: string): Promise<
               }
             ]
           }
-        ],
-        max_tokens: 1000
+        ]
       })
     });
 
@@ -102,9 +117,11 @@ async function analyzeFrameWithOpenAI(frame: string, position: string): Promise<
       throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
     }
 
-    return await response.json();
+    const result = await response.json();
+    console.log(`Analysis received for ${position} frame:`, result);
+    return result;
   } catch (error) {
-    console.error("Error in analyzeFrameWithOpenAI:", error);
+    console.error(`Error analyzing ${position} frame:`, error);
     throw error;
   }
 }
