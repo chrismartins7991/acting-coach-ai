@@ -169,8 +169,8 @@ const DesktopMenu = () => {
   return (
     <div className="flex items-center gap-4 group">
       <div className="relative flex items-center">
-        <Menu className="absolute left-4 z-10 h-5 w-5 text-theater-gold" />
-        <NavigationMenu className="relative mx-auto bg-background/80 backdrop-blur-md rounded-lg shadow-lg border border-theater-purple/20 transition-all duration-500 ease-in-out w-[3.5rem] group-hover:w-auto overflow-hidden pl-12">
+        <Menu className="h-6 w-6 text-theater-gold hover:text-theater-purple transition-colors duration-300" />
+        <NavigationMenu className="absolute left-0 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-md rounded-lg shadow-lg border border-theater-purple/20 transition-all duration-500 ease-in-out w-0 group-hover:w-auto overflow-hidden opacity-0 group-hover:opacity-100 invisible group-hover:visible pl-10">
           <NavigationMenuList className="px-4 py-2">
             {menuItems.map((item) => (
               <NavigationMenuItem 
