@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Menu, LogOut } from "lucide-react";
+import { Menu, LogOut, Settings2 } from "lucide-react";
 import { menuItems } from "./menuItems";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
@@ -85,5 +85,20 @@ DesktopMenu.Logout = function DesktopMenuLogout() {
       <LogOut className="h-4 w-4 mr-2" />
       Logout
     </Button>
+  );
+};
+
+// Settings button component
+DesktopMenu.Settings = function DesktopMenuSettings() {
+  return (
+    <Link to="/dashboard/settings">
+      <Button
+        variant="outline"
+        size="icon"
+        className="text-white border-white/20 hover:text-theater-gold hover:bg-white/10 bg-black/30 backdrop-blur-md"
+      >
+        <Settings2 className="h-4 w-4" />
+      </Button>
+    </Link>
   );
 };
