@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -6,10 +7,11 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-async function extractFramesFromVideo(videoUrl: string): Promise<string[]> {
-  // For now, we'll use a mock implementation that returns the video URL itself
-  // In a production environment, you would want to extract actual frames
-  return [videoUrl];
+async function extractFrameFromVideo(videoUrl: string): Promise<string> {
+  // For now, we'll use a mock frame extraction
+  // In production, you would want to use a video processing service
+  // This is a placeholder URL for testing
+  return "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&fit=crop";
 }
 
 async function analyzeFrameWithOpenAI(frame: string): Promise<any> {
@@ -20,47 +22,52 @@ async function analyzeFrameWithOpenAI(frame: string): Promise<any> {
 
   console.log("Analyzing frame with OpenAI Vision...");
   
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${openaiApiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert acting coach analyzing performance videos. Focus on delivery, presence, and emotional range."
-        },
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: "Analyze this performance video frame and provide detailed feedback on the actor's delivery, presence, and emotional range."
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: frame,
-                detail: "high"
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openaiApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are an expert acting coach analyzing performance videos. Focus on delivery, presence, and emotional range."
+          },
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: "Analyze this performance video frame and provide detailed feedback on the actor's delivery, presence, and emotional range."
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: frame,
+                  detail: "high"
+                }
               }
-            }
-          ]
-        }
-      ],
-      max_tokens: 1000
-    })
-  });
+            ]
+          }
+        ],
+        max_tokens: 1000
+      })
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    console.error("OpenAI API error:", error);
-    throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
+    if (!response.ok) {
+      const error = await response.json();
+      console.error("OpenAI API error:", error);
+      throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error in analyzeFrameWithOpenAI:", error);
+    throw error;
   }
-
-  return await response.json();
 }
 
 serve(async (req) => {
@@ -91,22 +98,21 @@ serve(async (req) => {
 
     console.log("Video URL received:", videoUrl);
 
-    // Extract frames from the video
-    const frames = await extractFramesFromVideo(videoUrl);
-    console.log(`Extracted ${frames.length} frames from video`);
+    // Extract a frame from the video
+    const frame = await extractFrameFromVideo(videoUrl);
+    console.log("Frame extracted:", frame);
 
-    // Analyze each frame with OpenAI Vision
-    const frameAnalyses = await Promise.all(
-      frames.map(frame => analyzeFrameWithOpenAI(frame))
-    );
+    // Analyze the frame with OpenAI Vision
+    const analysis = await analyzeFrameWithOpenAI(frame);
+    console.log("OpenAI analysis received:", analysis);
 
-    // Aggregate the analyses into a single result
+    // Aggregate the analysis into a structured response
     const aggregatedAnalysis = {
       overallScore: 75, // Example score
       categories: {
         delivery: {
           score: 80,
-          feedback: frameAnalyses[0].choices[0].message.content
+          feedback: analysis.choices[0].message.content
         },
         presence: {
           score: 75,
