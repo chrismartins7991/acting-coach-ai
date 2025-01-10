@@ -23,7 +23,7 @@ serve(async (req) => {
   }
 
   try {
-    // Increase request read limit to 50MB
+    // Read request body as text first to check size
     const bodyText = await req.text();
     console.log("Request body size:", bodyText.length);
     
