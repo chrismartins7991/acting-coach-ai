@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { decode as base64Decode } from "https://deno.land/std@0.182.0/encoding/base64.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -7,15 +8,49 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-async function extractFramesFromVideo(videoUrl: string): Promise<string[]> {
-  // We'll extract frames at specific intervals (e.g., beginning, middle, and end)
-  // For now, we'll use placeholder images that represent different moments
-  // In production, you'd want to use a video processing service to extract actual frames
-  return [
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&fit=crop", // Start
-    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&fit=crop", // Middle
-    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&fit=crop"  // End
-  ];
+async function downloadVideo(url: string): Promise<Uint8Array> {
+  console.log("Downloading video from:", url);
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to download video: ${response.statusText}`);
+  }
+  const arrayBuffer = await response.arrayBuffer();
+  return new Uint8Array(arrayBuffer);
+}
+
+async function extractFramesFromVideo(videoData: Uint8Array): Promise<string[]> {
+  console.log("Extracting frames from video...");
+  
+  // Create FFmpeg command to extract frames
+  const ffmpeg = new FFmpeg();
+  await ffmpeg.load();
+  
+  // Write video data to FFmpeg's virtual filesystem
+  ffmpeg.FS('writeFile', 'input.mp4', videoData);
+  
+  // Extract frames at specific intervals (e.g., 25%, 50%, 75% of video duration)
+  await ffmpeg.run(
+    '-i', 'input.mp4',
+    '-vf', 'select=eq(n\,0)+eq(n\,floor(n_frames*0.25))+eq(n\,floor(n_frames*0.5))+eq(n\,floor(n_frames*0.75))',
+    '-vsync', '0',
+    '-frame_pts', '1',
+    '-f', 'image2',
+    'frame_%d.jpg'
+  );
+  
+  // Read the extracted frames
+  const frames: string[] = [];
+  for (let i = 0; i < 4; i++) {
+    const frameData = ffmpeg.FS('readFile', `frame_${i}.jpg`);
+    const base64Frame = btoa(String.fromCharCode(...frameData));
+    frames.push(`data:image/jpeg;base64,${base64Frame}`);
+  }
+  
+  // Cleanup
+  ffmpeg.FS('unlink', 'input.mp4');
+  frames.forEach((_, i) => ffmpeg.FS('unlink', `frame_${i}.jpg`));
+  
+  return frames;
 }
 
 async function analyzeFrameWithOpenAI(frame: string, position: string): Promise<any> {
@@ -75,7 +110,7 @@ async function analyzeFrameWithOpenAI(frame: string, position: string): Promise<
 }
 
 function aggregateAnalyses(frameAnalyses: any[]): any {
-  const positions = ['beginning', 'middle', 'end'];
+  const positions = ['beginning', 'middle', 'late-middle', 'end'];
   let overallScore = 0;
   const detailedFeedback: string[] = [];
   const categoryScores = {
@@ -89,7 +124,6 @@ function aggregateAnalyses(frameAnalyses: any[]): any {
     detailedFeedback.push(`${positions[index].toUpperCase()}: ${feedback}`);
     
     // Extract scores from the feedback using sentiment analysis
-    // This is a simplified scoring mechanism
     const score = 70 + Math.random() * 20; // Random score between 70-90 for demo
     overallScore += score;
     
@@ -104,31 +138,27 @@ function aggregateAnalyses(frameAnalyses: any[]): any {
     categoryScores[key] = Math.round(categoryScores[key] / frameAnalyses.length);
   });
 
-  // Generate recommendations based on the analyses
-  const recommendations = [
-    "Work on maintaining consistent energy levels throughout the performance",
-    "Practice transitioning between emotional states more smoothly",
-    "Focus on using the full range of your physical presence",
-    "Consider how your facial expressions read from different distances"
-  ];
-
   return {
     overallScore,
     categories: {
       delivery: {
         score: categoryScores.delivery,
-        feedback: detailedFeedback.join('\n\nTRANSITION: ')
+        feedback: "Analysis of vocal delivery and speech patterns throughout the performance"
       },
       presence: {
         score: categoryScores.presence,
-        feedback: "Analysis of physical presence and stage command throughout the performance"
+        feedback: detailedFeedback.join('\n\n')
       },
       emotionalRange: {
         score: categoryScores.emotionalRange,
         feedback: "Evaluation of emotional expression and character embodiment"
       }
     },
-    recommendations,
+    recommendations: [
+      "Work on maintaining consistent energy levels throughout the performance",
+      "Practice transitioning between emotional states more smoothly",
+      "Focus on using the full range of your physical presence"
+    ],
     timestamp: new Date().toISOString()
   };
 }
@@ -136,7 +166,6 @@ function aggregateAnalyses(frameAnalyses: any[]): any {
 serve(async (req) => {
   console.log("Received request to analyze-performance function");
 
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     console.log("Handling OPTIONS preflight request");
     return new Response(null, { 
@@ -161,12 +190,16 @@ serve(async (req) => {
 
     console.log("Video URL received:", videoUrl);
 
+    // Download and process the video
+    const videoData = await downloadVideo(videoUrl);
+    console.log("Video downloaded successfully");
+
     // Extract frames from the video
-    const frames = await extractFramesFromVideo(videoUrl);
+    const frames = await extractFramesFromVideo(videoData);
     console.log(`Extracted ${frames.length} frames from video`);
 
     // Analyze each frame with OpenAI Vision
-    const positions = ['beginning', 'middle', 'end'];
+    const positions = ['beginning', 'first-quarter', 'third-quarter', 'end'];
     const frameAnalyses = await Promise.all(
       frames.map((frame, index) => analyzeFrameWithOpenAI(frame, positions[index]))
     );
