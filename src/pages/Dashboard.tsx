@@ -48,8 +48,8 @@ const Dashboard = () => {
     visible: { 
       opacity: 1,
       transition: { 
-        duration: 1,
-        staggerChildren: 0.2 
+        duration: 2,
+        staggerChildren: 0.8 // Increased stagger time
       }
     }
   };
@@ -59,7 +59,7 @@ const Dashboard = () => {
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: 0.5 } 
+      transition: { duration: 1.5 } // Slower item animations
     }
   };
 
@@ -71,37 +71,32 @@ const Dashboard = () => {
         animate="visible"
         variants={containerVariants}
       >
-        {/* Transition particles */}
+        {/* Transition particles for component formation */}
         {fromLanding && (
           <motion.div 
             className="fixed inset-0 pointer-events-none z-50"
             initial={{ opacity: 1 }}
-            animate={{ opacity: 0 }}
-            transition={{ duration: 3 }}
+            animate={{ 
+              opacity: [1, 0.8, 0.6, 0.4, 0.2],
+              scale: [1.5, 1.2, 1, 0.9, 0.8],
+            }}
+            transition={{ 
+              duration: 5,
+              times: [0, 0.2, 0.4, 0.6, 1],
+            }}
           >
             <SparklesCore
               background="transparent"
               minSize={0.2}
               maxSize={0.8}
-              particleDensity={100}
+              particleDensity={150} // Increased density
               className="w-full h-full"
               particleColor="#FFD700"
             />
           </motion.div>
         )}
 
-        {/* Background particles */}
-        <div className="absolute top-0 left-0 w-full h-64 opacity-50 pointer-events-none">
-          <SparklesCore
-            background="transparent"
-            minSize={0.2}
-            maxSize={0.8}
-            particleDensity={70}
-            className="w-full h-full"
-            particleColor="#FFD700"
-          />
-        </div>
-
+        {/* Component-specific particle effects */}
         <motion.div 
           variants={itemVariants}
           className="absolute right-0 top-1/4 w-64 h-96 opacity-40 pointer-events-none"
@@ -110,7 +105,7 @@ const Dashboard = () => {
             background="transparent"
             minSize={0.1}
             maxSize={0.6}
-            particleDensity={50}
+            particleDensity={80}
             className="w-full h-full"
             particleColor="#FFD700"
           />
@@ -124,7 +119,7 @@ const Dashboard = () => {
             background="transparent"
             minSize={0.2}
             maxSize={0.7}
-            particleDensity={60}
+            particleDensity={90}
             className="w-full h-full"
             particleColor="#FFD700"
           />
@@ -171,22 +166,58 @@ const Dashboard = () => {
                 className="grid grid-cols-1 sm:grid-cols-2 gap-6"
                 variants={containerVariants}
               >
-                <motion.div variants={itemVariants}>
+                <motion.div 
+                  variants={itemVariants}
+                  className="relative"
+                >
                   <VideoUpload
                     userId={temporaryUserId}
                     onAnalysisComplete={setCurrentAnalysis}
                     isAnalyzing={isAnalyzing}
                   />
+                  {/* Component formation particles */}
+                  <motion.div 
+                    className="absolute inset-0 pointer-events-none"
+                    initial={{ opacity: 1 }}
+                    animate={{ opacity: 0 }}
+                    transition={{ duration: 3, delay: 2 }}
+                  >
+                    <SparklesCore
+                      background="transparent"
+                      minSize={0.1}
+                      maxSize={0.4}
+                      particleDensity={100}
+                      className="w-full h-full"
+                      particleColor="#FFD700"
+                    />
+                  </motion.div>
                 </motion.div>
                 {features.map((feature, index) => (
                   <motion.div 
                     key={feature.title}
                     variants={itemVariants}
+                    className="relative"
                   >
                     <FeatureCard
                       {...feature}
-                      delay={index * 0.1}
+                      delay={index * 0.8} // Increased delay between features
                     />
+                    {/* Feature card formation particles */}
+                    <motion.div 
+                      className="absolute inset-0 pointer-events-none"
+                      initial={{ opacity: 1 }}
+                      animate={{ opacity: 0 }}
+                      transition={{ duration: 3, delay: 2 + index * 0.8 }}
+                    >
+                      <SparklesCore
+                        background="transparent"
+                        minSize={0.1}
+                        maxSize={0.4}
+                        particleDensity={80}
+                        className="w-full h-full"
+                        particleColor="#FFD700"
+                      />
+                    </motion.div>
                   </motion.div>
                 ))}
               </motion.div>
