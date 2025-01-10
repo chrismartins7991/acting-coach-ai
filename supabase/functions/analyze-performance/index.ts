@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { downloadVideo, extractFrames } from "./videoProcessor.ts";
 import { analyzeFrameWithOpenAI } from "./openAiAnalyzer.ts";
 import { aggregateAnalyses } from "./resultsAggregator.ts";
 
@@ -24,24 +23,13 @@ serve(async (req) => {
       throw new Error('Method not allowed');
     }
 
-    const body = await req.json();
-    console.log("Received request body:", body);
-
-    const { videoUrl } = body;
+    const { videoUrl, frames } = await req.json();
     
-    if (!videoUrl) {
-      throw new Error('No video URL provided');
+    if (!videoUrl || !frames || !Array.isArray(frames)) {
+      throw new Error('Invalid request data');
     }
 
-    console.log("Starting video analysis process...");
-
-    // Download video and extract frames
-    const videoData = await downloadVideo(videoUrl);
-    const frames = await extractFrames(videoData);
-    
-    if (frames.length < 3) {
-      throw new Error('Failed to extract enough frames from the video');
-    }
+    console.log("Starting frame analysis process...");
 
     // Analyze frames with OpenAI Vision
     const framePositions = ['beginning', 'middle', 'end'];

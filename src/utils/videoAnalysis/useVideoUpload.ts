@@ -1,88 +1,67 @@
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
-import { useVideoAnalysis } from "@/hooks/useVideoAnalysis";
+import { extractFramesFromVideo } from "./frameExtractor";
 
 export const useVideoUpload = (userId: string, onAnalysisComplete: (analysis: any) => void) => {
-  const { toast } = useToast();
-  const { analyzeVideo } = useVideoAnalysis();
-  const [retryCount, setRetryCount] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   const handleFileUpload = async (file: File) => {
-    if (!file) return;
-
-    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
-    if (file.size > MAX_FILE_SIZE) {
-      toast({
-        title: "File too large",
-        description: "Please upload a video file smaller than 50MB.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       setIsUploading(true);
       console.log("Starting video upload...");
 
+      // Extract frames first
+      const frames = await extractFramesFromVideo(file);
+      
+      if (frames.length < 3) {
+        throw new Error("Failed to extract enough frames from video");
+      }
+
+      // Upload video to Supabase Storage
       const fileExt = file.name.split('.').pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `${userId}/${fileName}`;
-      
-      console.log("Uploading file to path:", filePath);
-      
-      const { error: uploadError } = await supabase.storage
+      const filePath = `${userId}/${crypto.randomUUID()}.${fileExt}`;
+
+      const { error: uploadError, data: uploadData } = await supabase.storage
         .from('videos')
         .upload(filePath, file);
 
       if (uploadError) {
-        console.error("Upload error:", uploadError);
-        throw uploadError;
+        throw new Error('Error uploading video: ' + uploadError.message);
       }
 
       console.log("Video uploaded successfully, getting public URL...");
-      
+
+      // Get the public URL of the uploaded video
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
         .getPublicUrl(filePath);
 
-      console.log("Public URL generated:", publicUrl);
       console.log("Starting AI analysis...");
-      
-      const analysis = await analyzeVideo({
-        videoUrl: publicUrl,
-        title: file.name,
-        userId: userId
-      });
 
-      setRetryCount(0);
-      onAnalysisComplete(analysis.ai_feedback);
+      // Call the analyze-performance edge function with frames
+      const { data: analysis, error: analysisError } = await supabase.functions
+        .invoke('analyze-performance', {
+          body: { 
+            videoUrl: publicUrl,
+            frames: frames 
+          }
+        });
 
-      toast({
-        title: "Analysis Complete",
-        description: "Your performance has been analyzed successfully!",
-      });
+      if (analysisError) {
+        throw analysisError;
+      }
+
+      onAnalysisComplete(analysis);
 
     } catch (error: any) {
       console.error("Error processing video:", error);
-      
-      if (error.message.includes("Network error") && retryCount < 3) {
+      if (retryCount < 3) {
         setRetryCount(prev => prev + 1);
-        toast({
-          title: "Connection Error",
-          description: "Retrying analysis... Please wait.",
-          variant: "destructive",
-        });
-        setTimeout(() => handleFileUpload(file), 2000);
-        return;
+        await handleFileUpload(file);
+      } else {
+        throw error;
       }
-
-      toast({
-        title: "Error",
-        description: error.message || "There was an error processing your video. Please try again.",
-        variant: "destructive",
-      });
     } finally {
       setIsUploading(false);
     }
