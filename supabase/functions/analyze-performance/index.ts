@@ -85,8 +85,9 @@ async function createJWT(credentials: any, scope: string) {
     iat: now,
   };
 
-  const encodedHeader = btoa(JSON.stringify(header));
-  const encodedPayload = btoa(JSON.stringify(payload));
+  // Base64Url encode header and payload
+  const encodedHeader = base64UrlEncode(JSON.stringify(header));
+  const encodedPayload = base64UrlEncode(JSON.stringify(payload));
   const signatureInput = `${encodedHeader}.${encodedPayload}`;
   
   // Convert private key to proper format
@@ -96,7 +97,12 @@ async function createJWT(credentials: any, scope: string) {
     .replace(/\n-----END PRIVATE KEY-----/, '')
     .trim();
 
-  const binaryKey = Uint8Array.from(atob(privateKey), c => c.charCodeAt(0));
+  // Convert base64 private key to binary array
+  const binaryKey = new Uint8Array(
+    atob(privateKey)
+      .split('')
+      .map(char => char.charCodeAt(0))
+  );
   
   const algorithm = {
     name: 'RSASSA-PKCS1-v1_5',
@@ -119,12 +125,26 @@ async function createJWT(credentials: any, scope: string) {
       encoder.encode(signatureInput)
     );
 
-    const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)));
+    const encodedSignature = base64UrlEncode(
+      String.fromCharCode(...new Uint8Array(signature))
+    );
+    
     return `${signatureInput}.${encodedSignature}`;
   } catch (error) {
     console.error("Error signing JWT:", error);
     throw new Error(`Failed to sign JWT: ${error.message}`);
   }
+}
+
+// Helper function to create base64url encoded strings
+function base64UrlEncode(str: string): string {
+  // First regular base64 encoding
+  const base64 = btoa(str);
+  // Convert to base64url encoding
+  return base64
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
 }
 
 async function analyzeFrameWithOpenAI(imageUrl: string, position: string) {
