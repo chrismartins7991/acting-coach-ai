@@ -13,39 +13,39 @@ export const DesktopMenu = () => {
 
   return (
     <div className="relative inline-flex items-center w-full justify-center">
-      <div className="group flex items-center h-12 hover:bg-black/30 backdrop-blur-sm rounded-lg transition-all duration-300">
+      <div className="group flex items-center h-10 hover:bg-black/20 backdrop-blur-sm rounded-lg transition-all duration-300">
         {/* Left side items - hidden by default */}
         <div className="flex items-center h-full overflow-hidden w-0 group-hover:w-auto transition-all duration-300">
-          <div className="flex items-center gap-2 md:gap-4 h-full pl-2 md:pl-4 whitespace-nowrap">
+          <div className="flex items-center gap-1 md:gap-3 h-full pl-2 md:pl-3 whitespace-nowrap">
             {leftItems.map((item) => (
               <Link
                 key={item.title}
                 to={item.href}
-                className="flex items-center gap-1 md:gap-2 rounded-lg px-2 md:px-3 py-2 h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                className="flex items-center gap-1 md:gap-2 rounded-lg px-2 md:px-2.5 py-1.5 h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white/5"
               >
-                <item.icon className="h-4 w-4 md:h-5 md:w-5 text-theater-gold" />
-                <span className="text-white text-sm md:text-base">{item.title}</span>
+                <item.icon className="h-3.5 w-3.5 text-theater-gold/80" />
+                <span className="text-white/70 text-xs md:text-sm font-medium">{item.title}</span>
               </Link>
             ))}
           </div>
         </div>
 
         {/* Center hamburger icon - always visible */}
-        <div className="px-4 md:px-6 bg-black/30 rounded-lg">
-          <Menu className="h-4 w-4 md:h-5 md:w-5 text-theater-gold" />
+        <div className="px-3 md:px-4 bg-black/20 rounded-lg">
+          <Menu className="h-3.5 w-3.5 text-theater-gold/80" />
         </div>
 
         {/* Right side items - hidden by default */}
         <div className="flex items-center h-full overflow-hidden w-0 group-hover:w-auto transition-all duration-300">
-          <div className="flex items-center gap-2 md:gap-4 h-full pr-2 md:pr-4 whitespace-nowrap">
+          <div className="flex items-center gap-1 md:gap-3 h-full pr-2 md:pr-3 whitespace-nowrap">
             {rightItems.map((item) => (
               <Link
                 key={item.title}
                 to={item.href}
-                className="flex items-center gap-1 md:gap-2 rounded-lg px-2 md:px-3 py-2 h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                className="flex items-center gap-1 md:gap-2 rounded-lg px-2 md:px-2.5 py-1.5 h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white/5"
               >
-                <item.icon className="h-4 w-4 md:h-5 md:w-5 text-theater-gold" />
-                <span className="text-white text-sm md:text-base">{item.title}</span>
+                <item.icon className="h-3.5 w-3.5 text-theater-gold/80" />
+                <span className="text-white/70 text-xs md:text-sm font-medium">{item.title}</span>
               </Link>
             ))}
           </div>
@@ -80,9 +80,9 @@ DesktopMenu.Logout = function DesktopMenuLogout() {
     <Button
       variant="outline"
       onClick={handleLogout}
-      className="text-white border-white/20 hover:text-theater-gold hover:bg-white/10 bg-black/30 backdrop-blur-md"
+      className="h-8 text-xs text-white/70 border-white/10 hover:text-theater-gold/80 hover:bg-white/5 bg-black/20 backdrop-blur-md"
     >
-      <LogOut className="h-4 w-4 mr-2" />
+      <LogOut className="h-3.5 w-3.5 mr-1.5" />
       Logout
     </Button>
   );
@@ -95,9 +95,9 @@ DesktopMenu.Settings = function DesktopMenuSettings() {
       <Button
         variant="outline"
         size="icon"
-        className="text-white border-white/20 hover:text-theater-gold hover:bg-white/10 bg-black/30 backdrop-blur-md"
+        className="h-8 w-8 text-white/70 border-white/10 hover:text-theater-gold/80 hover:bg-white/5 bg-black/20 backdrop-blur-md"
       >
-        <Settings2 className="h-4 w-4" />
+        <Settings2 className="h-3.5 w-3.5" />
       </Button>
     </Link>
   );
