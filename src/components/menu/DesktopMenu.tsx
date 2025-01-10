@@ -40,13 +40,14 @@ export const DesktopMenu = () => {
         <AnimatePresence>
           {isHovered && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, width: 0 }}
-              animate={{ opacity: 1, scale: 1, width: "600px" }}
-              exit={{ opacity: 0, scale: 0.95, width: 0 }}
+              initial={{ opacity: 0, scale: 0.95, x: "-50%" }}
+              animate={{ opacity: 1, scale: 1, x: "-50%" }}
+              exit={{ opacity: 0, scale: 0.95, x: "-50%" }}
               transition={{ duration: 0.2 }}
-              className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-black/80 backdrop-blur-md rounded-lg border border-white/20 shadow-xl overflow-hidden"
+              className="absolute top-full left-1/2 mt-2 bg-black/80 backdrop-blur-md rounded-lg border border-white/20 shadow-xl overflow-hidden origin-top"
+              style={{ width: "600px", transformOrigin: "top center" }}
             >
-              <div className="grid grid-cols-3 gap-2 p-4 relative z-10">
+              <div className="grid grid-cols-3 gap-2 p-4">
                 {menuItems.map((item) => (
                   <Link
                     key={item.title}
@@ -76,7 +77,7 @@ export const DesktopMenu = () => {
       <Button
         variant="outline"
         onClick={handleLogout}
-        className="text-white border-white/20 hover:text-theater-gold hover:bg-white/10 bg-black/30"
+        className="text-white border-white/20 hover:text-theater-gold hover:bg-white/10 bg-black/30 backdrop-blur-md"
       >
         <LogOut className="h-4 w-4 mr-2" />
         Logout
