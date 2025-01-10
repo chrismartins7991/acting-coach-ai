@@ -65,13 +65,20 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
           >
-            <Button 
-              onClick={onLoginSuccess}
-              size="lg"
-              className="bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
-            >
-              Start Free Trial
-            </Button>
+            {/* Start Free Trial button with beam effect wrapper */}
+            <div className="relative group">
+              {/* Beam effect container */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-theater-gold to-transparent rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-500 animate-pulse"></div>
+              
+              <Button 
+                onClick={onLoginSuccess}
+                size="lg"
+                className="relative bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
+              >
+                Start Free Trial
+              </Button>
+            </div>
+            
             <Button 
               variant="link" 
               className="text-white hover:text-theater-gold"
