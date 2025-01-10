@@ -12,7 +12,7 @@ export const DesktopMenu = () => {
 
   return (
     <div 
-      className="relative group"
+      className="relative"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -25,20 +25,23 @@ export const DesktopMenu = () => {
             animate={{ opacity: 1, scaleX: 1 }}
             exit={{ opacity: 0, scaleX: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-black/80 backdrop-blur-md rounded-lg border border-white/20 shadow-xl overflow-hidden"
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-black/80 backdrop-blur-md rounded-lg border border-white/20 shadow-xl whitespace-nowrap"
             style={{ transformOrigin: "center" }}
           >
-            <div className="flex items-center gap-2 p-2 whitespace-nowrap">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.title}
-                  to={item.href}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white/10 transition-colors"
-                >
-                  <item.icon className="h-5 w-5 text-theater-gold" />
-                  <span className="text-white">{item.title}</span>
-                </Link>
-              ))}
+            <div className="flex items-center justify-center gap-1 p-2">
+              {menuItems.map((item, index) => {
+                const isLeftSide = index < menuItems.length / 2;
+                return (
+                  <Link
+                    key={item.title}
+                    to={item.href}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors"
+                  >
+                    <item.icon className="h-5 w-5 text-theater-gold" />
+                    <span className="text-white whitespace-nowrap">{item.title}</span>
+                  </Link>
+                );
+              })}
             </div>
           </motion.div>
         )}
