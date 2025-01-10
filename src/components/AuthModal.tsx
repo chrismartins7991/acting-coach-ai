@@ -7,13 +7,15 @@ import { Button } from './ui/button';
 import { useToast } from './ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { AuthChangeEvent } from '@supabase/supabase-js';
+import { cn } from '@/lib/utils';
 
 interface AuthModalProps {
   buttonText: string;
   variant?: "primary" | "outline";
+  className?: string;
 }
 
-export const AuthModal = ({ buttonText, variant = "primary" }: AuthModalProps) => {
+export const AuthModal = ({ buttonText, variant = "primary", className }: AuthModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -81,7 +83,7 @@ export const AuthModal = ({ buttonText, variant = "primary" }: AuthModalProps) =
         <Button 
           size="lg"
           variant={variant === "primary" ? "default" : "outline"}
-          className={buttonStyle}
+          className={cn(buttonStyle, className)}
         >
           {buttonText}
         </Button>

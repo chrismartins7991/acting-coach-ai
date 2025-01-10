@@ -7,6 +7,15 @@ export const Hero = () => {
     <div className="relative min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red overflow-hidden">
       <div className="absolute inset-0 bg-[url('/lovable-uploads/67fe6e0d-76fa-4723-8927-0f8ecb2f2409.png')] opacity-10 bg-center bg-cover" />
       
+      {/* Login button positioned in upper right */}
+      <div className="absolute top-4 right-4 z-10">
+        <AuthModal 
+          buttonText="Login" 
+          variant="outline" 
+          className="bg-black/30 hover:bg-white/20 text-white border-white/50 hover:border-white"
+        />
+      </div>
+
       <div className="relative container mx-auto px-4 py-32 sm:py-48 flex items-center justify-center min-h-screen">
         <div className="text-center max-w-3xl">
           <motion.h1 
@@ -34,7 +43,6 @@ export const Hero = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-6"
           >
             <AuthModal buttonText="Start Free Trial" variant="primary" />
-            <AuthModal buttonText="Login" variant="outline" />
             <Button 
               variant="link" 
               className="text-white hover:text-theater-gold"
