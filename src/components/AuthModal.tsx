@@ -6,8 +6,9 @@ import { supabase } from '@/lib/supabase';
 import { Button } from './ui/button';
 import { useToast } from './ui/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { AuthChangeEvent } from '@supabase/supabase-js';
+import { AuthChangeEvent, AuthError } from '@supabase/supabase-js';
 import { cn } from '@/lib/utils';
+import { Alert, AlertDescription } from './ui/alert';
 
 interface AuthModalProps {
   buttonText: string;
@@ -17,13 +18,18 @@ interface AuthModalProps {
 
 export const AuthModal = ({ buttonText, variant = "primary", className }: AuthModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        console.error('Session check error:', sessionError);
+        return;
+      }
       if (session) {
         console.log('User is already logged in, redirecting to dashboard');
         navigate('/dashboard');
@@ -33,45 +39,69 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
   }, [navigate]);
 
   // Add console logs to track auth state changes and errors
-  supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
-    console.log('Auth state changed:', event, session);
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
+      console.log('Auth state changed:', event, session);
+      
+      // Clear error when modal is closed or on successful actions
+      if (!isOpen || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+        setError(null);
+      }
+
+      switch (event) {
+        case 'SIGNED_IN':
+          setIsOpen(false);
+          navigate('/dashboard');
+          toast({
+            title: "Welcome!",
+            description: "You have successfully signed in.",
+          });
+          break;
+        case 'SIGNED_OUT':
+          navigate('/');
+          toast({
+            title: "Signed out",
+            description: "You have been signed out.",
+          });
+          break;
+        case 'USER_UPDATED':
+          toast({
+            title: "Email confirmed",
+            description: "Your email has been confirmed.",
+          });
+          break;
+        case 'PASSWORD_RECOVERY':
+          toast({
+            title: "Password reset requested",
+            description: "Check your email for the password reset link.",
+          });
+          break;
+        case 'TOKEN_REFRESHED':
+          toast({
+            title: "Account created",
+            description: "Please check your email to confirm your account.",
+          });
+          break;
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, toast, isOpen]);
+
+  const handleError = (error: AuthError) => {
+    console.error('Auth error:', error);
+    let errorMessage = 'An error occurred during authentication.';
     
-    switch (event) {
-      case 'SIGNED_IN':
-        setIsOpen(false);
-        navigate('/dashboard');
-        toast({
-          title: "Welcome!",
-          description: "You have successfully signed in.",
-        });
-        break;
-      case 'SIGNED_OUT':
-        navigate('/');
-        toast({
-          title: "Signed out",
-          description: "You have been signed out.",
-        });
-        break;
-      case 'USER_UPDATED':
-        toast({
-          title: "Email confirmed",
-          description: "Your email has been confirmed.",
-        });
-        break;
-      case 'PASSWORD_RECOVERY':
-        toast({
-          title: "Password reset requested",
-          description: "Check your email for the password reset link.",
-        });
-        break;
-      case 'TOKEN_REFRESHED':
-        toast({
-          title: "Account created",
-          description: "Please check your email to confirm your account.",
-        });
-        break;
+    if (error.message.includes('invalid_credentials')) {
+      errorMessage = 'Invalid email or password. Please try again.';
+    } else if (error.message.includes('Email not confirmed')) {
+      errorMessage = 'Please verify your email address before signing in.';
     }
-  });
+    
+    setError(errorMessage);
+  };
 
   const buttonStyle = variant === "primary" 
     ? "bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
@@ -92,6 +122,11 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
         <DialogHeader>
           <DialogTitle className="text-center">Welcome to Acting Coach AI</DialogTitle>
         </DialogHeader>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <Auth
           supabaseClient={supabase}
           appearance={{ 
