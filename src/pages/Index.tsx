@@ -1,24 +1,22 @@
 import { Hero } from "@/components/Hero";
 import { Features } from "@/components/Features";
+import { WhyUseSection } from "@/components/WhyUseSection";
 import { AnimatePresence, motion } from "framer-motion";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { SparklesCore } from "@/components/ui/sparkles";
 
 const Index = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleLoginTransition = () => {
-    // Start the transition animation
     const element = document.getElementById('landing-container');
     if (element) {
       element.classList.add('transitioning');
     }
     
-    // Navigate to dashboard after animation
     setTimeout(() => {
       navigate('/dashboard', { state: { fromLanding: true } });
-    }, 1000); // Sync with animation duration
+    }, 1000);
   };
 
   return (
@@ -32,10 +30,10 @@ const Index = () => {
       >
         <div className="relative z-10">
           <Hero onLoginSuccess={handleLoginTransition} />
+          <WhyUseSection />
           <Features />
         </div>
         
-        {/* Transition particles */}
         <motion.div 
           className="fixed inset-0 pointer-events-none z-50"
           initial={{ opacity: 0 }}
