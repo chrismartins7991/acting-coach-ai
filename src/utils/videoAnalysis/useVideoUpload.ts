@@ -9,10 +9,10 @@ export const useVideoUpload = (userId: string, onAnalysisComplete: (analysis: an
   const handleFileUpload = async (file: File) => {
     try {
       setIsUploading(true);
-      console.log("Starting video upload...");
+      console.log("Starting video upload and analysis...");
 
-      // Extract frames first
-      const frames = await extractFramesFromVideo(file);
+      // Extract frames and audio
+      const { frames, audioBlob } = await extractFramesFromVideo(file);
       
       if (frames.length < 3) {
         throw new Error("Failed to extract enough frames from video");
@@ -37,14 +37,22 @@ export const useVideoUpload = (userId: string, onAnalysisComplete: (analysis: an
         .from('videos')
         .getPublicUrl(filePath);
 
+      // Convert audio blob to base64
+      const audioBase64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
+        reader.readAsDataURL(audioBlob!);
+      });
+
       console.log("Starting AI analysis...");
 
-      // Call the analyze-performance edge function with frames
+      // Call the analyze-performance edge function with frames and audio
       const { data: analysis, error: analysisError } = await supabase.functions
         .invoke('analyze-performance', {
           body: { 
             videoUrl: publicUrl,
-            frames: frames 
+            frames: frames,
+            audio: audioBase64
           }
         });
 

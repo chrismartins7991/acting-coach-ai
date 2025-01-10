@@ -1,5 +1,5 @@
-export const extractFramesFromVideo = async (videoFile: File): Promise<string[]> => {
-  console.log("Extracting frames from video on client side...");
+export const extractFramesFromVideo = async (videoFile: File): Promise<{ frames: string[], audioBlob?: Blob }> => {
+  console.log("Extracting frames and audio from video on client side...");
   
   return new Promise((resolve, reject) => {
     const video = document.createElement('video');
@@ -7,13 +7,37 @@ export const extractFramesFromVideo = async (videoFile: File): Promise<string[]>
     const ctx = canvas.getContext('2d');
     const frames: string[] = [];
     
+    // Set up audio context and nodes
+    const audioContext = new AudioContext();
+    const destination = audioContext.createMediaStreamDestination();
+    const mediaRecorder = new MediaRecorder(destination.stream);
+    const audioChunks: BlobPart[] = [];
+    
     video.autoplay = false;
-    video.muted = true;
+    video.muted = false;
+    
+    // Set up audio recording
+    mediaRecorder.ondataavailable = (event) => {
+      audioChunks.push(event.data);
+    };
+    
+    mediaRecorder.onstop = () => {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      resolve({ frames, audioBlob });
+    };
     
     // Set up video metadata loading
     video.onloadedmetadata = () => {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
+      
+      // Connect video audio to recorder
+      const source = audioContext.createMediaElementSource(video);
+      source.connect(destination);
+      source.connect(audioContext.destination);
+      
+      // Start recording audio
+      mediaRecorder.start();
       
       // Extract frames at beginning, middle, and end
       const timePoints = [0, video.duration / 2, video.duration * 0.99];
@@ -32,14 +56,14 @@ export const extractFramesFromVideo = async (videoFile: File): Promise<string[]>
           if (framesProcessed < timePoints.length) {
             extractFrame(timePoints[framesProcessed]);
           } else {
-            console.log(`Successfully extracted ${frames.length} frames`);
-            URL.revokeObjectURL(video.src);
-            resolve(frames);
+            mediaRecorder.stop();
+            video.pause();
           }
         }
       };
       
-      // Start extracting frames
+      // Start playing to capture audio and extract frames
+      video.play();
       extractFrame(timePoints[0]);
     };
     

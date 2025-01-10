@@ -19,17 +19,13 @@ serve(async (req) => {
   }
 
   try {
-    if (req.method !== 'POST') {
-      throw new Error('Method not allowed');
-    }
-
-    const { videoUrl, frames } = await req.json();
+    const { videoUrl, frames, audio } = await req.json();
     
-    if (!videoUrl || !frames || !Array.isArray(frames)) {
+    if (!videoUrl || !frames || !Array.isArray(frames) || !audio) {
       throw new Error('Invalid request data');
     }
 
-    console.log("Starting frame analysis process...");
+    console.log("Starting frame and audio analysis process...");
 
     // Analyze frames with OpenAI Vision
     const framePositions = ['beginning', 'middle', 'end'];
@@ -38,12 +34,68 @@ serve(async (req) => {
     );
     console.log("OpenAI frame analyses completed");
 
-    // Combine analyses
-    const aggregatedAnalysis = aggregateAnalyses(frameAnalyses);
-    console.log("Analysis aggregated:", aggregatedAnalysis);
+    // Process audio with Whisper
+    console.log("Starting audio transcription...");
+    const formData = new FormData();
+    const audioBlob = Uint8Array.from(atob(audio), c => c.charCodeAt(0));
+    formData.append('file', new Blob([audioBlob], { type: 'audio/webm' }), 'audio.webm');
+    formData.append('model', 'whisper-1');
+
+    const transcriptionResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+      },
+      body: formData,
+    });
+
+    if (!transcriptionResponse.ok) {
+      throw new Error(`Failed to transcribe audio: ${await transcriptionResponse.text()}`);
+    }
+
+    const transcriptionResult = await transcriptionResponse.json();
+    console.log("Audio transcription completed");
+
+    // Analyze speech content with GPT-4
+    const speechAnalysisResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'Analyze the following speech transcript from an acting performance. Focus on vocal delivery, emotional expression, and clarity. Provide scores out of 100 for each aspect and brief feedback.'
+          },
+          {
+            role: 'user',
+            content: transcriptionResult.text
+          }
+        ],
+      }),
+    });
+
+    if (!speechAnalysisResponse.ok) {
+      throw new Error(`Failed to analyze speech: ${await speechAnalysisResponse.text()}`);
+    }
+
+    const speechAnalysis = await speechAnalysisResponse.json();
+    console.log("Speech analysis completed");
+
+    // Combine visual and audio analyses
+    const combinedAnalysis = {
+      ...aggregateAnalyses(frameAnalyses),
+      speech: {
+        transcript: transcriptionResult.text,
+        analysis: speechAnalysis.choices[0].message.content
+      }
+    };
 
     return new Response(
-      JSON.stringify(aggregatedAnalysis),
+      JSON.stringify(combinedAnalysis),
       { 
         headers: { 
           ...corsHeaders,
