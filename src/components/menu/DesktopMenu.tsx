@@ -4,72 +4,49 @@ import { menuItems } from "./menuItems";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
 
 export const DesktopMenu = () => {
-  const [isHovered, setIsHovered] = useState(false);
-
   // Split menu items into left and right sides
   const midPoint = Math.floor(menuItems.length / 2);
   const leftItems = menuItems.slice(0, midPoint);
   const rightItems = menuItems.slice(midPoint);
 
   return (
-    <div 
-      className="relative inline-flex items-center"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <AnimatePresence>
-        {isHovered ? (
-          <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
-            animate={{ opacity: 1, scaleX: 1 }}
-            exit={{ opacity: 0, scaleX: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="absolute left-1/2 -translate-x-1/2 h-10"
-            style={{ transformOrigin: "center" }}
-          >
-            <div className="flex items-center h-full bg-black/30 backdrop-blur-sm rounded-lg">
-              {/* Left side items */}
-              <div className="flex items-center gap-6 h-full pl-4">
-                {leftItems.map((item) => (
-                  <Link
-                    key={item.title}
-                    to={item.href}
-                    className="flex items-center gap-2 rounded-lg hover:bg-black/30 transition-colors px-3 py-2 whitespace-nowrap h-full"
-                  >
-                    <item.icon className="h-5 w-5 text-theater-gold" />
-                    <span className="text-white">{item.title}</span>
-                  </Link>
-                ))}
-              </div>
+    <div className="relative inline-flex items-center">
+      <div className="flex items-center h-16 bg-black/30 backdrop-blur-sm rounded-lg">
+        {/* Left side items */}
+        <div className="flex items-center gap-6 h-full pl-4">
+          {leftItems.map((item) => (
+            <Link
+              key={item.title}
+              to={item.href}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 whitespace-nowrap h-full"
+            >
+              <item.icon className="h-5 w-5 text-theater-gold" />
+              <span className="text-white">{item.title}</span>
+            </Link>
+          ))}
+        </div>
 
-              {/* Center hamburger icon */}
-              <div className="px-4">
-                <Menu className="h-6 w-6 text-theater-gold" />
-              </div>
+        {/* Center hamburger icon */}
+        <div className="px-8">
+          <Menu className="h-6 w-6 text-theater-gold" />
+        </div>
 
-              {/* Right side items */}
-              <div className="flex items-center gap-6 h-full pr-4">
-                {rightItems.map((item) => (
-                  <Link
-                    key={item.title}
-                    to={item.href}
-                    className="flex items-center gap-2 rounded-lg hover:bg-black/30 transition-colors px-3 py-2 whitespace-nowrap h-full"
-                  >
-                    <item.icon className="h-5 w-5 text-theater-gold" />
-                    <span className="text-white">{item.title}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          <Menu className="h-6 w-6 text-theater-gold hover:text-theater-purple transition-colors duration-300" />
-        )}
-      </AnimatePresence>
+        {/* Right side items */}
+        <div className="flex items-center gap-6 h-full pr-4">
+          {rightItems.map((item) => (
+            <Link
+              key={item.title}
+              to={item.href}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 whitespace-nowrap h-full"
+            >
+              <item.icon className="h-5 w-5 text-theater-gold" />
+              <span className="text-white">{item.title}</span>
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
