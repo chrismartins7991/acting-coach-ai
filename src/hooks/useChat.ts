@@ -16,6 +16,7 @@ export const useChat = () => {
   const { user } = useAuth();
 
   const loadConversation = async (conversationId: string) => {
+    console.log('Loading conversation:', conversationId);
     const { data: messages, error } = await supabase
       .from('messages')
       .select('*')
@@ -27,6 +28,7 @@ export const useChat = () => {
       return;
     }
 
+    console.log('Loaded messages:', messages);
     setMessages(messages.map(msg => ({
       role: msg.role as 'user' | 'assistant',
       content: msg.content
@@ -39,6 +41,7 @@ export const useChat = () => {
       return null;
     }
 
+    console.log('Creating new conversation for user:', user.id);
     const { data, error } = await supabase
       .from('conversations')
       .insert({
@@ -53,10 +56,26 @@ export const useChat = () => {
       return null;
     }
 
+    console.log('Created new conversation:', data);
     return data.id;
   };
 
   const saveMessage = async (message: Message, conversationId: string) => {
+    console.log('Saving message:', { message, conversationId });
+    
+    // First verify the conversation exists and belongs to the user
+    const { data: conversation, error: conversationError } = await supabase
+      .from('conversations')
+      .select('id')
+      .eq('id', conversationId)
+      .eq('user_id', user?.id)
+      .single();
+
+    if (conversationError || !conversation) {
+      console.error('Error verifying conversation ownership:', conversationError);
+      return;
+    }
+
     const { error } = await supabase
       .from('messages')
       .insert({
@@ -67,30 +86,38 @@ export const useChat = () => {
 
     if (error) {
       console.error('Error saving message:', error);
+      throw error;
     }
+    
+    console.log('Message saved successfully');
   };
 
   const sendMessage = async (content: string) => {
     if (!content.trim()) return;
+    console.log('Sending message:', content);
 
     setIsLoading(true);
 
-    // Create new conversation if needed
-    if (!currentConversationId) {
-      const newConversationId = await createNewConversation(content);
-      if (!newConversationId) {
-        setIsLoading(false);
-        return;
-      }
-      setCurrentConversationId(newConversationId);
-    }
-
-    // Add and save user message
-    const newUserMessage = { role: 'user' as const, content };
-    setMessages(prev => [...prev, newUserMessage]);
-    await saveMessage(newUserMessage, currentConversationId!);
-
     try {
+      // Create new conversation if needed
+      if (!currentConversationId) {
+        console.log('No current conversation, creating new one...');
+        const newConversationId = await createNewConversation(content);
+        if (!newConversationId) {
+          console.error('Failed to create new conversation');
+          setIsLoading(false);
+          return;
+        }
+        console.log('Setting current conversation ID:', newConversationId);
+        setCurrentConversationId(newConversationId);
+      }
+
+      // Add and save user message
+      const newUserMessage = { role: 'user' as const, content };
+      setMessages(prev => [...prev, newUserMessage]);
+      await saveMessage(newUserMessage, currentConversationId!);
+
+      // Get AI response
       const { data, error } = await supabase.functions.invoke('chat', {
         body: { message: content },
       });
