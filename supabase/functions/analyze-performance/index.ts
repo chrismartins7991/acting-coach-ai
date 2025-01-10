@@ -9,8 +9,11 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log("Received request to analyze-performance function");
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log("Handling OPTIONS preflight request");
     return new Response(null, { 
       headers: corsHeaders,
       status: 204
@@ -18,8 +21,6 @@ serve(async (req) => {
   }
 
   try {
-    console.log("Starting analyze-performance function");
-    
     if (req.method !== 'POST') {
       throw new Error('Method not allowed');
     }
@@ -59,7 +60,7 @@ serve(async (req) => {
       throw new Error('Google Cloud credentials not properly configured');
     }
 
-    console.log("Analyzing video with Google Cloud API");
+    console.log("Starting Google Cloud analysis");
     const googleCloudResponse = await analyzeVideoWithGoogleCloud(videoUrl, credentials);
     console.log("Google Cloud analysis complete");
 
