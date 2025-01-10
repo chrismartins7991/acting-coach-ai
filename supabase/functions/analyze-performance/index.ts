@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { processVideoAnalysis } from "./analysis.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -43,7 +42,10 @@ async function analyzeFrameWithOpenAI(frame: string): Promise<any> {
             },
             {
               type: "image_url",
-              image_url: frame
+              image_url: {
+                url: frame,
+                detail: "high"
+              }
             }
           ]
         }
