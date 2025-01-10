@@ -1,6 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { FFmpeg } from "https://esm.sh/@ffmpeg/ffmpeg@0.12.7";
-import { toBlobURL } from "https://esm.sh/@ffmpeg/util@0.12.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,64 +16,13 @@ async function downloadVideo(url: string): Promise<Uint8Array> {
   return new Uint8Array(arrayBuffer);
 }
 
-async function extractFramesFromVideo(videoData: Uint8Array): Promise<string[]> {
-  console.log("Extracting frames from video...");
-  
-  // Initialize FFmpeg
-  const ffmpeg = new FFmpeg();
-  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-  
-  // Load FFmpeg
-  await ffmpeg.load({
-    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-  });
-  
-  // Write video data to FFmpeg's virtual filesystem
-  ffmpeg.writeFile('input.mp4', videoData);
-  
-  // Extract frames at specific intervals
-  await ffmpeg.exec([
-    '-i', 'input.mp4',
-    '-vf', 'select=eq(n\\,0)+eq(n\\,floor(n_frames*0.25))+eq(n\\,floor(n_frames*0.5))+eq(n\\,floor(n_frames*0.75))',
-    '-vsync', '0',
-    '-frame_pts', '1',
-    '-f', 'image2',
-    'frame_%d.jpg'
-  ]);
-  
-  // Read the extracted frames
-  const frames: string[] = [];
-  for (let i = 0; i < 4; i++) {
-    try {
-      const frameData = await ffmpeg.readFile(`frame_${i}.jpg`);
-      const base64Frame = btoa(String.fromCharCode(...frameData));
-      frames.push(`data:image/jpeg;base64,${base64Frame}`);
-    } catch (error) {
-      console.error(`Error reading frame ${i}:`, error);
-    }
-  }
-  
-  // Cleanup
-  await ffmpeg.deleteFile('input.mp4');
-  for (let i = 0; i < 4; i++) {
-    try {
-      await ffmpeg.deleteFile(`frame_${i}.jpg`);
-    } catch (error) {
-      console.error(`Error deleting frame ${i}:`, error);
-    }
-  }
-  
-  return frames;
-}
-
-async function analyzeFrameWithOpenAI(frame: string, position: string): Promise<any> {
+async function analyzeFrameWithOpenAI(videoUrl: string, position: string): Promise<any> {
   const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
   if (!openaiApiKey) {
     throw new Error('OpenAI API key not configured');
   }
 
-  console.log(`Analyzing ${position} frame with OpenAI Vision...`);
+  console.log(`Analyzing video at ${position} position with OpenAI Vision...`);
   
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -89,21 +36,14 @@ async function analyzeFrameWithOpenAI(frame: string, position: string): Promise<
         messages: [
           {
             role: "system",
-            content: "You are an expert acting coach analyzing performance videos. Analyze this frame from a performance video and provide specific feedback on: 1) Physical presence and body language 2) Facial expressions and emotional conveyance 3) Overall stage presence. Be specific and constructive."
+            content: "You are an expert acting coach analyzing performance videos. Analyze this video and provide specific feedback on: 1) Physical presence and body language 2) Facial expressions and emotional conveyance 3) Overall stage presence. Be specific and constructive."
           },
           {
             role: "user",
             content: [
               {
                 type: "text",
-                text: `Analyze this ${position} frame of the performance, focusing on the actor's presence, expressions, and body language.`
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: frame,
-                  detail: "high"
-                }
+                text: `Analyze this ${position} of the performance video at ${videoUrl}, focusing on the actor's presence, expressions, and body language.`
               }
             ]
           }
@@ -118,15 +58,15 @@ async function analyzeFrameWithOpenAI(frame: string, position: string): Promise<
     }
 
     const result = await response.json();
-    console.log(`Analysis received for ${position} frame:`, result);
+    console.log(`Analysis received for ${position}:`, result);
     return result;
   } catch (error) {
-    console.error(`Error analyzing ${position} frame:`, error);
+    console.error(`Error analyzing ${position}:`, error);
     throw error;
   }
 }
 
-function aggregateAnalyses(frameAnalyses: any[]): any {
+function aggregateAnalyses(analyses: any[]): any {
   const positions = ['beginning', 'middle', 'late-middle', 'end'];
   let overallScore = 0;
   const detailedFeedback: string[] = [];
@@ -136,7 +76,7 @@ function aggregateAnalyses(frameAnalyses: any[]): any {
     emotionalRange: 0
   };
 
-  frameAnalyses.forEach((analysis, index) => {
+  analyses.forEach((analysis, index) => {
     const feedback = analysis.choices[0].message.content;
     detailedFeedback.push(`${positions[index].toUpperCase()}: ${feedback}`);
     
@@ -150,9 +90,9 @@ function aggregateAnalyses(frameAnalyses: any[]): any {
   });
 
   // Average the scores
-  overallScore = Math.round(overallScore / frameAnalyses.length);
+  overallScore = Math.round(overallScore / analyses.length);
   Object.keys(categoryScores).forEach(key => {
-    categoryScores[key] = Math.round(categoryScores[key] / frameAnalyses.length);
+    categoryScores[key] = Math.round(categoryScores[key] / analyses.length);
   });
 
   return {
@@ -207,24 +147,16 @@ serve(async (req) => {
 
     console.log("Video URL received:", videoUrl);
 
-    // Download and process the video
-    const videoData = await downloadVideo(videoUrl);
-    console.log("Video downloaded successfully");
-
-    // Extract frames from the video
-    const frames = await extractFramesFromVideo(videoData);
-    console.log(`Extracted ${frames.length} frames from video`);
-
-    // Analyze each frame with OpenAI Vision
+    // Instead of extracting frames, we'll analyze the video directly at different timestamps
     const positions = ['beginning', 'first-quarter', 'third-quarter', 'end'];
-    const frameAnalyses = await Promise.all(
-      frames.map((frame, index) => analyzeFrameWithOpenAI(frame, positions[index]))
+    const analyses = await Promise.all(
+      positions.map(position => analyzeFrameWithOpenAI(videoUrl, position))
     );
 
-    console.log("All frames analyzed successfully");
+    console.log("All analyses completed successfully");
 
     // Aggregate the analyses into a comprehensive result
-    const aggregatedAnalysis = aggregateAnalyses(frameAnalyses);
+    const aggregatedAnalysis = aggregateAnalyses(analyses);
     console.log("Analysis aggregated:", aggregatedAnalysis);
 
     return new Response(
