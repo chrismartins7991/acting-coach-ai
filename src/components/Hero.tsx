@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { SparklesCore } from "./ui/sparkles";
+import { FollowerPointerCard } from "./ui/following-pointer";
 
 interface HeroProps {
   onLoginSuccess: () => void;
@@ -34,20 +35,22 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             Your AI Acting Coach
           </motion.h1>
           
-          {/* Lighting line effect */}
+          {/* Lighting line effect with reduced sparkles */}
           <div className="relative w-full h-[60px] mb-6">
             <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-[2px] w-1/2 blur-sm" />
             <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-px w-1/2" />
             
-            {/* Subtle particles below title */}
-            <SparklesCore
-              background="transparent"
-              minSize={0.2}
-              maxSize={0.6}
-              particleDensity={40}
-              className="w-full h-full"
-              particleColor="#FFD700"
-            />
+            {/* Reduced sparkles with downward direction */}
+            <div className="w-full h-full bg-black [mask-image:radial-gradient(350px_200px_at_top,transparent_20%,white)]">
+              <SparklesCore
+                background="transparent"
+                minSize={0.2}
+                maxSize={0.6}
+                particleDensity={20}
+                className="w-full h-full"
+                particleColor="#FFD700"
+              />
+            </div>
           </div>
           
           <motion.p 
@@ -65,19 +68,19 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
           >
-            {/* Start Free Trial button with beam effect wrapper */}
-            <div className="relative group">
-              {/* Beam effect container */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-theater-gold to-transparent rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-500 animate-pulse"></div>
-              
-              <Button 
-                onClick={onLoginSuccess}
-                size="lg"
-                className="relative bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
-              >
-                Start Free Trial
-              </Button>
-            </div>
+            {/* Start Free Trial button with enhanced effects */}
+            <FollowerPointerCard>
+              <div className="relative group">
+                <div className="absolute -inset-px bg-theater-gold/20 rounded-lg blur-sm transition-all duration-500 group-hover:bg-theater-gold/40 group-hover:blur-md" />
+                <Button 
+                  onClick={onLoginSuccess}
+                  size="lg"
+                  className="relative bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold border-2 border-theater-gold/50 hover:border-theater-gold transition-all duration-300"
+                >
+                  Start Free Trial
+                </Button>
+              </div>
+            </FollowerPointerCard>
             
             <Button 
               variant="link" 
