@@ -7,8 +7,9 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Max-Age': '86400',
 };
+
+const MAX_REQUEST_SIZE = 50 * 1024 * 1024; // 50MB
 
 serve(async (req) => {
   console.log("Received request to analyze-performance function");
@@ -23,14 +24,16 @@ serve(async (req) => {
   }
 
   try {
-    // Read request body as text first to check size
-    const bodyText = await req.text();
-    console.log("Request body size:", bodyText.length);
-    
-    if (bodyText.length > 50 * 1024 * 1024) { // 50MB limit
+    // Check request size
+    const contentLength = parseInt(req.headers.get('content-length') || '0');
+    if (contentLength > MAX_REQUEST_SIZE) {
       throw new Error('Request too large - maximum size is 50MB');
     }
 
+    // Read and parse request body
+    const bodyText = await req.text();
+    console.log("Request body size:", bodyText.length);
+    
     const { videoUrl, frames, audio } = JSON.parse(bodyText);
     
     if (!videoUrl || !frames || !Array.isArray(frames) || !audio) {
