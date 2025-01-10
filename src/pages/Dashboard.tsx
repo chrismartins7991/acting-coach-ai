@@ -10,6 +10,7 @@ import { PerformanceAnalysis } from "@/components/PerformanceAnalysis";
 import { VideoUpload } from "@/components/VideoUpload";
 import { FeatureCard } from "@/components/FeatureCard";
 import { Chat } from "@/components/Chat";
+import { SparklesCore } from "@/components/ui/sparkles";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -44,10 +45,46 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red">
+    <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red relative overflow-hidden">
+      {/* Top sparkles */}
+      <div className="absolute top-0 left-0 w-full h-64 opacity-50 pointer-events-none">
+        <SparklesCore
+          background="transparent"
+          minSize={0.2}
+          maxSize={0.8}
+          particleDensity={70}
+          className="w-full h-full"
+          particleColor="#FFD700"
+        />
+      </div>
+
+      {/* Right side sparkles */}
+      <div className="absolute right-0 top-1/4 w-64 h-96 opacity-40 pointer-events-none">
+        <SparklesCore
+          background="transparent"
+          minSize={0.1}
+          maxSize={0.6}
+          particleDensity={50}
+          className="w-full h-full"
+          particleColor="#FFD700"
+        />
+      </div>
+
+      {/* Bottom left sparkles */}
+      <div className="absolute left-0 bottom-0 w-96 h-64 opacity-30 pointer-events-none">
+        <SparklesCore
+          background="transparent"
+          minSize={0.2}
+          maxSize={0.7}
+          particleDensity={60}
+          className="w-full h-full"
+          particleColor="#FFD700"
+        />
+      </div>
+
       <TopMenu />
       
-      <div className="container mx-auto px-4 py-8 pt-32 max-w-7xl">
+      <div className="container mx-auto px-4 py-8 pt-32 max-w-7xl relative z-10">
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-8">
           Welcome to Your Acting Studio
         </h1>
