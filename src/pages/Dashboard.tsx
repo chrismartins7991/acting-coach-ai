@@ -8,7 +8,6 @@ import { useVideoAnalysis } from "@/hooks/useVideoAnalysis";
 import { PerformanceAnalysis } from "@/components/PerformanceAnalysis";
 import { VideoUpload } from "@/components/VideoUpload";
 import { FeatureCard } from "@/components/FeatureCard";
-import { Chat } from "@/components/Chat";
 import { SparklesCore } from "@/components/ui/sparkles";
 
 const Dashboard = () => {
@@ -86,43 +85,37 @@ const Dashboard = () => {
           Welcome to Your Acting Studio
         </h1>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-          <div className="space-y-8">
-            {currentAnalysis ? (
-              <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-                  <h2 className="text-xl md:text-2xl font-bold text-white">Performance Analysis</h2>
-                  <Button
-                    variant="outline"
-                    onClick={() => setCurrentAnalysis(null)}
-                    className="text-white hover:text-theater-gold border-white/20 hover:bg-white/10"
-                  >
-                    Upload Another Video
-                  </Button>
-                </div>
-                <PerformanceAnalysis analysis={currentAnalysis} />
+        <div className="space-y-8">
+          {currentAnalysis ? (
+            <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+                <h2 className="text-xl md:text-2xl font-bold text-white">Performance Analysis</h2>
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentAnalysis(null)}
+                  className="text-white hover:text-theater-gold border-white/20 hover:bg-white/10"
+                >
+                  Upload Another Video
+                </Button>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <VideoUpload
-                  userId={temporaryUserId}
-                  onAnalysisComplete={setCurrentAnalysis}
-                  isAnalyzing={isAnalyzing}
+              <PerformanceAnalysis analysis={currentAnalysis} />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <VideoUpload
+                userId={temporaryUserId}
+                onAnalysisComplete={setCurrentAnalysis}
+                isAnalyzing={isAnalyzing}
+              />
+              {features.map((feature, index) => (
+                <FeatureCard
+                  key={feature.title}
+                  {...feature}
+                  delay={index * 0.1}
                 />
-                {features.map((feature, index) => (
-                  <FeatureCard
-                    key={feature.title}
-                    {...feature}
-                    delay={index * 0.1}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <div className="h-full">
-            <Chat />
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
