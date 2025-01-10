@@ -7,7 +7,7 @@ export const TopMenu = () => {
 
   return (
     <>
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 z-50">
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-full max-w-4xl px-4">
         {isMobile ? <MobileMenu /> : <DesktopMenu />}
       </div>
       {!isMobile && (

@@ -12,37 +12,37 @@ export const DesktopMenu = () => {
   const rightItems = menuItems.slice(midPoint);
 
   return (
-    <div className="relative inline-flex items-center">
-      <div className="flex items-center h-16 bg-black/30 backdrop-blur-sm rounded-lg">
+    <div className="relative inline-flex items-center w-full justify-center">
+      <div className="flex items-center h-12 bg-black/30 backdrop-blur-sm rounded-lg">
         {/* Left side items */}
-        <div className="flex items-center gap-6 h-full pl-4">
+        <div className="flex items-center gap-2 md:gap-4 h-full pl-2 md:pl-4">
           {leftItems.map((item) => (
             <Link
               key={item.title}
               to={item.href}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 whitespace-nowrap h-full"
+              className="flex items-center gap-1 md:gap-2 rounded-lg px-2 md:px-3 py-2 whitespace-nowrap h-full"
             >
-              <item.icon className="h-5 w-5 text-theater-gold" />
-              <span className="text-white">{item.title}</span>
+              <item.icon className="h-4 w-4 md:h-5 md:w-5 text-theater-gold" />
+              <span className="text-white text-sm md:text-base">{item.title}</span>
             </Link>
           ))}
         </div>
 
         {/* Center hamburger icon */}
-        <div className="px-8">
-          <Menu className="h-6 w-6 text-theater-gold" />
+        <div className="px-4 md:px-6">
+          <Menu className="h-4 w-4 md:h-5 md:w-5 text-theater-gold" />
         </div>
 
         {/* Right side items */}
-        <div className="flex items-center gap-6 h-full pr-4">
+        <div className="flex items-center gap-2 md:gap-4 h-full pr-2 md:pr-4">
           {rightItems.map((item) => (
             <Link
               key={item.title}
               to={item.href}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 whitespace-nowrap h-full"
+              className="flex items-center gap-1 md:gap-2 rounded-lg px-2 md:px-3 py-2 whitespace-nowrap h-full"
             >
-              <item.icon className="h-5 w-5 text-theater-gold" />
-              <span className="text-white">{item.title}</span>
+              <item.icon className="h-4 w-4 md:h-5 md:w-5 text-theater-gold" />
+              <span className="text-white text-sm md:text-base">{item.title}</span>
             </Link>
           ))}
         </div>
