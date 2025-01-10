@@ -15,7 +15,6 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
       <div className="absolute top-4 right-4 z-10">
         <Button 
           onClick={() => {
-            // Trigger transition immediately
             document.body.classList.add('transitioning');
             onLoginSuccess();
           }}
@@ -38,21 +37,6 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             Your AI Acting Coach
           </motion.h1>
           
-          {/* Lighting line effect */}
-          <div className="relative w-full h-[60px] mb-6">
-            <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-[2px] w-1/2 blur-sm" />
-            <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-px w-1/2" />
-            
-            <SparklesCore
-              background="transparent"
-              minSize={0.2}
-              maxSize={0.6}
-              particleDensity={40}
-              className="w-full h-full"
-              particleColor="#FFD700"
-            />
-          </div>
-          
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -66,19 +50,33 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 relative"
           >
-            <Button 
-              onClick={() => {
-                // Trigger transition immediately
-                document.body.classList.add('transitioning');
-                onLoginSuccess();
-              }}
-              size="lg"
-              className="bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold transition-all duration-300"
-            >
-              Start Free Trial
-            </Button>
+            {/* Lighting beam effect container */}
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-r from-transparent via-theater-gold/20 to-transparent animate-pulse rounded-lg" />
+              <div className="absolute -inset-4">
+                <SparklesCore
+                  background="transparent"
+                  minSize={0.2}
+                  maxSize={0.6}
+                  particleDensity={20}
+                  className="w-full h-full"
+                  particleColor="#FFD700"
+                />
+              </div>
+              <Button 
+                onClick={() => {
+                  document.body.classList.add('transitioning');
+                  onLoginSuccess();
+                }}
+                size="lg"
+                className="bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold transition-all duration-300 relative z-10"
+              >
+                Start Free Trial
+              </Button>
+            </div>
+            
             <Button 
               variant="link" 
               className="text-white hover:text-theater-gold transition-all duration-300"
