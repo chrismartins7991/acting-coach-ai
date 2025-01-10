@@ -14,10 +14,14 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
       {/* Login button positioned in upper right */}
       <div className="absolute top-4 right-4 z-10">
         <Button 
-          onClick={onLoginSuccess}
+          onClick={() => {
+            // Trigger transition immediately
+            document.body.classList.add('transitioning');
+            onLoginSuccess();
+          }}
           size="lg"
           variant="outline"
-          className="bg-black/30 hover:bg-white/20 text-white border-white/50 hover:border-white"
+          className="bg-black/30 hover:bg-white/20 text-white border-white/50 hover:border-white transition-all duration-300"
         >
           Login
         </Button>
@@ -39,7 +43,6 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-[2px] w-1/2 blur-sm" />
             <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-px w-1/2" />
             
-            {/* Subtle particles below title */}
             <SparklesCore
               background="transparent"
               minSize={0.2}
@@ -66,15 +69,19 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
           >
             <Button 
-              onClick={onLoginSuccess}
+              onClick={() => {
+                // Trigger transition immediately
+                document.body.classList.add('transitioning');
+                onLoginSuccess();
+              }}
               size="lg"
-              className="bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
+              className="bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold transition-all duration-300"
             >
               Start Free Trial
             </Button>
             <Button 
               variant="link" 
-              className="text-white hover:text-theater-gold"
+              className="text-white hover:text-theater-gold transition-all duration-300"
             >
               Learn more →
             </Button>
