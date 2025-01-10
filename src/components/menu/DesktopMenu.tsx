@@ -6,14 +6,13 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 
 export const DesktopMenu = () => {
-  // Split menu items into left and right sides
   const midPoint = Math.floor(menuItems.length / 2);
   const leftItems = menuItems.slice(0, midPoint);
   const rightItems = menuItems.slice(midPoint);
 
   return (
     <div className="relative inline-flex items-center w-full justify-center">
-      <div className="group flex items-center h-10 hover:bg-black/20 backdrop-blur-sm rounded-lg transition-all duration-300">
+      <div className="group flex items-center h-10 bg-white/10 hover:bg-white/15 backdrop-blur-lg border border-white/20 rounded-lg transition-all duration-300">
         {/* Left side items - hidden by default */}
         <div className="flex items-center h-full overflow-hidden w-0 group-hover:w-auto transition-all duration-300">
           <div className="flex items-center gap-1 md:gap-3 h-full pl-2 md:pl-3 whitespace-nowrap">
@@ -21,7 +20,7 @@ export const DesktopMenu = () => {
               <Link
                 key={item.title}
                 to={item.href}
-                className="flex items-center gap-1 md:gap-2 rounded-lg px-2 md:px-2.5 py-1.5 h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white/5"
+                className="flex items-center gap-1 md:gap-2 rounded-lg px-2 md:px-2.5 py-1.5 h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white/10"
               >
                 <item.icon className="h-3.5 w-3.5 text-theater-gold/80" />
                 <span className="text-white/70 text-xs md:text-sm font-medium">{item.title}</span>
@@ -31,7 +30,7 @@ export const DesktopMenu = () => {
         </div>
 
         {/* Center hamburger icon - always visible */}
-        <div className="px-3 md:px-4 bg-black/20 rounded-lg">
+        <div className="px-3 md:px-4 bg-white/5 backdrop-blur-md rounded-lg border-x border-white/10">
           <Menu className="h-3.5 w-3.5 text-theater-gold/80" />
         </div>
 
@@ -42,7 +41,7 @@ export const DesktopMenu = () => {
               <Link
                 key={item.title}
                 to={item.href}
-                className="flex items-center gap-1 md:gap-2 rounded-lg px-2 md:px-2.5 py-1.5 h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white/5"
+                className="flex items-center gap-1 md:gap-2 rounded-lg px-2 md:px-2.5 py-1.5 h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white/10"
               >
                 <item.icon className="h-3.5 w-3.5 text-theater-gold/80" />
                 <span className="text-white/70 text-xs md:text-sm font-medium">{item.title}</span>
@@ -80,7 +79,7 @@ DesktopMenu.Logout = function DesktopMenuLogout() {
     <Button
       variant="outline"
       onClick={handleLogout}
-      className="h-8 text-xs text-white/70 border-white/10 hover:text-theater-gold/80 hover:bg-white/5 bg-black/20 backdrop-blur-md"
+      className="h-8 text-xs text-white/70 border-white/20 hover:text-theater-gold/80 hover:bg-white/10 bg-white/10 backdrop-blur-lg"
     >
       <LogOut className="h-3.5 w-3.5 mr-1.5" />
       Logout
@@ -95,7 +94,7 @@ DesktopMenu.Settings = function DesktopMenuSettings() {
       <Button
         variant="outline"
         size="icon"
-        className="h-8 w-8 text-white/70 border-white/10 hover:text-theater-gold/80 hover:bg-white/5 bg-black/20 backdrop-blur-md"
+        className="h-8 w-8 text-white/70 border-white/20 hover:text-theater-gold/80 hover:bg-white/10 bg-white/10 backdrop-blur-lg"
       >
         <Settings2 className="h-3.5 w-3.5" />
       </Button>
