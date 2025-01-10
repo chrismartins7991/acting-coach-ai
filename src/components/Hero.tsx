@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 
 export const Hero = () => {
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red overflow-hidden">
+    <div className="relative min-h-screen w-full bg-gradient-to-br from-theater-purple via-black to-theater-red">
       <div className="absolute inset-0 bg-[url('/lovable-uploads/67fe6e0d-76fa-4723-8927-0f8ecb2f2409.png')] opacity-10 bg-center bg-cover" />
       
       {/* Login button positioned in upper right */}
@@ -16,13 +16,13 @@ export const Hero = () => {
         />
       </div>
 
-      <div className="relative container mx-auto px-4 py-32 sm:py-48 flex items-center justify-center min-h-screen">
-        <div className="text-center max-w-3xl">
+      <div className="relative w-full flex items-center justify-center min-h-screen px-4 py-12 sm:py-32">
+        <div className="text-center max-w-3xl mx-auto">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-8"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6 sm:mb-8"
           >
             Your AI Acting Coach
           </motion.h1>
@@ -31,7 +31,7 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="mt-6 text-lg md:text-xl leading-8 text-gray-300 mb-12"
+            className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl leading-7 sm:leading-8 text-gray-300 mb-8 sm:mb-12 px-4"
           >
             Master your craft with personalized feedback based on Stanislavski, Brecht, and Chekhov methods.
           </motion.p>
@@ -40,7 +40,7 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-6"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
           >
             <AuthModal buttonText="Start Free Trial" variant="primary" />
             <Button 
