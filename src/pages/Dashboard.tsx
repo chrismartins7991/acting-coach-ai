@@ -40,7 +40,6 @@ const Dashboard = () => {
     },
   ];
 
-  // Since authentication is temporarily disabled, we'll use a placeholder user ID
   const temporaryUserId = "temp-user-id";
 
   const containerVariants = {
@@ -48,18 +47,31 @@ const Dashboard = () => {
     visible: { 
       opacity: 1,
       transition: { 
-        duration: 2,
-        staggerChildren: 0.8 // Increased stagger time
+        duration: 5,
+        staggerChildren: 1.2
       }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 20, scale: 0.9 },
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: 1.5 } // Slower item animations
+      scale: 1,
+      transition: { duration: 2 }
+    }
+  };
+
+  const lightBeamVariants = {
+    initial: { scaleX: 0, opacity: 0 },
+    animate: { 
+      scaleX: 1, 
+      opacity: [0, 1, 0.8, 0],
+      transition: { 
+        duration: 2,
+        times: [0, 0.3, 0.6, 1]
+      }
     }
   };
 
@@ -71,60 +83,33 @@ const Dashboard = () => {
         animate="visible"
         variants={containerVariants}
       >
-        {/* Transition particles for component formation */}
+        {/* Immediate transition particles */}
         {fromLanding && (
           <motion.div 
             className="fixed inset-0 pointer-events-none z-50"
-            initial={{ opacity: 1 }}
+            initial={{ opacity: 0 }}
             animate={{ 
-              opacity: [1, 0.8, 0.6, 0.4, 0.2],
-              scale: [1.5, 1.2, 1, 0.9, 0.8],
+              opacity: [0, 1, 0.8, 0.4, 0],
+              scale: [0.8, 1.2, 1, 0.9, 0.8],
             }}
             transition={{ 
               duration: 5,
               times: [0, 0.2, 0.4, 0.6, 1],
+              delay: 0 // Immediate start
             }}
           >
             <SparklesCore
               background="transparent"
               minSize={0.2}
-              maxSize={0.8}
-              particleDensity={150} // Increased density
+              maxSize={1}
+              particleDensity={200}
               className="w-full h-full"
               particleColor="#FFD700"
             />
           </motion.div>
         )}
 
-        {/* Component-specific particle effects */}
-        <motion.div 
-          variants={itemVariants}
-          className="absolute right-0 top-1/4 w-64 h-96 opacity-40 pointer-events-none"
-        >
-          <SparklesCore
-            background="transparent"
-            minSize={0.1}
-            maxSize={0.6}
-            particleDensity={80}
-            className="w-full h-full"
-            particleColor="#FFD700"
-          />
-        </motion.div>
-
-        <motion.div 
-          variants={itemVariants}
-          className="absolute left-0 bottom-0 w-96 h-64 opacity-30 pointer-events-none"
-        >
-          <SparklesCore
-            background="transparent"
-            minSize={0.2}
-            maxSize={0.7}
-            particleDensity={90}
-            className="w-full h-full"
-            particleColor="#FFD700"
-          />
-        </motion.div>
-
+        {/* Component formation particles with lighting beams */}
         <motion.div variants={itemVariants}>
           <TopMenu />
         </motion.div>
@@ -133,12 +118,23 @@ const Dashboard = () => {
           className="container mx-auto px-4 py-8 pt-32 max-w-7xl relative z-10"
           variants={containerVariants}
         >
-          <motion.h1 
-            className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-8"
+          <motion.div 
+            className="relative"
             variants={itemVariants}
           >
-            Welcome to Your Acting Studio
-          </motion.h1>
+            <motion.h1 
+              className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-8"
+            >
+              Welcome to Your Acting Studio
+            </motion.h1>
+            {/* Lighting beam effect */}
+            <motion.div
+              className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-theater-gold to-transparent origin-left"
+              variants={lightBeamVariants}
+              initial="initial"
+              animate="animate"
+            />
+          </motion.div>
 
           <motion.div 
             className="space-y-8"
@@ -146,7 +142,7 @@ const Dashboard = () => {
           >
             {currentAnalysis ? (
               <motion.div 
-                className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10"
+                className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10 relative"
                 variants={itemVariants}
               >
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
@@ -160,64 +156,60 @@ const Dashboard = () => {
                   </Button>
                 </div>
                 <PerformanceAnalysis analysis={currentAnalysis} />
+                {/* Component-specific particles */}
+                <motion.div 
+                  className="absolute inset-0 pointer-events-none"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <SparklesCore
+                    background="transparent"
+                    minSize={0.1}
+                    maxSize={0.4}
+                    particleDensity={100}
+                    className="w-full h-full"
+                    particleColor="#FFD700"
+                  />
+                </motion.div>
               </motion.div>
             ) : (
               <motion.div 
                 className="grid grid-cols-1 sm:grid-cols-2 gap-6"
                 variants={containerVariants}
               >
-                <motion.div 
-                  variants={itemVariants}
-                  className="relative"
-                >
+                {[
                   <VideoUpload
+                    key="upload"
                     userId={temporaryUserId}
                     onAnalysisComplete={setCurrentAnalysis}
                     isAnalyzing={isAnalyzing}
-                  />
-                  {/* Component formation particles */}
-                  <motion.div 
-                    className="absolute inset-0 pointer-events-none"
-                    initial={{ opacity: 1 }}
-                    animate={{ opacity: 0 }}
-                    transition={{ duration: 3, delay: 2 }}
-                  >
-                    <SparklesCore
-                      background="transparent"
-                      minSize={0.1}
-                      maxSize={0.4}
-                      particleDensity={100}
-                      className="w-full h-full"
-                      particleColor="#FFD700"
-                    />
-                  </motion.div>
-                </motion.div>
-                {features.map((feature, index) => (
-                  <motion.div 
-                    key={feature.title}
-                    variants={itemVariants}
-                    className="relative"
-                  >
+                  />,
+                  ...features.map((feature, index) => (
                     <FeatureCard
+                      key={feature.title}
                       {...feature}
-                      delay={index * 0.8} // Increased delay between features
+                      delay={index * 1.2}
                     />
-                    {/* Feature card formation particles */}
-                    <motion.div 
-                      className="absolute inset-0 pointer-events-none"
-                      initial={{ opacity: 1 }}
-                      animate={{ opacity: 0 }}
-                      transition={{ duration: 3, delay: 2 + index * 0.8 }}
-                    >
-                      <SparklesCore
-                        background="transparent"
-                        minSize={0.1}
-                        maxSize={0.4}
-                        particleDensity={80}
-                        className="w-full h-full"
-                        particleColor="#FFD700"
-                      />
-                    </motion.div>
+                  ))
+                ].map((component, index) => (
+                  <motion.div 
+                    key={index}
+                    className="relative"
+                    variants={itemVariants}
+                    custom={index}
+                  >
+                    {component}
+                    {/* Component-specific lighting beam */}
+                    <motion.div
+                      className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-theater-gold to-transparent origin-left"
+                      variants={lightBeamVariants}
+                      initial="initial"
+                      animate="animate"
+                      transition={{
+                        delay: index * 0.8
+                      }}
+                    />
                   </motion.div>
                 ))}
               </motion.div>
