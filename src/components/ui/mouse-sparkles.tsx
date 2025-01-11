@@ -18,6 +18,7 @@ export const MouseSparkles = ({ color = "#FFD700" }: MouseSparklesProps) => {
   }>>([]);
   const mouseRef = useRef({ x: 0, y: 0 });
   const frameRef = useRef<number>();
+  const isHoveringRef = useRef(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -55,8 +56,8 @@ export const MouseSparkles = ({ color = "#FFD700" }: MouseSparklesProps) => {
       
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Add new particles at mouse position
-      if (Math.random() < 0.3) {
+      // Only add new particles if hovering
+      if (isHoveringRef.current && Math.random() < 0.3) {
         particlesRef.current.push(createParticle(mouseRef.current.x, mouseRef.current.y));
       }
 
@@ -79,6 +80,7 @@ export const MouseSparkles = ({ color = "#FFD700" }: MouseSparklesProps) => {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
+      if (!isHoveringRef.current) return;
       const rect = canvas.getBoundingClientRect();
       mouseRef.current = {
         x: e.clientX - rect.left,
@@ -86,12 +88,24 @@ export const MouseSparkles = ({ color = "#FFD700" }: MouseSparklesProps) => {
       };
     };
 
+    const handleMouseEnter = () => {
+      isHoveringRef.current = true;
+    };
+
+    const handleMouseLeave = () => {
+      isHoveringRef.current = false;
+    };
+
     canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseenter', handleMouseEnter);
+    canvas.addEventListener('mouseleave', handleMouseLeave);
     frameRef.current = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('resize', updateCanvasSize);
       canvas.removeEventListener('mousemove', handleMouseMove);
+      canvas.removeEventListener('mouseenter', handleMouseEnter);
+      canvas.removeEventListener('mouseleave', handleMouseLeave);
       if (frameRef.current) {
         cancelAnimationFrame(frameRef.current);
       }
@@ -101,7 +115,7 @@ export const MouseSparkles = ({ color = "#FFD700" }: MouseSparklesProps) => {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 pointer-events-none"
+      className="absolute inset-0 pointer-events-auto"
     />
   );
 };

@@ -74,17 +74,16 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
               <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-theater-gold to-transparent rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-500 animate-pulse"></div>
               
               {/* Mouse sparkles effect */}
-              <div className="absolute -inset-4">
+              <div className="relative">
                 <MouseSparkles color="#FFD700" />
+                <Button 
+                  onClick={onLoginSuccess}
+                  size="lg"
+                  className="relative bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
+                >
+                  Start Free Trial
+                </Button>
               </div>
-              
-              <Button 
-                onClick={onLoginSuccess}
-                size="lg"
-                className="relative bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
-              >
-                Start Free Trial
-              </Button>
             </div>
             
             <Button 
