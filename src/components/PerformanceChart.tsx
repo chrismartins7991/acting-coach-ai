@@ -57,6 +57,15 @@ export const PerformanceChart = () => {
     fetchPerformanceData();
   }, []);
 
+  const chartConfig = {
+    score: {
+      theme: {
+        light: "#FFD700",
+        dark: "#FFD700"
+      }
+    }
+  };
+
   return (
     <Card className="p-6 bg-black/30 backdrop-blur-sm border-white/10">
       <div className="space-y-4">
@@ -68,7 +77,7 @@ export const PerformanceChart = () => {
         </div>
         
         <div className="h-[300px] mt-4">
-          <ChartContainer>
+          <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={performances}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
