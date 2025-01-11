@@ -65,10 +65,7 @@ export const OscarWinnersCarousel = () => {
   const plugin = Autoplay({ 
     delay: 3000, 
     stopOnInteraction: true,
-    rootNode: (emblaRoot) => emblaRoot.parentElement,
-    options: {
-      duration: 1000, // Transition duration in milliseconds
-    }
+    rootNode: (emblaRoot) => emblaRoot.parentElement
   });
   
   const [emblaRef] = useEmblaCarousel(
@@ -76,7 +73,7 @@ export const OscarWinnersCarousel = () => {
       loop: true,
       align: "center",
       slidesToScroll: 1,
-      duration: 50,
+      duration: 1000, // Moving the transition duration here
       skipSnaps: false,
       dragFree: true
     },
