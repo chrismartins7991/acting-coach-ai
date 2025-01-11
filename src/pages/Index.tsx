@@ -1,7 +1,7 @@
 import { Hero } from "@/components/Hero";
 import { Features } from "@/components/Features";
 import { WhyUseSection } from "@/components/WhyUseSection";
-import { LearningProcess } from "@/components/LearningProcess";
+import { LearningProcess } from "@/components/learning-process/LearningProcess";
 import { OscarWinnersCarousel } from "@/components/OscarWinnersCarousel";
 import { Testimonials } from "@/components/Testimonials";
 import { CTASection } from "@/components/CTASection";
