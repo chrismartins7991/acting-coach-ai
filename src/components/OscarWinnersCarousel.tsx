@@ -11,112 +11,52 @@ import Autoplay from "embla-carousel-autoplay";
 const oscarWinners = [
   {
     name: "12 Years a Slave Oscar Winner",
-    image: "/lovable-uploads/12-years-a-slave-oscar-win.jpeg",
+    image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&h=1000&fit=crop",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "2025 Oscars Overview",
-    image: "/lovable-uploads/2025-oscars-overview.jpeg",
+    image: "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=800&h=1000&fit=crop",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Black Oscar Winners List",
-    image: "/lovable-uploads/black-oscar-winners-list-essence.jpeg",
+    image: "https://images.unsplash.com/photo-1616530940355-351fabd9524b?w=800&h=1000&fit=crop",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Christoph Waltz Best Supporting Actor",
-    image: "/lovable-uploads/christoph-waltz-best-supporting-actor.jpeg",
+    image: "https://images.unsplash.com/photo-1485178575877-1a13bf489dfe?w=800&h=1000&fit=crop",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Denzel Washington Glory Quote",
-    image: "/lovable-uploads/denzel-washington-glory-quote.jpeg",
+    image: "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?w=800&h=1000&fit=crop",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Halle Berry Oscar Reflection",
-    image: "/lovable-uploads/halle-berry-oscar-reflection.jpeg",
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&h=1000&fit=crop",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Jack Nicholson",
-    image: "/lovable-uploads/jack-nicholson.jpeg",
+    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&h=1000&fit=crop",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Jennifer Hudson Best Supporting",
-    image: "/lovable-uploads/jennifer-hudson-best-supporting.jpeg",
+    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&h=1000&fit=crop",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Kate Winslet Oscar Holding",
-    image: "/lovable-uploads/kate-winslet-oscar-holding.jpeg",
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&h=1000&fit=crop",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Mahershala Ali",
-    image: "/lovable-uploads/mahershala-ali-1.jpeg",
-    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
-  },
-  {
-    name: "Meryl Streep Cult Roles",
-    image: "/lovable-uploads/meryl-streep-cult-roles.jpeg",
-    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
-  },
-  {
-    name: "Monique from Pinterest",
-    image: "/lovable-uploads/monique-from-pinterest.jpeg",
-    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
-  },
-  {
-    name: "Morgan Freeman Best Supporting Winner",
-    image: "/lovable-uploads/morgan-freeman-best-supporting-winner.jpeg",
-    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
-  },
-  {
-    name: "Oscar Acceptance Speech Highlights",
-    image: "/lovable-uploads/oscar-acceptance-speech-highlights.jpeg",
-    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
-  },
-  {
-    name: "Oscar Statue Facts",
-    image: "/lovable-uploads/oscar-statue-facts.jpeg",
-    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
-  },
-  {
-    name: "Oscars 2013 Winners",
-    image: "/lovable-uploads/oscars-2013-winners.jpeg",
-    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
-  },
-  {
-    name: "Oscars 2014 Male Perspective",
-    image: "/lovable-uploads/oscars-2014-male-perspective.jpeg",
-    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
-  },
-  {
-    name: "Oscars Glamour Golden Age",
-    image: "/lovable-uploads/oscars-glamour-golden-age.jpeg",
-    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
-  },
-  {
-    name: "Pinterest Image",
-    image: "/lovable-uploads/pinterest-image-1.jpeg",
-    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
-  },
-  {
-    name: "Robert De Niro Best Actor Oscar",
-    image: "/lovable-uploads/robert-de-niro-best-actor-oscar.jpeg",
-    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
-  },
-  {
-    name: "Tom Hanks Oscars Best Actor",
-    image: "/lovable-uploads/tom-hanks-oscars-best-actor.jpeg",
-    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
-  },
-  {
-    name: "TOM LEONARD Marlon Brando Biography",
-    image: "/lovable-uploads/tom-leonard-marlon-brando-biography.jpeg",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1000&fit=crop",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   }
 ];
