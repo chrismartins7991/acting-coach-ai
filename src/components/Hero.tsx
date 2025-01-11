@@ -75,7 +75,9 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
               
               {/* Mouse sparkles effect */}
               <div className="relative">
-                <MouseSparkles color="#FFD700" />
+                <div className="absolute inset-0">
+                  <MouseSparkles color="#FFD700" />
+                </div>
                 <Button 
                   onClick={onLoginSuccess}
                   size="lg"

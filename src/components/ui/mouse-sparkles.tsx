@@ -89,10 +89,12 @@ export const MouseSparkles = ({ color = "#FFD700" }: MouseSparklesProps) => {
     };
 
     const handleMouseEnter = () => {
+      console.log('Mouse entered');
       isHoveringRef.current = true;
     };
 
     const handleMouseLeave = () => {
+      console.log('Mouse left');
       isHoveringRef.current = false;
     };
 
@@ -115,7 +117,8 @@ export const MouseSparkles = ({ color = "#FFD700" }: MouseSparklesProps) => {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 pointer-events-auto"
+      className="absolute inset-0 pointer-events-auto z-10"
+      style={{ mixBlendMode: 'screen' }}
     />
   );
 };
