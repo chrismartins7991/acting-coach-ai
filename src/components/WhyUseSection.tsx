@@ -1,22 +1,25 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 export const WhyUseSection = () => {
+  const { t } = useTranslation();
+
   const features = [
     {
-      title: "Method Acting",
-      description: "Master emotional memory techniques used by legends like Daniel Day-Lewis",
+      title: t('whyUse.method.title'),
+      description: t('whyUse.method.description'),
       image: "/lovable-uploads/iconic-movie-frames/There_Will_Be_Blood_Daniel_Day_Lewis.jpeg",
       alt: "Daniel Day-Lewis in There Will Be Blood"
     },
     {
-      title: "Character Development",
-      description: "Learn character immersion like Marlon Brando",
+      title: t('whyUse.character.title'),
+      description: t('whyUse.character.description'),
       image: "/lovable-uploads/iconic-movie-frames/The_Godfather_Marlon_Brando_aiactingcoach.jpeg",
       alt: "Marlon Brando in The Godfather"
     },
     {
-      title: "Scene Analysis",
-      description: "Study scene breakdown techniques from Meryl Streep",
+      title: t('whyUse.scene.title'),
+      description: t('whyUse.scene.description'),
       image: "/lovable-uploads/iconic-movie-frames/Meryl-Streep-65-Characters.jpeg",
       alt: "Meryl Streep's iconic performances"
     }
@@ -32,7 +35,7 @@ export const WhyUseSection = () => {
           transition={{ duration: 0.8 }}
           className="text-4xl font-bold text-white text-center mb-16"
         >
-          Train Using Legendary Methods
+          {t('whyUse.title')}
         </motion.h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

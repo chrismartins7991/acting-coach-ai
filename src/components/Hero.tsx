@@ -3,12 +3,15 @@ import { Button } from "./ui/button";
 import { SparklesCore } from "./ui/sparkles";
 import { MouseSparkles } from "./ui/mouse-sparkles";
 import { LanguageToggle } from "./LanguageToggle";
+import { useTranslation } from "react-i18next";
 
 interface HeroProps {
   onLoginSuccess: () => void;
 }
 
 export const Hero = ({ onLoginSuccess }: HeroProps) => {
+  const { t } = useTranslation();
+
   return (
     <div className="relative h-screen w-full overflow-hidden bg-gradient-to-br from-theater-purple via-black to-theater-red">
       <div className="absolute inset-0 bg-[url('/lovable-uploads/67fe6e0d-76fa-4723-8927-0f8ecb2f2409.png')] opacity-10 bg-center bg-contain bg-no-repeat" />
@@ -22,7 +25,7 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
           variant="outline"
           className="bg-black/30 hover:bg-white/20 text-white border-white/50 hover:border-white"
         >
-          Login
+          {t('hero.login')}
         </Button>
       </div>
 
@@ -32,17 +35,16 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-2" // Changed mb-6 to mb-2
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-2"
           >
-            Your AI Acting Coach
+            {t('hero.title')}
           </motion.h1>
           
-          {/* Lighting line effect - reduced top margin */}
-          <div className="relative w-full h-[40px] mb-6"> {/* Changed h-[60px] to h-[40px] */}
+          {/* Lighting line effect */}
+          <div className="relative w-full h-[40px] mb-6">
             <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-[2px] w-1/2 blur-sm" />
             <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-px w-1/2" />
             
-            {/* Concentrated particles below title */}
             <div className="absolute left-1/2 -translate-x-1/2 w-[300px] h-[40px]">
               <SparklesCore
                 background="transparent"
@@ -61,7 +63,7 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl leading-7 sm:leading-8 text-gray-300 mb-8 sm:mb-12 px-4"
           >
-            Master your craft with personalized feedback based on Stanislavski, Brecht, Lee Strasberg and Chekhov methods.
+            {t('hero.subtitle')}
           </motion.p>
           
           <motion.div 
@@ -70,12 +72,9 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
           >
-            {/* Start Free Trial button with beam effect wrapper */}
             <div className="relative group">
-              {/* Beam effect container */}
               <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-theater-gold to-transparent rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-500 animate-pulse"></div>
               
-              {/* Mouse sparkles effect */}
               <div className="relative">
                 <div className="absolute inset-0">
                   <MouseSparkles color="#FFD700" />
@@ -85,7 +84,7 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
                   size="lg"
                   className="relative bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
                 >
-                  Start Free Trial
+                  {t('hero.startTrial')}
                 </Button>
               </div>
             </div>
@@ -94,9 +93,13 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
               variant="link" 
               className="text-white hover:text-theater-gold"
             >
-              Learn more →
+              {t('hero.learnMore')} →
             </Button>
           </motion.div>
+
+          <p className="mt-4 text-sm text-gray-400">
+            {t('hero.trialInfo')}
+          </p>
         </div>
       </div>
       

@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { SparklesCore } from "./ui/sparkles";
+import { useTranslation } from "react-i18next";
 
 interface CTASectionProps {
   onGetStarted: () => void;
 }
 
 export const CTASection = ({ onGetStarted }: CTASectionProps) => {
+  const { t } = useTranslation();
+
   return (
     <section className="py-20 relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('/lovable-uploads/iconic-movie-frames/The_Godfather_Marlon_Brando_aiactingcoach.jpeg')] opacity-10 bg-cover bg-center" />
@@ -20,10 +23,10 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
           className="max-w-3xl mx-auto text-center"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Start Your Acting Journey Today
+            {t('cta.title')}
           </h2>
           <p className="text-xl text-gray-300 mb-8">
-            Join thousands of actors who are already improving their craft with AI-powered coaching.
+            {t('cta.subtitle')}
           </p>
           
           <div className="relative">
@@ -43,12 +46,12 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
               size="lg"
               className="bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold text-lg px-8 py-6"
             >
-              Get Started Free
+              {t('cta.button')}
             </Button>
           </div>
           
           <p className="mt-6 text-sm text-gray-400">
-            No credit card required • 14-day free trial • Cancel anytime
+            {t('cta.trialInfo')}
           </p>
         </motion.div>
       </div>

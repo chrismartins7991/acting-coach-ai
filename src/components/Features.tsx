@@ -1,30 +1,33 @@
 import { Camera, Brain, Trophy, Star } from "lucide-react";
 import { motion } from "framer-motion";
-
-const features = [
-  {
-    name: "Record & Upload",
-    description: "Easily record or upload your performances for instant analysis.",
-    icon: Camera,
-  },
-  {
-    name: "AI Analysis",
-    description: "Get detailed feedback based on established acting methodologies.",
-    icon: Brain,
-  },
-  {
-    name: "Track Progress",
-    description: "Monitor your growth with comprehensive performance metrics.",
-    icon: Trophy,
-  },
-  {
-    name: "Expert Methods",
-    description: "Learn from Stanislavski, Brecht, and Chekhov techniques.",
-    icon: Star,
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export const Features = () => {
+  const { t } = useTranslation();
+
+  const features = [
+    {
+      name: t('features.record.title'),
+      description: t('features.record.description'),
+      icon: Camera,
+    },
+    {
+      name: t('features.analysis.title'),
+      description: t('features.analysis.description'),
+      icon: Brain,
+    },
+    {
+      name: t('features.progress.title'),
+      description: t('features.progress.description'),
+      icon: Trophy,
+    },
+    {
+      name: t('features.methods.title'),
+      description: t('features.methods.description'),
+      icon: Star,
+    },
+  ];
+
   return (
     <div className="w-full py-12 sm:py-24 bg-gradient-to-br from-black to-theater-purple">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -35,7 +38,7 @@ export const Features = () => {
             transition={{ duration: 0.5 }}
             className="text-base font-semibold leading-7 text-theater-gold"
           >
-            Master Your Craft
+            {t('features.title')}
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -43,7 +46,7 @@ export const Features = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl"
           >
-            Everything you need to elevate your acting
+            {t('features.subtitle')}
           </motion.p>
         </div>
         <div className="mx-auto mt-8 sm:mt-16 lg:mt-20">
