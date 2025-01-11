@@ -44,7 +44,14 @@ const oscarWinners = [
 ];
 
 export const OscarWinnersCarousel = () => {
-  const [api] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 3000 })]);
+  const [api] = useEmblaCarousel(
+    { 
+      loop: true,
+      slidesToScroll: 1,
+      align: "start",
+    }, 
+    [Autoplay({ delay: 1500 })] // Reduced delay to 1.5 seconds
+  );
   const [imagesLoaded, setImagesLoaded] = useState(false);
 
   useEffect(() => {
@@ -84,7 +91,7 @@ export const OscarWinnersCarousel = () => {
             {oscarWinners.map((winner, index) => (
               <CarouselItem 
                 key={index} 
-                className="pl-2 md:pl-4 md:basis-1/3 lg:basis-1/4"
+                className="pl-2 md:pl-4 md:basis-1/4 lg:basis-1/5" // Adjusted to show more items
               >
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -93,7 +100,7 @@ export const OscarWinnersCarousel = () => {
                   transition={{ delay: index * 0.1 }}
                   className="relative group"
                 >
-                  <div className="relative h-[400px] overflow-hidden rounded-lg">
+                  <div className="relative h-[300px] overflow-hidden rounded-lg"> {/* Reduced height for better visibility */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
                     <img
                       src={winner.image}
