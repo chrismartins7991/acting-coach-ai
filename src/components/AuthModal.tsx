@@ -14,35 +14,19 @@ interface AuthModalProps {
   buttonText: string;
   variant?: "primary" | "outline";
   className?: string;
+  mode?: "sign_in" | "sign_up";
 }
 
-export const AuthModal = ({ buttonText, variant = "primary", className }: AuthModalProps) => {
+export const AuthModal = ({ buttonText, variant = "primary", className, mode = "sign_in" }: AuthModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const checkUser = async () => {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) {
-        console.error('Session check error:', sessionError);
-        return;
-      }
-      if (session) {
-        console.log('User is already logged in, redirecting to dashboard');
-        navigate('/dashboard');
-      }
-    };
-    checkUser();
-  }, [navigate]);
-
-  useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
       console.log('Auth state changed:', event, session);
       
-      // Clear error when modal is closed or on successful actions
       if (!isOpen || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
         setError(null);
       }
@@ -77,9 +61,6 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
             description: "Your profile has been updated successfully.",
           });
           break;
-        case 'TOKEN_REFRESHED':
-          console.log('Auth token refreshed');
-          break;
       }
     });
 
@@ -100,9 +81,6 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
         case 'Email not confirmed':
           errorMessage = 'Please verify your email address before signing in.';
           break;
-        case 'Invalid email or password':
-          errorMessage = 'Invalid email or password. Please try again.';
-          break;
         default:
           errorMessage = error.message;
       }
@@ -110,28 +88,6 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
     
     setError(errorMessage);
   };
-
-  // Set up auth state change listener for error handling
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        // Check for auth errors when session is null
-        supabase.auth.getSession().then(({ error }) => {
-          if (error) {
-            handleAuthError(error);
-          }
-        });
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  const buttonStyle = variant === "primary" 
-    ? "bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
-    : "border-2 border-white text-white hover:bg-white/10";
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -168,6 +124,7 @@ export const AuthModal = ({ buttonText, variant = "primary", className }: AuthMo
           }}
           theme="dark"
           providers={['google']}
+          view={mode}
           redirectTo={`${window.location.origin}/auth/callback`}
           onlyThirdPartyProviders={false}
           localization={{

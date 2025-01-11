@@ -4,13 +4,34 @@ import { SparklesCore } from "./ui/sparkles";
 import { MouseSparkles } from "./ui/mouse-sparkles";
 import { LanguageToggle } from "./LanguageToggle";
 import { useTranslation } from "react-i18next";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { useNavigate } from "react-router-dom";
+import { AuthModal } from "./AuthModal";
 
-interface HeroProps {
-  onLoginSuccess: () => void;
-}
-
-export const Hero = ({ onLoginSuccess }: HeroProps) => {
+export const Hero = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleDashboardClick = () => {
+    navigate('/dashboard');
+  };
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-gradient-to-br from-theater-purple via-black to-theater-red">
@@ -19,14 +40,22 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
       {/* Login and Language controls */}
       <div className="absolute top-4 right-4 z-10 flex items-center gap-4">
         <LanguageToggle />
-        <Button 
-          onClick={onLoginSuccess}
-          size="lg"
-          variant="outline"
-          className="bg-black/30 hover:bg-white/20 text-white border-white/50 hover:border-white"
-        >
-          {t('hero.login')}
-        </Button>
+        {isAuthenticated ? (
+          <Button 
+            onClick={handleDashboardClick}
+            size="lg"
+            variant="outline"
+            className="bg-black/30 hover:bg-white/20 text-white border-white/50 hover:border-white"
+          >
+            {t('hero.dashboard')}
+          </Button>
+        ) : (
+          <AuthModal 
+            buttonText={t('hero.login')}
+            variant="outline"
+            className="bg-black/30 hover:bg-white/20 text-white border-white/50 hover:border-white"
+          />
+        )}
       </div>
 
       <div className="relative w-full flex items-center justify-center h-full px-4 py-12">
@@ -80,7 +109,7 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
                   <MouseSparkles color="#FFD700" />
                 </div>
                 <Button 
-                  onClick={onLoginSuccess}
+                  onClick={handleDashboardClick}
                   size="lg"
                   className="relative bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold"
                 >
