@@ -10,6 +10,7 @@ import { VideoUpload } from "@/components/VideoUpload";
 import { FeatureCard } from "@/components/FeatureCard";
 import { SparklesCore } from "@/components/ui/sparkles";
 import { motion, AnimatePresence } from "framer-motion";
+import { PerformanceChart } from "@/components/PerformanceChart";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -149,6 +150,10 @@ const Dashboard = () => {
             className="space-y-8"
             variants={containerVariants}
           >
+            <motion.div variants={itemVariants}>
+              <PerformanceChart />
+            </motion.div>
+
             {currentAnalysis ? (
               <motion.div 
                 className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10"
