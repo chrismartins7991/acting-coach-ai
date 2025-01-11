@@ -95,7 +95,7 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
         <Button 
           size="lg"
           variant={variant === "primary" ? "default" : "outline"}
-          className={cn(buttonStyle, className)}
+          className={className}
         >
           {buttonText}
         </Button>

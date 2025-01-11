@@ -32,7 +32,7 @@ const Index = () => {
         className="min-h-screen w-full bg-gradient-to-b from-black to-theater-purple/90 relative overflow-hidden"
       >
         <div className="relative z-10">
-          <Hero onLoginSuccess={handleLoginTransition} />
+          <Hero />
           <LearningProcess />
           <Features />
           <WhyUseSection />
