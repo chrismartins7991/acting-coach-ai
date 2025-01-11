@@ -37,21 +37,20 @@ export const PerformanceChart = () => {
       setPerformances(formattedData);
       console.log("Performance data:", formattedData);
 
-      // Fetch total points
+      // Fetch total points using maybeSingle() instead of single()
       const { data: pointsData, error: pointsError } = await supabase
         .from('user_points')
         .select('total_points')
-        .single();
+        .maybeSingle();
 
       if (pointsError) {
         console.error("Error fetching points:", pointsError);
         return;
       }
 
-      if (pointsData) {
-        setTotalPoints(pointsData.total_points);
-        console.log("Total points:", pointsData.total_points);
-      }
+      // Set points to 0 if no data exists yet
+      setTotalPoints(pointsData?.total_points || 0);
+      console.log("Total points:", pointsData?.total_points || 0);
     };
 
     fetchPerformanceData();
