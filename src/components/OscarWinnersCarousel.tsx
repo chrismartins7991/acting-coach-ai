@@ -118,11 +118,6 @@ const oscarWinners = [
     name: "TOM LEONARD Marlon Brando Biography",
     image: "/lovable-uploads/tom-leonard-marlon-brando-biography.jpeg",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
-  },
-  {
-    name: "Pinterest Image Additional",
-    image: "/lovable-uploads/pinterest-image.jpeg",
-    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   }
 ];
 
