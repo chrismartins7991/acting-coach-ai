@@ -1,6 +1,7 @@
 import { Hero } from "@/components/Hero";
 import { Features } from "@/components/Features";
 import { WhyUseSection } from "@/components/WhyUseSection";
+import { OscarWinnersCarousel } from "@/components/OscarWinnersCarousel";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -30,6 +31,7 @@ const Index = () => {
         <div className="relative z-10">
           <Hero onLoginSuccess={handleLoginTransition} />
           <Features />
+          <OscarWinnersCarousel />
           <WhyUseSection />
         </div>
       </motion.main>
