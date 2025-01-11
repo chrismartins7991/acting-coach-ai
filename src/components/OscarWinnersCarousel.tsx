@@ -11,40 +11,48 @@ import Autoplay from "embla-carousel-autoplay";
 const oscarWinners = [
   {
     name: "12 Years a Slave Oscar Winner",
-    image: "/lovable-uploads/12 Years a Slave Oscar Win.jpeg"
+    image: "/12 Years a Slave Oscar Win.jpeg"
   },
   {
     name: "Denzel Washington Glory Quote",
-    image: "/lovable-uploads/Denzel Washington Glory Quote.jpeg"
+    image: "/Denzel Washington Glory Quote.jpeg"
   },
   {
     name: "Halle Berry Oscar Reflection",
-    image: "/lovable-uploads/Halle Berry Oscar Reflection.jpeg"
+    image: "/Halle Berry Oscar Reflection.jpeg"
   },
   {
     name: "Kate Winslet Oscar Holding",
-    image: "/lovable-uploads/Kate Winslet Oscar Holding.jpeg"
+    image: "/Kate Winslet Oscar Holding.jpeg"
   },
   {
     name: "Mahershala Ali",
-    image: "/lovable-uploads/Mahershala Ali (1).jpeg"
+    image: "/Mahershala Ali (1).jpeg"
   },
   {
     name: "Meryl Streep Cult Roles",
-    image: "/lovable-uploads/Meryl Streep Cult Roles.jpeg"
+    image: "/Meryl Streep Cult Roles.jpeg"
   },
   {
     name: "Morgan Freeman Best Supporting Winner",
-    image: "/lovable-uploads/Morgan Freeman Best Supporting Winner.jpeg"
+    image: "/Morgan Freeman Best Supporting Winner.jpeg"
   },
   {
     name: "Oscar Acceptance Speech Highlights",
-    image: "/lovable-uploads/Oscar Acceptance Speech Highlights.jpeg"
+    image: "/Oscar Acceptance Speech Highlights.jpeg"
   }
 ];
 
 export const OscarWinnersCarousel = () => {
   const [api] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 3000 })]);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+
+  useEffect(() => {
+    // Log to verify image paths
+    oscarWinners.forEach(winner => {
+      console.log(`Loading image: ${winner.image}`);
+    });
+  }, []);
 
   return (
     <section className="py-20 bg-gradient-to-br from-black to-theater-purple overflow-hidden">
@@ -91,6 +99,8 @@ export const OscarWinnersCarousel = () => {
                       src={winner.image}
                       alt={winner.name}
                       className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                      onLoad={() => console.log(`Image loaded: ${winner.image}`)}
+                      onError={(e) => console.error(`Error loading image: ${winner.image}`, e)}
                     />
                   </div>
                 </motion.div>
