@@ -11,35 +11,35 @@ import Autoplay from "embla-carousel-autoplay";
 const oscarWinners = [
   {
     name: "12 Years a Slave Oscar Winner",
-    image: "/12 Years a Slave Oscar Win.jpeg"
+    image: "/lovable-uploads/12 Years a Slave Oscar Win.jpeg"
   },
   {
     name: "Denzel Washington Glory Quote",
-    image: "/Denzel Washington Glory Quote.jpeg"
+    image: "/lovable-uploads/Denzel Washington Glory Quote.jpeg"
   },
   {
     name: "Halle Berry Oscar Reflection",
-    image: "/Halle Berry Oscar Reflection.jpeg"
+    image: "/lovable-uploads/Halle Berry Oscar Reflection.jpeg"
   },
   {
     name: "Kate Winslet Oscar Holding",
-    image: "/Kate Winslet Oscar Holding.jpeg"
+    image: "/lovable-uploads/Kate Winslet Oscar Holding.jpeg"
   },
   {
     name: "Mahershala Ali",
-    image: "/Mahershala Ali (1).jpeg"
+    image: "/lovable-uploads/Mahershala Ali (1).jpeg"
   },
   {
     name: "Meryl Streep Cult Roles",
-    image: "/Meryl Streep Cult Roles.jpeg"
+    image: "/lovable-uploads/Meryl Streep Cult Roles.jpeg"
   },
   {
     name: "Morgan Freeman Best Supporting Winner",
-    image: "/Morgan Freeman Best Supporting Winner.jpeg"
+    image: "/lovable-uploads/Morgan Freeman Best Supporting Winner.jpeg"
   },
   {
     name: "Oscar Acceptance Speech Highlights",
-    image: "/Oscar Acceptance Speech Highlights.jpeg"
+    image: "/lovable-uploads/Oscar Acceptance Speech Highlights.jpeg"
   }
 ];
 
