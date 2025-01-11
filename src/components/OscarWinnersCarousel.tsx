@@ -11,95 +11,118 @@ import Autoplay from "embla-carousel-autoplay";
 const oscarWinners = [
   {
     name: "12 Years a Slave Oscar Winner",
-    image: "/lovable-uploads/12 Years a Slave Oscar Win.jpeg"
+    image: "/lovable-uploads/12 Years a Slave Oscar Win.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "2025 Oscars Overview",
-    image: "/lovable-uploads/2025 Oscars Overview.jpeg"
+    image: "/lovable-uploads/2025 Oscars Overview.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Black Oscar Winners List",
-    image: "/lovable-uploads/Black Oscar Winners List - Essence.jpeg"
+    image: "/lovable-uploads/Black Oscar Winners List - Essence.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Christoph Waltz Best Supporting Actor",
-    image: "/lovable-uploads/Christoph Waltz Best Supporting Actor.jpeg"
+    image: "/lovable-uploads/Christoph Waltz Best Supporting Actor.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Denzel Washington Glory Quote",
-    image: "/lovable-uploads/Denzel Washington Glory Quote.jpeg"
+    image: "/lovable-uploads/Denzel Washington Glory Quote.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Halle Berry Oscar Reflection",
-    image: "/lovable-uploads/Halle Berry Oscar Reflection.jpeg"
+    image: "/lovable-uploads/Halle Berry Oscar Reflection.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Jack Nicholson",
-    image: "/lovable-uploads/Jack Nicholson.jpeg"
+    image: "/lovable-uploads/Jack Nicholson.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Jennifer Hudson Best Supporting",
-    image: "/lovable-uploads/Jennifer Hudson Best Supporting.jpeg"
+    image: "/lovable-uploads/Jennifer Hudson Best Supporting.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Kate Winslet Oscar Holding",
-    image: "/lovable-uploads/Kate Winslet Oscar Holding.jpeg"
+    image: "/lovable-uploads/Kate Winslet Oscar Holding.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Mahershala Ali",
-    image: "/lovable-uploads/Mahershala Ali (1).jpeg"
+    image: "/lovable-uploads/Mahershala Ali (1).jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Meryl Streep Cult Roles",
-    image: "/lovable-uploads/Meryl Streep Cult Roles.jpeg"
+    image: "/lovable-uploads/Meryl Streep Cult Roles.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Monique from Pinterest",
-    image: "/lovable-uploads/Monique from Pinterest.jpeg"
+    image: "/lovable-uploads/Monique from Pinterest.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Morgan Freeman Best Supporting Winner",
-    image: "/lovable-uploads/Morgan Freeman Best Supporting Winner.jpeg"
+    image: "/lovable-uploads/Morgan Freeman Best Supporting Winner.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Oscar Acceptance Speech Highlights",
-    image: "/lovable-uploads/Oscar Acceptance Speech Highlights.jpeg"
+    image: "/lovable-uploads/Oscar Acceptance Speech Highlights.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Oscar Statue Facts",
-    image: "/lovable-uploads/Oscar Statue Facts.jpeg"
+    image: "/lovable-uploads/Oscar Statue Facts.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Oscars 2013 Winners",
-    image: "/lovable-uploads/Oscars 2013 Winners.jpeg"
+    image: "/lovable-uploads/Oscars 2013 Winners.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Oscars 2014 Male Perspective",
-    image: "/lovable-uploads/Oscars 2014 Male Perspective.jpeg"
+    image: "/lovable-uploads/Oscars 2014 Male Perspective.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Oscars Glamour Golden Age",
-    image: "/lovable-uploads/Oscars Glamour Golden Age.jpeg"
+    image: "/lovable-uploads/Oscars Glamour Golden Age.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Pinterest Image",
-    image: "/lovable-uploads/Pinterest Image (1).jpeg"
+    image: "/lovable-uploads/Pinterest Image (1).jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Robert De Niro Best Actor Oscar",
-    image: "/lovable-uploads/Robert De Niro Best Actor Oscar.jpeg"
+    image: "/lovable-uploads/Robert De Niro Best Actor Oscar.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Tom Hanks Oscars Best Actor",
-    image: "/lovable-uploads/Tom Hanks Oscars Best Actor.jpeg"
+    image: "/lovable-uploads/Tom Hanks Oscars Best Actor.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "TOM LEONARD Marlon Brando Biography",
-    image: "/lovable-uploads/TOM LEONARD Marlon Brando Biography.jpeg"
+    image: "/lovable-uploads/TOM LEONARD Marlon Brando Biography.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Pinterest Image Additional",
-    image: "/lovable-uploads/Pinterest Image.jpeg"
+    image: "/lovable-uploads/Pinterest Image.jpeg",
+    fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   }
 ];
 
@@ -115,11 +138,6 @@ export const OscarWinnersCarousel = () => {
   );
 
   useEffect(() => {
-    // Log to verify image paths
-    oscarWinners.forEach(winner => {
-      console.log(`Loading image: ${winner.image}`);
-    });
-
     return () => {
       plugin.stop();
     };
@@ -155,7 +173,7 @@ export const OscarWinnersCarousel = () => {
             {oscarWinners.map((winner, index) => (
               <CarouselItem 
                 key={index} 
-                className="pl-2 md:pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
+                className="pl-2 md:pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
               >
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -170,8 +188,10 @@ export const OscarWinnersCarousel = () => {
                       src={winner.image}
                       alt={winner.name}
                       className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                      onLoad={() => console.log(`Image loaded: ${winner.image}`)}
-                      onError={(e) => console.error(`Error loading image: ${winner.image}`, e)}
+                      onError={(e) => {
+                        console.error(`Error loading image: ${winner.image}`);
+                        e.currentTarget.src = winner.fallbackImage;
+                      }}
                     />
                     <div className="absolute bottom-0 left-0 right-0 p-4 text-white z-20">
                       <h3 className="text-sm font-semibold truncate">{winner.name}</h3>
