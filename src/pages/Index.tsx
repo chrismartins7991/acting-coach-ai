@@ -1,6 +1,7 @@
 import { Hero } from "@/components/Hero";
 import { Features } from "@/components/Features";
 import { WhyUseSection } from "@/components/WhyUseSection";
+import { LearningProcess } from "@/components/LearningProcess";
 import { OscarWinnersCarousel } from "@/components/OscarWinnersCarousel";
 import { Testimonials } from "@/components/Testimonials";
 import { CTASection } from "@/components/CTASection";
@@ -32,10 +33,11 @@ const Index = () => {
       >
         <div className="relative z-10">
           <Hero onLoginSuccess={handleLoginTransition} />
+          <LearningProcess />
           <Features />
           <WhyUseSection />
-          <Testimonials />
           <OscarWinnersCarousel />
+          <Testimonials />
           <CTASection onGetStarted={handleLoginTransition} />
         </div>
       </motion.main>

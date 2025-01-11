@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { SparklesCore } from "./ui/sparkles";
 import { MouseSparkles } from "./ui/mouse-sparkles";
+import { LanguageToggle } from "./LanguageToggle";
 
 interface HeroProps {
   onLoginSuccess: () => void;
@@ -12,8 +13,9 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
     <div className="relative h-screen w-full overflow-hidden bg-gradient-to-br from-theater-purple via-black to-theater-red">
       <div className="absolute inset-0 bg-[url('/lovable-uploads/67fe6e0d-76fa-4723-8927-0f8ecb2f2409.png')] opacity-10 bg-center bg-contain bg-no-repeat" />
       
-      {/* Login button positioned in upper right */}
-      <div className="absolute top-4 right-4 z-10">
+      {/* Login and Language controls */}
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-4">
+        <LanguageToggle />
         <Button 
           onClick={onLoginSuccess}
           size="lg"
@@ -30,7 +32,7 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6 sm:mb-8"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6"
           >
             Your AI Acting Coach
           </motion.h1>

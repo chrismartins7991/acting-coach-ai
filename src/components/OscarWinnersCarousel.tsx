@@ -97,10 +97,10 @@ export const OscarWinnersCarousel = () => {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Legendary Oscar Winners
+            You Could Be Next
           </h2>
           <p className="text-xl text-gray-300">
-            Celebrating cinematic excellence through the years
+            From aspiring actor to award winner - start your journey today
           </p>
         </motion.div>
 
@@ -126,7 +126,6 @@ export const OscarWinnersCarousel = () => {
                   className="relative group"
                 >
                   <div className="relative h-[400px] overflow-hidden rounded-lg">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
                     <img
                       src={winner.image}
                       alt={winner.name}
@@ -136,9 +135,6 @@ export const OscarWinnersCarousel = () => {
                         e.currentTarget.src = winner.fallbackImage;
                       }}
                     />
-                    <div className="absolute bottom-0 left-0 right-0 p-4 text-white z-20">
-                      <h3 className="text-sm font-semibold truncate">{winner.name}</h3>
-                    </div>
                   </div>
                 </motion.div>
               </CarouselItem>

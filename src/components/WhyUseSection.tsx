@@ -3,22 +3,22 @@ import { motion } from "framer-motion";
 export const WhyUseSection = () => {
   const features = [
     {
-      title: "Learn from the Masters",
-      description: "Study techniques from legendary performances in cinema history",
-      image: "/lovable-uploads/deadpool.jpg",
-      alt: "Deadpool movie scene showing Ryan Reynolds' expressive performance"
-    },
-    {
-      title: "Real-time Feedback",
-      description: "Get instant analysis of your performance using advanced AI",
-      image: "/lovable-uploads/there-will-be-blood.jpg",
+      title: "Method Acting",
+      description: "Master emotional memory techniques used by legends like Daniel Day-Lewis",
+      image: "/lovable-uploads/iconic-movie-frames/There_Will_Be_Blood_Daniel_Day_Lewis.jpeg",
       alt: "Daniel Day-Lewis in There Will Be Blood"
     },
     {
-      title: "Personalized Growth",
-      description: "Track your progress and receive tailored recommendations",
-      image: "/lovable-uploads/forrest-gump.jpg",
-      alt: "Tom Hanks in Forrest Gump"
+      title: "Character Development",
+      description: "Learn character immersion like Marlon Brando",
+      image: "/lovable-uploads/iconic-movie-frames/The_Godfather_Marlon_Brando_aiactingcoach.jpeg",
+      alt: "Marlon Brando in The Godfather"
+    },
+    {
+      title: "Scene Analysis",
+      description: "Study scene breakdown techniques from Meryl Streep",
+      image: "/lovable-uploads/iconic-movie-frames/Meryl-Streep-65-Characters.jpeg",
+      alt: "Meryl Streep's iconic performances"
     }
   ];
 
@@ -32,7 +32,7 @@ export const WhyUseSection = () => {
           transition={{ duration: 0.8 }}
           className="text-4xl font-bold text-white text-center mb-16"
         >
-          Why Use Our AI Acting Coach?
+          Train Using Legendary Methods
         </motion.h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
