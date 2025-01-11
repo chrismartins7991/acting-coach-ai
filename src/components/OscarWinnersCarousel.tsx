@@ -44,22 +44,32 @@ const oscarWinners = [
 ];
 
 export const OscarWinnersCarousel = () => {
+  const autoplay = Autoplay({ delay: 1500, stopOnInteraction: false }); // Added stopOnInteraction: false
   const [api] = useEmblaCarousel(
     { 
       loop: true,
-      slidesToScroll: 1,
+      dragFree: true,
+      containScroll: "trimSnaps",
       align: "start",
     }, 
-    [Autoplay({ delay: 1500 })] // Reduced delay to 1.5 seconds
+    [autoplay]
   );
-  const [imagesLoaded, setImagesLoaded] = useState(false);
 
   useEffect(() => {
     // Log to verify image paths
     oscarWinners.forEach(winner => {
       console.log(`Loading image: ${winner.image}`);
     });
-  }, []);
+
+    // Reset autoplay when component mounts
+    if (api) {
+      api.reInit();
+    }
+
+    return () => {
+      autoplay.stop();
+    };
+  }, [api, autoplay]);
 
   return (
     <section className="py-20 bg-gradient-to-br from-black to-theater-purple overflow-hidden">
@@ -91,7 +101,7 @@ export const OscarWinnersCarousel = () => {
             {oscarWinners.map((winner, index) => (
               <CarouselItem 
                 key={index} 
-                className="pl-2 md:pl-4 md:basis-1/4 lg:basis-1/5" // Adjusted to show more items
+                className="pl-2 md:pl-4 basis-full md:basis-1/3 lg:basis-1/4" // Adjusted basis for better visibility
               >
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -100,7 +110,7 @@ export const OscarWinnersCarousel = () => {
                   transition={{ delay: index * 0.1 }}
                   className="relative group"
                 >
-                  <div className="relative h-[300px] overflow-hidden rounded-lg"> {/* Reduced height for better visibility */}
+                  <div className="relative h-[300px] overflow-hidden rounded-lg">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
                     <img
                       src={winner.image}
