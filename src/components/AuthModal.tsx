@@ -41,7 +41,7 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
       }
 
       // Handle authentication errors
-      if (event === 'USER_DELETED' || event === 'TOKEN_REFRESHED') {
+      if (event === 'TOKEN_REFRESHED') {
         const { error } = await supabase.auth.getSession();
         if (error) {
           console.error('Auth error:', error);
