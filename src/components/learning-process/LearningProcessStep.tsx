@@ -5,6 +5,8 @@ interface LearningProcessStepProps {
   icon: LucideIcon;
   title: string;
   description: string;
+  titleKey: string;
+  descriptionKey: string;
   index: number;
   isLast: boolean;
 }

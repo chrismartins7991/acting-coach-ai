@@ -3,22 +3,22 @@ import { Camera, Mic, MessageSquare, Award } from "lucide-react";
 export const steps = [
   {
     icon: Camera,
-    title: "Record Your Scene",
-    description: "Upload a video of your performance using any device"
+    titleKey: "process.steps.record.title",
+    descriptionKey: "process.steps.record.description"
   },
   {
     icon: Mic,
-    title: "Get AI Feedback",
-    description: "Receive instant analysis based on professional acting methods"
+    titleKey: "process.steps.feedback.title",
+    descriptionKey: "process.steps.feedback.description"
   },
   {
     icon: MessageSquare,
-    title: "Interactive Coaching",
-    description: "Chat with our AI to understand areas of improvement"
+    titleKey: "process.steps.coaching.title",
+    descriptionKey: "process.steps.coaching.description"
   },
   {
     icon: Award,
-    title: "Track Progress",
-    description: "Monitor your improvement over time with detailed metrics"
+    titleKey: "process.steps.progress.title",
+    descriptionKey: "process.steps.progress.description"
   }
 ];
