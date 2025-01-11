@@ -39,15 +39,17 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-[2px] w-1/2 blur-sm" />
             <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-px w-1/2" />
             
-            {/* Subtle particles below title */}
-            <SparklesCore
-              background="transparent"
-              minSize={0.2}
-              maxSize={0.6}
-              particleDensity={40}
-              className="w-full h-full"
-              particleColor="#FFD700"
-            />
+            {/* Concentrated particles below title */}
+            <div className="absolute left-1/2 -translate-x-1/2 w-[300px] h-[40px]">
+              <SparklesCore
+                background="transparent"
+                minSize={0.2}
+                maxSize={0.4}
+                particleDensity={100}
+                className="w-full h-full"
+                particleColor="#FFD700"
+              />
+            </div>
           </div>
           
           <motion.p 
