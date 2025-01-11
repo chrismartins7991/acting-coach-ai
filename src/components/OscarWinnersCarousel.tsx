@@ -62,12 +62,23 @@ const oscarWinners = [
 ];
 
 export const OscarWinnersCarousel = () => {
-  const plugin = Autoplay({ delay: 2000, stopOnInteraction: false });
+  const plugin = Autoplay({ 
+    delay: 3000, 
+    stopOnInteraction: true,
+    rootNode: (emblaRoot) => emblaRoot.parentElement,
+    options: {
+      duration: 1000, // Transition duration in milliseconds
+    }
+  });
+  
   const [emblaRef] = useEmblaCarousel(
     { 
       loop: true,
-      align: "start",
+      align: "center",
       slidesToScroll: 1,
+      duration: 50,
+      skipSnaps: false,
+      dragFree: true
     },
     [plugin]
   );
@@ -100,7 +111,7 @@ export const OscarWinnersCarousel = () => {
           ref={emblaRef}
           className="w-full"
           opts={{
-            align: "start",
+            align: "center",
             loop: true,
           }}
         >
