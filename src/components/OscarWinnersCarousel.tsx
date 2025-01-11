@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -44,8 +44,8 @@ const oscarWinners = [
 ];
 
 export const OscarWinnersCarousel = () => {
-  const autoplay = Autoplay({ delay: 1500, stopOnInteraction: false }); // Added stopOnInteraction: false
-  const [api] = useEmblaCarousel(
+  const autoplay = Autoplay({ delay: 1500, stopOnInteraction: false });
+  const [emblaRef, emblaApi] = useEmblaCarousel(
     { 
       loop: true,
       dragFree: true,
@@ -61,15 +61,11 @@ export const OscarWinnersCarousel = () => {
       console.log(`Loading image: ${winner.image}`);
     });
 
-    // Reset autoplay when component mounts
-    if (api) {
-      api.reInit();
-    }
-
+    // Cleanup autoplay when component unmounts
     return () => {
       autoplay.stop();
     };
-  }, [api, autoplay]);
+  }, [autoplay]);
 
   return (
     <section className="py-20 bg-gradient-to-br from-black to-theater-purple overflow-hidden">
@@ -95,13 +91,13 @@ export const OscarWinnersCarousel = () => {
             loop: true,
           }}
           className="w-full max-w-7xl mx-auto"
-          ref={api}
+          ref={emblaRef}
         >
           <CarouselContent className="-ml-2 md:-ml-4">
             {oscarWinners.map((winner, index) => (
               <CarouselItem 
                 key={index} 
-                className="pl-2 md:pl-4 basis-full md:basis-1/3 lg:basis-1/4" // Adjusted basis for better visibility
+                className="pl-2 md:pl-4 basis-full md:basis-1/3 lg:basis-1/4"
               >
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
