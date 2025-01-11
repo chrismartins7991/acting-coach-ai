@@ -32,13 +32,13 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-2" // Changed mb-6 to mb-2
           >
             Your AI Acting Coach
           </motion.h1>
           
-          {/* Lighting line effect */}
-          <div className="relative w-full h-[60px] mb-6">
+          {/* Lighting line effect - reduced top margin */}
+          <div className="relative w-full h-[40px] mb-6"> {/* Changed h-[60px] to h-[40px] */}
             <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-[2px] w-1/2 blur-sm" />
             <div className="absolute left-1/2 -translate-x-1/2 top-0 bg-gradient-to-r from-transparent via-theater-gold to-transparent h-px w-1/2" />
             
