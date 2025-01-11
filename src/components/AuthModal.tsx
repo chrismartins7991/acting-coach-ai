@@ -23,7 +23,9 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session) => {
+    console.log('Setting up auth state change listener');
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session) => {
       console.log('Auth state changed:', event, session);
       
       if (!isOpen || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
@@ -36,6 +38,15 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
           description: "Check your email for the password reset link.",
         });
         return;
+      }
+
+      // Handle authentication errors
+      if (event === 'USER_DELETED' || event === 'TOKEN_REFRESHED') {
+        const { error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Auth error:', error);
+          setError(getErrorMessage(error));
+        }
       }
 
       switch (event) {
@@ -69,11 +80,12 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
     });
 
     return () => {
+      console.log('Cleaning up auth state change listener');
       subscription.unsubscribe();
     };
   }, [navigate, toast, isOpen]);
 
-  const handleAuthError = (error: AuthError) => {
+  const getErrorMessage = (error: AuthError) => {
     console.error('Auth error:', error);
     let errorMessage = 'An error occurred during authentication.';
     
@@ -93,7 +105,7 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
       }
     }
     
-    setError(errorMessage);
+    return errorMessage;
   };
 
   return (
@@ -134,7 +146,6 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
           view={mode}
           redirectTo={`${window.location.origin}/auth/callback`}
           onlyThirdPartyProviders={false}
-          onError={handleAuthError}
           localization={{
             variables: {
               sign_up: {
