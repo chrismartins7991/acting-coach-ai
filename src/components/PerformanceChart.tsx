@@ -66,7 +66,7 @@ export const PerformanceChart = () => {
   };
 
   return (
-    <Card className="p-6 bg-black/30 backdrop-blur-sm border-white/10">
+    <Card className="relative z-0 p-6 bg-black/30 backdrop-blur-sm border-white/10 overflow-hidden">
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold text-white">Performance Progress</h2>
@@ -75,10 +75,13 @@ export const PerformanceChart = () => {
           </div>
         </div>
         
-        <div className="h-[300px] mt-4">
+        <div className="h-[300px] mt-4 relative">
           <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={performances}>
+              <LineChart 
+                data={performances}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
                 <XAxis 
                   dataKey="date" 
