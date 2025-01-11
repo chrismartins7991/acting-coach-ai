@@ -7,7 +7,6 @@ import { Button } from './ui/button';
 import { useToast } from './ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { AuthChangeEvent, AuthError, AuthApiError } from '@supabase/supabase-js';
-import { cn } from '@/lib/utils';
 import { Alert, AlertDescription } from './ui/alert';
 
 interface AuthModalProps {
@@ -61,6 +60,11 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
             description: "Your profile has been updated successfully.",
           });
           break;
+        case 'INITIAL_SESSION':
+          if (session) {
+            navigate('/dashboard');
+          }
+          break;
       }
     });
 
@@ -80,6 +84,9 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
           break;
         case 'Email not confirmed':
           errorMessage = 'Please verify your email address before signing in.';
+          break;
+        case 'Invalid email or password':
+          errorMessage = 'The email or password you entered is incorrect.';
           break;
         default:
           errorMessage = error.message;
@@ -127,6 +134,7 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
           view={mode}
           redirectTo={`${window.location.origin}/auth/callback`}
           onlyThirdPartyProviders={false}
+          onError={handleAuthError}
           localization={{
             variables: {
               sign_up: {
