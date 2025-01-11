@@ -1,27 +1,27 @@
 export default {
   translation: {
     hero: {
-      title: "Seu Coach de Atuação com IA",
-      subtitle: "Domine sua arte com feedback personalizado baseado nos métodos de Stanislavski, Brecht, Lee Strasberg e Chekhov.",
-      startTrial: "Começar Teste Gratuito",
-      learnMore: "Saiba mais",
-      login: "Entrar",
-      trialInfo: "Sem cartão de crédito • Teste gratuito de 14 dias • Cancele quando quiser"
+      title: "O Seu Treinador de Representação com IA",
+      subtitle: "Domine a sua arte com feedback personalizado baseado nos métodos de Stanislavski, Brecht, Lee Strasberg e Chekhov.",
+      startTrial: "Iniciar Período de Teste",
+      learnMore: "Saber mais",
+      login: "Iniciar Sessão",
+      trialInfo: "Sem cartão de crédito • Período de teste de 14 dias • Cancele quando quiser"
     },
     features: {
-      title: "Domine Sua Arte",
-      subtitle: "Tudo que você precisa para elevar sua atuação",
+      title: "Domine a Sua Arte",
+      subtitle: "Tudo o que precisa para elevar a sua representação",
       record: {
         title: "Gravar e Enviar",
-        description: "Grave ou envie suas performances facilmente para análise instantânea."
+        description: "Grave ou envie as suas performances facilmente para análise instantânea."
       },
       analysis: {
-        title: "Análise IA",
+        title: "Análise de IA",
         description: "Receba feedback detalhado baseado em metodologias estabelecidas."
       },
       progress: {
-        title: "Acompanhe seu Progresso",
-        description: "Monitore seu crescimento com métricas abrangentes."
+        title: "Acompanhe o seu Progresso",
+        description: "Monitorize o seu crescimento com métricas abrangentes."
       },
       methods: {
         title: "Métodos Especializados",
@@ -32,28 +32,28 @@ export default {
       title: "Como Funciona",
       steps: {
         record: {
-          title: "Grave Sua Cena",
-          description: "Envie um vídeo de sua performance usando qualquer dispositivo"
+          title: "Grave a Sua Cena",
+          description: "Envie um vídeo da sua performance utilizando qualquer dispositivo"
         },
         feedback: {
           title: "Feedback da IA",
           description: "Receba análise instantânea baseada em métodos profissionais"
         },
         coaching: {
-          title: "Coaching Interativo",
-          description: "Converse com nossa IA para entender áreas de melhoria"
+          title: "Treino Interativo",
+          description: "Converse com a nossa IA para compreender áreas de melhoria"
         },
         progress: {
-          title: "Acompanhe seu Progresso",
-          description: "Monitore sua evolução com métricas detalhadas"
+          title: "Acompanhe o seu Progresso",
+          description: "Monitorize a sua evolução com métricas detalhadas"
         }
       }
     },
     whyUse: {
       title: "Treine Usando Métodos Lendários",
       method: {
-        title: "Method Acting",
-        description: "Domine técnicas de memória emocional usadas por Daniel Day-Lewis"
+        title: "Método de Representação",
+        description: "Domine técnicas de memória emocional utilizadas por Daniel Day-Lewis"
       },
       character: {
         title: "Desenvolvimento de Personagem",
@@ -65,17 +65,17 @@ export default {
       }
     },
     oscarWinners: {
-      title: "Você Pode Ser o Próximo",
-      subtitle: "De ator aspirante a vencedor - comece sua jornada hoje"
+      title: "Pode Ser o Próximo",
+      subtitle: "De ator aspirante a vencedor - comece a sua jornada hoje"
     },
     testimonials: {
-      title: "O que Nossos Usuários Dizem"
+      title: "O que Dizem os Nossos Utilizadores"
     },
     cta: {
-      title: "Comece Sua Jornada de Atuação Hoje",
-      subtitle: "Junte-se a milhares de atores que já estão melhorando sua arte com coaching de IA.",
+      title: "Comece a Sua Jornada de Representação Hoje",
+      subtitle: "Junte-se a milhares de atores que já estão a melhorar a sua arte com treino de IA.",
       button: "Começar Gratuitamente",
-      trialInfo: "Sem cartão de crédito • Teste gratuito de 14 dias • Cancele quando quiser"
+      trialInfo: "Sem cartão de crédito • Período de teste de 14 dias • Cancele quando quiser"
     }
   }
 };
