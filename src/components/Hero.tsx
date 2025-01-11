@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { SparklesCore } from "./ui/sparkles";
+import { MouseSparkles } from "./ui/mouse-sparkles";
 
 interface HeroProps {
   onLoginSuccess: () => void;
@@ -71,6 +72,11 @@ export const Hero = ({ onLoginSuccess }: HeroProps) => {
             <div className="relative group">
               {/* Beam effect container */}
               <div className="absolute -inset-1 bg-gradient-to-r from-transparent via-theater-gold to-transparent rounded-lg blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-500 animate-pulse"></div>
+              
+              {/* Mouse sparkles effect */}
+              <div className="absolute -inset-4">
+                <MouseSparkles color="#FFD700" />
+              </div>
               
               <Button 
                 onClick={onLoginSuccess}
