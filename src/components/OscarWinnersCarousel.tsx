@@ -11,52 +11,52 @@ import Autoplay from "embla-carousel-autoplay";
 const oscarWinners = [
   {
     name: "12 Years a Slave Oscar Winner",
-    image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800&h=1000&fit=crop",
+    image: "/lovable-uploads/12-Years-a-Slave-Oscar-Win.jpeg",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "2025 Oscars Overview",
-    image: "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=800&h=1000&fit=crop",
+    image: "/lovable-uploads/2025-Oscars-Overview.jpeg",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Black Oscar Winners List",
-    image: "https://images.unsplash.com/photo-1616530940355-351fabd9524b?w=800&h=1000&fit=crop",
+    image: "/lovable-uploads/Black-Oscar-Winners-List---Essence.jpeg",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Christoph Waltz Best Supporting Actor",
-    image: "https://images.unsplash.com/photo-1485178575877-1a13bf489dfe?w=800&h=1000&fit=crop",
+    image: "/lovable-uploads/Christoph-Waltz-Best-Supporting-Actor.jpeg",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Denzel Washington Glory Quote",
-    image: "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?w=800&h=1000&fit=crop",
+    image: "/lovable-uploads/Denzel-Washington-Glory-Quote.jpeg",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Halle Berry Oscar Reflection",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&h=1000&fit=crop",
+    image: "/lovable-uploads/Halle-Berry-Oscar-Reflection.jpeg",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Jack Nicholson",
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&h=1000&fit=crop",
+    image: "/lovable-uploads/Jack-Nicholson.jpeg",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Jennifer Hudson Best Supporting",
-    image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&h=1000&fit=crop",
+    image: "/lovable-uploads/Jennifer-Hudson-Best-Supporting.jpeg",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Kate Winslet Oscar Holding",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&h=1000&fit=crop",
+    image: "/lovable-uploads/Kate-Winslet-Oscar-Holding.jpeg",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   },
   {
     name: "Mahershala Ali",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1000&fit=crop",
+    image: "/lovable-uploads/Mahershala-Ali-(1).jpeg",
     fallbackImage: "https://placehold.co/400x600?text=Image+Not+Found"
   }
 ];
