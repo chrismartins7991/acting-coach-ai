@@ -4,30 +4,11 @@ import { SparklesCore } from "./ui/sparkles";
 import { MouseSparkles } from "./ui/mouse-sparkles";
 import { LanguageToggle } from "./LanguageToggle";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
-import { AuthModal } from "./AuthModal";
 
 export const Hero = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
-    };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const handleDashboardClick = () => {
     navigate('/dashboard');
@@ -37,25 +18,17 @@ export const Hero = () => {
     <div className="relative h-screen w-full overflow-hidden bg-gradient-to-br from-theater-purple via-black to-theater-red">
       <div className="absolute inset-0 bg-[url('/lovable-uploads/67fe6e0d-76fa-4723-8927-0f8ecb2f2409.png')] opacity-10 bg-center bg-contain bg-no-repeat" />
       
-      {/* Login and Language controls */}
+      {/* Language controls */}
       <div className="absolute top-4 right-4 z-10 flex items-center gap-4">
         <LanguageToggle />
-        {isAuthenticated ? (
-          <Button 
-            onClick={handleDashboardClick}
-            size="lg"
-            variant="outline"
-            className="bg-black/30 hover:bg-white/20 text-white border-white/50 hover:border-white"
-          >
-            {t('hero.dashboard')}
-          </Button>
-        ) : (
-          <AuthModal 
-            buttonText={t('hero.login')}
-            variant="outline"
-            className="bg-black/30 hover:bg-white/20 text-white border-white/50 hover:border-white"
-          />
-        )}
+        <Button 
+          onClick={handleDashboardClick}
+          size="lg"
+          variant="outline"
+          className="bg-black/30 hover:bg-white/20 text-white border-white/50 hover:border-white"
+        >
+          {t('hero.dashboard')}
+        </Button>
       </div>
 
       <div className="relative w-full flex items-center justify-center h-full px-4 py-12">
