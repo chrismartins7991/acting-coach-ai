@@ -23,10 +23,10 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         { name: 'Basic Emotion Accuracy Score', included: true },
         { name: 'Basic Body Language Analysis', included: true },
         { name: 'AI Professor Pick (Strasberg, Chekhov, etc)', included: false },
+        { name: 'Digital Certified Actor Badge (NFT)', included: false },
         { name: 'Performance Tracking Over Time', included: false },
         { name: 'Detailed Feedback Reports', included: false },
         { name: 'Professional Actor Comparisons', included: false },
-        { name: 'Digital Certified Actor Badge (NFT)', included: false },
         { name: 'History of Performance Analyses', included: false }
       ],
       buttonText: 'Get Started',
@@ -43,10 +43,10 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         { name: 'Advanced Emotion Accuracy Score', included: true },
         { name: 'Detailed Body Language Analysis', included: true },
         { name: 'Random AI Professor Method Based Analyses', included: true },
-        { name: 'Performance Tracking Over Time (Dashboard)', included: true },
+        { name: 'Digital Certified Actor Badge (NFT)', included: false },
+        { name: 'Performance Tracking Over Time', included: true },
         { name: 'Detailed Feedback Reports', included: false },
         { name: 'Professional Actor Comparisons', included: false },
-        { name: 'Digital Certified Actor Badge (NFT)', included: false },
         { name: 'History of Performance Analyses', included: false }
       ],
       buttonText: 'Start Pro Trial',
@@ -64,10 +64,10 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         { name: 'Advanced Emotion Accuracy Score', included: true },
         { name: 'Detailed Body Language Analysis', included: true },
         { name: 'AI Professor Pick (Strasberg, Chekhov, etc)', included: true },
+        { name: 'Digital Certified Actor Badge (NFT)', included: true },
         { name: 'Performance Tracking Over Time', included: true },
         { name: 'Detailed Feedback Reports', included: true },
         { name: 'Professional Actor Comparisons', included: true },
-        { name: 'Digital Certified Actor Badge (NFT)', included: true },
         { name: 'History of Performance Analyses', included: true }
       ],
       buttonText: 'Become an Actor',
@@ -135,13 +135,13 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
                   <CardDescription className="text-gray-300">{plan.description}</CardDescription>
                   <div className="mt-4">
                     <span className="text-4xl font-bold text-theater-gold">€{plan.price}</span>
+                    <span className="text-gray-400">/{plan.period}</span>
                     {plan.originalPrice && (
                       <span className="ml-2 text-2xl text-white relative inline-block">
                         <span className="absolute top-1/2 left-0 w-full h-[2px] bg-theater-red transform -rotate-12"></span>
-                        <span className="font-handwriting">€{plan.originalPrice}</span>
+                        €{plan.originalPrice}
                       </span>
                     )}
-                    <span className="text-gray-400">/{plan.period}</span>
                     {plan.originalPrice && (
                       <div className="mt-1 text-sm text-theater-red font-semibold">
                         40% Early Bird Discount!
