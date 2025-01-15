@@ -25,7 +25,7 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         { name: 'AI Professor Pick (Strasberg, Chekhov, etc)', included: false },
         { name: 'Detailed Feedback Reports', included: false },
         { name: 'Professional Actor Comparisons', included: false },
-        { name: 'Unlimited Analyses', included: false }
+        { name: 'Performance Tracking Over Time', included: false }
       ],
       buttonText: 'Get Started',
       popular: false
