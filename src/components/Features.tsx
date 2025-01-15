@@ -1,4 +1,4 @@
-import { Camera, Brain, Trophy, Star, Mic2, Users, Zap, Trophy as TrophyIcon } from "lucide-react";
+import { Camera, Brain, Trophy, Star, Mic2, Users, Zap, GraduationCap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
@@ -13,28 +13,28 @@ export const Features = () => {
     },
     {
       name: "Emotion Recognition",
-      description: "Get scored on emotional authenticity and range",
+      description: "Get scored on emotional authenticity and range with advanced AI analysis",
       icon: Brain,
     },
     {
-      name: "Voice Analysis",
-      description: "Detailed feedback on vocal delivery and clarity",
-      icon: Mic2,
-    },
-    {
-      name: "Pro Comparisons",
-      description: "See how your performance measures against the pros",
+      name: "Body Language Analysis",
+      description: "Detailed feedback on your physical performance and stage presence",
       icon: Users,
     },
     {
-      name: "Quick Improvements",
-      description: "Receive actionable tips to enhance your performance",
-      icon: Zap,
+      name: "AI Professor Pick",
+      description: "Learn from Strasberg, Chekhov, Stanislavski, and Brecht methods",
+      icon: GraduationCap,
     },
     {
-      name: "Progress Tracking",
-      description: "Monitor your growth with detailed performance metrics",
-      icon: TrophyIcon,
+      name: "Performance Tracking",
+      description: "Monitor your growth with detailed performance metrics over time",
+      icon: Trophy,
+    },
+    {
+      name: "Quick Improvements",
+      description: "Receive actionable tips to enhance your performance instantly",
+      icon: Zap,
     },
   ];
 
