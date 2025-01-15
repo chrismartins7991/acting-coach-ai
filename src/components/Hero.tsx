@@ -59,7 +59,7 @@ export const Hero = () => {
           </div>
 
           <p className="mt-6 text-sm text-gray-400">
-            No sign-up required - Get 2 scene analyses per month for free
+            Upload or Record a Quick Self tape to get your free Performance Analyses
           </p>
 
           <div className="mt-16 grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
