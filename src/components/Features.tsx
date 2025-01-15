@@ -1,4 +1,4 @@
-import { Camera, Brain, Trophy, Star, Mic2, Users, Zap, GraduationCap } from "lucide-react";
+import { Camera, Brain, Trophy, Star, Mic2, Users, Zap, GraduationCap, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
@@ -25,6 +25,11 @@ export const Features = () => {
       name: "AI Professor Pick",
       description: "Learn from Strasberg, Chekhov, Stanislavski, and Brecht methods",
       icon: GraduationCap,
+    },
+    {
+      name: "Digital Certified Actor Badge",
+      description: "Earn a limited NFT badge to showcase your acting achievements",
+      icon: Award,
     },
     {
       name: "Performance Tracking",

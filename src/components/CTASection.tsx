@@ -23,6 +23,7 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         { name: 'Basic Emotion Accuracy Score', included: true },
         { name: 'Basic Body Language Analysis', included: true },
         { name: 'AI Professor Pick (Strasberg, Chekhov, etc)', included: false },
+        { name: 'Digital Certified Actor Badge (NFT)', included: false },
         { name: 'Detailed Feedback Reports', included: false },
         { name: 'Professional Actor Comparisons', included: false },
         { name: 'Performance Tracking Over Time', included: false }
@@ -41,6 +42,7 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         { name: 'Advanced Emotion Accuracy Score', included: true },
         { name: 'Detailed Body Language Analysis', included: true },
         { name: 'AI Professor Pick (Strasberg, Chekhov, etc)', included: true },
+        { name: 'Digital Certified Actor Badge (NFT)', included: true },
         { name: 'Detailed Feedback Reports', included: true },
         { name: 'Professional Actor Comparisons', included: true },
         { name: 'Performance Tracking Over Time', included: true }
@@ -59,6 +61,7 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         { name: 'Advanced Emotion Accuracy Score', included: true },
         { name: 'Detailed Body Language Analysis', included: true },
         { name: 'AI Professor Pick (Strasberg, Chekhov, etc)', included: true },
+        { name: 'Digital Certified Actor Badge (NFT)', included: true },
         { name: 'Detailed Feedback Reports', included: true },
         { name: 'Professional Actor Comparisons', included: true },
         { name: 'Performance Tracking Over Time', included: true }
