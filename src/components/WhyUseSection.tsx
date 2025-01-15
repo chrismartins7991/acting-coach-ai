@@ -6,20 +6,20 @@ export const WhyUseSection = () => {
 
   const features = [
     {
-      title: t('whyUse.method.title'),
-      description: t('whyUse.method.description'),
+      title: "Emotion Analysis",
+      description: "Get detailed feedback on your emotional authenticity and range with precise scoring.",
       image: "/lovable-uploads/iconic-movie-frames/There_Will_Be_Blood_Daniel_Day_Lewis.jpeg",
       alt: "Daniel Day-Lewis in There Will Be Blood"
     },
     {
-      title: t('whyUse.character.title'),
-      description: t('whyUse.character.description'),
+      title: "Body Language",
+      description: "Understand how your physical presence and movements enhance or detract from your performance.",
       image: "/lovable-uploads/iconic-movie-frames/The_Godfather_Marlon_Brando_aiactingcoach.jpeg",
       alt: "Marlon Brando in The Godfather"
     },
     {
-      title: t('whyUse.scene.title'),
-      description: t('whyUse.scene.description'),
+      title: "Vocal Delivery",
+      description: "Analyze your voice modulation, timing, and clarity to perfect your line delivery.",
       image: "/lovable-uploads/iconic-movie-frames/Meryl-Streep-65-Characters.jpeg",
       alt: "Meryl Streep's iconic performances"
     }
@@ -35,7 +35,7 @@ export const WhyUseSection = () => {
           transition={{ duration: 0.8 }}
           className="text-4xl font-bold text-white text-center mb-16"
         >
-          {t('whyUse.title')}
+          Professional-Level Performance Analysis
         </motion.h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
