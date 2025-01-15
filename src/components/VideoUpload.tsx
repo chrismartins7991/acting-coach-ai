@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "./AuthModal";
+import { useToast } from "./ui/use-toast";
 
 interface VideoUploadProps {
   onAnalysisComplete: (analysis: any) => void;
@@ -15,6 +16,7 @@ interface VideoUploadProps {
 
 export const VideoUpload = ({ onAnalysisComplete, isAnalyzing }: VideoUploadProps) => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const { handleFileUpload, isUploading, retryCount } = useVideoUpload(user?.id, onAnalysisComplete);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [userUsage, setUserUsage] = useState<{ performance_count: number, is_subscribed: boolean } | null>(null);
