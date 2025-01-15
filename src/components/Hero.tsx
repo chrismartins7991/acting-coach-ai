@@ -13,9 +13,8 @@ export const Hero = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-black to-theater-purple">
-      <div className="absolute inset-0 bg-[url('/lovable-uploads/iconic-movie-frames/The_Godfather_Marlon_Brando_aiactingcoach.jpeg')] opacity-10 bg-cover bg-center" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-theater-purple via-black to-theater-red">
+      <div className="absolute inset-0 w-full h-full bg-black/50" />
       
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
@@ -24,75 +23,48 @@ export const Hero = () => {
           transition={{ duration: 0.8 }}
           className="text-center max-w-4xl mx-auto"
         >
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-            Scene Perfect
+          <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight">
+            Your AI Acting Coach
           </h1>
           
-          <p className="text-2xl md:text-3xl text-theater-gold font-semibold mb-4">
-            Your Personal Acting Coach, Powered by AI
+          <p className="text-xl md:text-2xl text-gray-200 mb-12 leading-relaxed max-w-3xl mx-auto">
+            Master your craft with personalized feedback based on Stanislavski, Brecht, Lee Strasberg and Chekhov methods.
           </p>
 
-          <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed">
-            Upload your acting scene and receive instant, professional-level feedback. 
-            Perfect your performance with AI-powered analysis of emotions, body language, and vocal delivery.
-          </p>
-
-          <div className="relative">
-            <div className="absolute inset-0">
-              <SparklesCore
-                background="transparent"
-                minSize={0.4}
-                maxSize={1}
-                particleDensity={100}
-                className="w-full h-full"
-                particleColor="#FFD700"
-              />
+          <div className="flex items-center justify-center gap-6">
+            <div className="relative">
+              <div className="absolute inset-0">
+                <SparklesCore
+                  background="transparent"
+                  minSize={0.4}
+                  maxSize={1}
+                  particleDensity={100}
+                  className="w-full h-full"
+                  particleColor="#FFD700"
+                />
+              </div>
+              
+              <Button
+                onClick={handleGetStarted}
+                size="lg"
+                className="bg-[#FFD700] hover:bg-[#FFD700]/90 text-black font-semibold text-lg px-8 py-6 relative z-10 transition-all duration-300 hover:scale-105"
+              >
+                Start Free Trial
+              </Button>
             </div>
-            
+
             <Button
-              onClick={handleGetStarted}
-              size="lg"
-              className="bg-theater-gold hover:bg-theater-gold/90 text-theater-purple font-semibold text-lg px-8 py-6"
+              variant="link"
+              onClick={() => navigate('/learn-more')}
+              className="text-white hover:text-theater-gold text-lg font-medium"
             >
-              Start Your Free Analysis
+              Learn more →
             </Button>
           </div>
 
           <p className="mt-6 text-sm text-gray-400">
-            Upload or Record a Quick Self tape to get your free Performance Analyses
+            No credit card required • 14-day free trial • Cancel anytime
           </p>
-
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-            {[
-              {
-                title: "Emotion Analysis",
-                description: "Get scored on emotional authenticity"
-              },
-              {
-                title: "Body Language",
-                description: "Detailed physical presence feedback"
-              },
-              {
-                title: "Vocal Delivery",
-                description: "Voice modulation and clarity analysis"
-              },
-              {
-                title: "Pro Comparison",
-                description: "Compare with professional actors"
-              }
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 * (index + 1) }}
-                className="p-6 rounded-lg bg-black/30 backdrop-blur-sm border border-theater-gold/20"
-              >
-                <h3 className="text-xl font-semibold text-theater-gold mb-2">{feature.title}</h3>
-                <p className="text-gray-300">{feature.description}</p>
-              </motion.div>
-            ))}
-          </div>
         </motion.div>
       </div>
     </section>
