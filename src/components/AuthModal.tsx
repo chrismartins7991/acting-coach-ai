@@ -97,6 +97,9 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
         case 'Email not confirmed':
           errorMessage = 'Please verify your email address before signing in.';
           break;
+        case 'User already registered':
+          errorMessage = 'This email is already registered. Please sign in instead.';
+          break;
         case 'Invalid email or password':
           errorMessage = 'The email or password you entered is incorrect.';
           break;
@@ -156,7 +159,7 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
                 button_label: 'Sign up',
                 loading_button_label: 'Signing up ...',
                 social_provider_text: 'Sign in with {{provider}}',
-                link_text: 'Don\'t have an account? Sign up',
+                link_text: "Don't have an account? Sign up",
                 confirmation_text: 'Check your email for the confirmation link'
               },
               sign_in: {
