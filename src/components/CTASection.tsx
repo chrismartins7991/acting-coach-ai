@@ -136,8 +136,8 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
                   <div className="mt-4">
                     <span className="text-4xl font-bold text-theater-gold">€{plan.price}</span>
                     {plan.originalPrice && (
-                      <span className="ml-2 text-2xl text-gray-400 relative">
-                        <span className="absolute top-1/2 left-0 w-full h-0.5 bg-theater-red transform -rotate-6 rounded-full"></span>
+                      <span className="ml-2 text-2xl text-white relative inline-block">
+                        <span className="absolute top-1/2 left-0 w-full h-[2px] bg-theater-red transform -rotate-12"></span>
                         <span className="font-handwriting">€{plan.originalPrice}</span>
                       </span>
                     )}
