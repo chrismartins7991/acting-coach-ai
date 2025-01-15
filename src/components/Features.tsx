@@ -1,4 +1,4 @@
-import { Camera, Brain, Trophy, Star } from "lucide-react";
+import { Camera, Brain, Trophy, Star, Mic2, Users, Zap, Trophy as TrophyIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
@@ -7,24 +7,34 @@ export const Features = () => {
 
   const features = [
     {
-      name: t('features.record.title'),
-      description: t('features.record.description'),
+      name: "Instant Scene Analysis",
+      description: "Upload your performance and get detailed feedback in seconds",
       icon: Camera,
     },
     {
-      name: t('features.analysis.title'),
-      description: t('features.analysis.description'),
+      name: "Emotion Recognition",
+      description: "Get scored on emotional authenticity and range",
       icon: Brain,
     },
     {
-      name: t('features.progress.title'),
-      description: t('features.progress.description'),
-      icon: Trophy,
+      name: "Voice Analysis",
+      description: "Detailed feedback on vocal delivery and clarity",
+      icon: Mic2,
     },
     {
-      name: t('features.methods.title'),
-      description: t('features.methods.description'),
-      icon: Star,
+      name: "Pro Comparisons",
+      description: "See how your performance measures against the pros",
+      icon: Users,
+    },
+    {
+      name: "Quick Improvements",
+      description: "Receive actionable tips to enhance your performance",
+      icon: Zap,
+    },
+    {
+      name: "Progress Tracking",
+      description: "Monitor your growth with detailed performance metrics",
+      icon: TrophyIcon,
     },
   ];
 
@@ -38,7 +48,7 @@ export const Features = () => {
             transition={{ duration: 0.5 }}
             className="text-base font-semibold leading-7 text-theater-gold"
           >
-            {t('features.title')}
+            Advanced Features
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -46,24 +56,24 @@ export const Features = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl"
           >
-            {t('features.subtitle')}
+            Everything you need to perfect your performance
           </motion.p>
         </div>
         <div className="mx-auto mt-8 sm:mt-16 lg:mt-20">
-          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 px-4">
+          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 px-4">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.name}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="flex flex-col bg-black/30 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-white/10 hover:scale-105 transition-transform duration-200"
+                className="flex flex-col bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-theater-gold/20 hover:scale-105 transition-transform duration-200"
               >
                 <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-white">
-                  <feature.icon className="h-5 w-5 flex-none text-theater-gold" aria-hidden="true" />
+                  <feature.icon className="h-6 w-6 flex-none text-theater-gold" aria-hidden="true" />
                   {feature.name}
                 </dt>
-                <dd className="mt-4 flex flex-auto flex-col text-sm sm:text-base leading-7 text-gray-300">
+                <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-300">
                   <p className="flex-auto">{feature.description}</p>
                 </dd>
               </motion.div>

@@ -21,6 +21,7 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         "2 scene analyses per month",
         "Basic performance metrics",
         "General improvement tips",
+        "Email support"
       ]
     },
     {
@@ -32,7 +33,8 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         "Advanced performance metrics",
         "Detailed feedback & recommendations",
         "Compare with pro performances",
-        "Priority processing"
+        "Priority processing",
+        "24/7 priority support"
       ]
     },
     {
@@ -43,14 +45,15 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         "Everything in Pro plan",
         "Save 25% vs monthly",
         "Exclusive masterclass content",
-        "Early access to new features"
+        "Early access to new features",
+        "1-on-1 consultation call"
       ]
     }
   ];
 
   return (
     <section className="py-20 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[url('/lovable-uploads/iconic-movie-frames/The_Godfather_Marlon_Brando_aiactingcoach.jpeg')] opacity-10 bg-cover bg-center" />
+      <div className="absolute inset-0 bg-[url('/lovable-uploads/iconic-movie-frames/There_Will_Be_Blood_Daniel_Day_Lewis.jpeg')] opacity-10 bg-cover bg-center" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
       
       <div className="container mx-auto px-4 relative z-10">
@@ -69,7 +72,12 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {plans.map((plan, index) => (
-              <Card key={plan.name} className="bg-black/30 backdrop-blur-sm border-white/10 p-6">
+              <Card key={plan.name} className="bg-black/30 backdrop-blur-sm border-white/10 p-6 relative overflow-hidden">
+                {index === 1 && (
+                  <div className="absolute top-0 right-0 bg-theater-gold text-theater-purple px-4 py-1 text-sm font-semibold">
+                    Most Popular
+                  </div>
+                )}
                 <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
                 <div className="mb-4">
                   <span className="text-4xl font-bold text-theater-gold">{plan.price}</span>

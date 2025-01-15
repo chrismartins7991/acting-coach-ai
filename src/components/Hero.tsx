@@ -25,9 +25,13 @@ export const Hero = () => {
           className="text-center max-w-4xl mx-auto"
         >
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-            Your Personal Acting Coach, Powered by AI
+            Scene Perfect
           </h1>
           
+          <p className="text-2xl md:text-3xl text-theater-gold font-semibold mb-4">
+            Your Personal Acting Coach, Powered by AI
+          </p>
+
           <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed">
             Upload your acting scene and receive instant, professional-level feedback. 
             Perfect your performance with AI-powered analysis of emotions, body language, and vocal delivery.
@@ -55,22 +59,26 @@ export const Hero = () => {
           </div>
 
           <p className="mt-6 text-sm text-gray-400">
-            Try for free - Get 2 scene analyses per month
+            No sign-up required - Get 2 scene analyses per month for free
           </p>
 
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             {[
               {
-                title: "Instant Feedback",
-                description: "Get detailed performance analysis in seconds"
+                title: "Emotion Analysis",
+                description: "Get scored on emotional authenticity"
               },
               {
-                title: "Professional Insights",
-                description: "Compare your performance to industry standards"
+                title: "Body Language",
+                description: "Detailed physical presence feedback"
               },
               {
-                title: "Actionable Tips",
-                description: "Receive personalized improvement recommendations"
+                title: "Vocal Delivery",
+                description: "Voice modulation and clarity analysis"
+              },
+              {
+                title: "Pro Comparison",
+                description: "Compare with professional actors"
               }
             ].map((feature, index) => (
               <motion.div
@@ -78,10 +86,10 @@ export const Hero = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 * (index + 1) }}
-                className="p-6 rounded-lg bg-black/30 backdrop-blur-sm"
+                className="p-6 rounded-lg bg-black/30 backdrop-blur-sm border border-theater-gold/20"
               >
-                <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-400">{feature.description}</p>
+                <h3 className="text-xl font-semibold text-theater-gold mb-2">{feature.title}</h3>
+                <p className="text-gray-300">{feature.description}</p>
               </motion.div>
             ))}
           </div>
