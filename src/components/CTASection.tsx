@@ -19,14 +19,15 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
       description: 'Perfect for trying out AI acting analysis',
       features: [
         { name: 'AI Performance Analysis', included: true },
-        { name: '2 Scene Analyses per Month', included: true },
+        { name: '1 Scene Analysis per Month', included: true },
         { name: 'Basic Emotion Accuracy Score', included: true },
         { name: 'Basic Body Language Analysis', included: true },
         { name: 'AI Professor Pick (Strasberg, Chekhov, etc)', included: false },
         { name: 'Digital Certified Actor Badge (NFT)', included: false },
         { name: 'Detailed Feedback Reports', included: false },
         { name: 'Professional Actor Comparisons', included: false },
-        { name: 'Performance Tracking Over Time', included: false }
+        { name: 'Performance Tracking Over Time', included: false },
+        { name: 'History of Performance Analyses', included: false }
       ],
       buttonText: 'Get Started',
       popular: false
@@ -34,6 +35,26 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
     {
       name: 'Pro',
       price: '7.99',
+      period: 'month',
+      description: 'Enhanced access to AI coaching features',
+      features: [
+        { name: 'AI Performance Analysis', included: true },
+        { name: '10 Scene Analyses per Month', included: true },
+        { name: 'Advanced Emotion Accuracy Score', included: true },
+        { name: 'Detailed Body Language Analysis', included: true },
+        { name: 'Random AI Professor Method Based Analyses', included: true },
+        { name: 'Digital Certified Actor Badge (NFT)', included: false },
+        { name: 'Detailed Feedback Reports', included: false },
+        { name: 'Professional Actor Comparisons', included: false },
+        { name: 'Performance Tracking Over Time (Dashboard)', included: true },
+        { name: 'History of Performance Analyses', included: false }
+      ],
+      buttonText: 'Start Pro Trial',
+      popular: false
+    },
+    {
+      name: 'Actor',
+      price: '9.99',
       period: 'month',
       description: 'Full access to all AI coaching features',
       features: [
@@ -45,16 +66,17 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         { name: 'Digital Certified Actor Badge (NFT)', included: true },
         { name: 'Detailed Feedback Reports', included: true },
         { name: 'Professional Actor Comparisons', included: true },
-        { name: 'Performance Tracking Over Time', included: true }
+        { name: 'Performance Tracking Over Time', included: true },
+        { name: 'History of Performance Analyses', included: true }
       ],
-      buttonText: 'Start Pro Trial',
+      buttonText: 'Become an Actor',
       popular: true
     },
     {
-      name: 'Annual',
-      price: '59.99',
-      period: 'year',
-      description: 'Save 25% with annual billing',
+      name: 'Lifetime Access',
+      price: '199',
+      period: 'one-time',
+      description: 'All Actor plan features forever',
       features: [
         { name: 'AI Performance Analysis', included: true },
         { name: 'Unlimited Scene Analyses', included: true },
@@ -64,9 +86,10 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         { name: 'Digital Certified Actor Badge (NFT)', included: true },
         { name: 'Detailed Feedback Reports', included: true },
         { name: 'Professional Actor Comparisons', included: true },
-        { name: 'Performance Tracking Over Time', included: true }
+        { name: 'Performance Tracking Over Time', included: true },
+        { name: 'History of Performance Analyses', included: true }
       ],
-      buttonText: 'Save with Annual',
+      buttonText: 'Get Lifetime Access',
       popular: false
     }
   ];
@@ -81,7 +104,7 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="max-w-6xl mx-auto"
+          className="max-w-7xl mx-auto"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 text-center">
             Choose Your Plan
@@ -90,7 +113,7 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
             Your Personal Acting Coach, Powered by AI
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {plans.map((plan) => (
               <Card 
                 key={plan.name} 
@@ -110,7 +133,7 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
                   <CardTitle className="text-xl font-bold text-white">{plan.name}</CardTitle>
                   <CardDescription className="text-gray-300">{plan.description}</CardDescription>
                   <div className="mt-4">
-                    <span className="text-4xl font-bold text-theater-gold">${plan.price}</span>
+                    <span className="text-4xl font-bold text-theater-gold">€{plan.price}</span>
                     <span className="text-gray-400">/{plan.period}</span>
                   </div>
                 </CardHeader>
