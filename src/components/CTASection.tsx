@@ -1,9 +1,8 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
-import { SparklesCore } from "./ui/sparkles";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { Check, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Card } from "./ui/card";
-import { Check } from "lucide-react";
 
 interface CTASectionProps {
   onGetStarted: () => void;
@@ -14,40 +13,58 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
 
   const plans = [
     {
-      name: "Free",
-      price: "$0",
-      period: "forever",
+      name: 'Free',
+      price: '0',
+      period: 'forever',
+      description: 'Perfect for trying out AI acting analysis',
       features: [
-        "2 scene analyses per month",
-        "Basic performance metrics",
-        "General improvement tips",
-        "Email support"
-      ]
+        { name: 'AI Performance Analysis', included: true },
+        { name: '2 Scene Analyses per Month', included: true },
+        { name: 'Basic Emotion Accuracy Score', included: true },
+        { name: 'Basic Body Language Analysis', included: true },
+        { name: 'Detailed Feedback Reports', included: false },
+        { name: 'Professional Actor Comparisons', included: false },
+        { name: 'Unlimited Analyses', included: false },
+        { name: 'Advanced Vocal Delivery Metrics', included: false }
+      ],
+      buttonText: 'Get Started',
+      popular: false
     },
     {
-      name: "Pro",
-      price: "$7.99",
-      period: "per month",
+      name: 'Pro',
+      price: '7.99',
+      period: 'month',
+      description: 'Full access to all AI coaching features',
       features: [
-        "Unlimited scene analyses",
-        "Advanced performance metrics",
-        "Detailed feedback & recommendations",
-        "Compare with pro performances",
-        "Priority processing",
-        "24/7 priority support"
-      ]
+        { name: 'AI Performance Analysis', included: true },
+        { name: 'Unlimited Scene Analyses', included: true },
+        { name: 'Advanced Emotion Accuracy Score', included: true },
+        { name: 'Detailed Body Language Analysis', included: true },
+        { name: 'Detailed Feedback Reports', included: true },
+        { name: 'Professional Actor Comparisons', included: true },
+        { name: 'Performance Tracking Over Time', included: true },
+        { name: 'Advanced Vocal Delivery Metrics', included: true }
+      ],
+      buttonText: 'Start Pro Trial',
+      popular: true
     },
     {
-      name: "Annual",
-      price: "$59.99",
-      period: "per year",
+      name: 'Annual',
+      price: '59.99',
+      period: 'year',
+      description: 'Save 25% with annual billing',
       features: [
-        "Everything in Pro plan",
-        "Save 25% vs monthly",
-        "Exclusive masterclass content",
-        "Early access to new features",
-        "1-on-1 consultation call"
-      ]
+        { name: 'AI Performance Analysis', included: true },
+        { name: 'Unlimited Scene Analyses', included: true },
+        { name: 'Advanced Emotion Accuracy Score', included: true },
+        { name: 'Detailed Body Language Analysis', included: true },
+        { name: 'Detailed Feedback Reports', included: true },
+        { name: 'Professional Actor Comparisons', included: true },
+        { name: 'Performance Tracking Over Time', included: true },
+        { name: 'Advanced Vocal Delivery Metrics', included: true }
+      ],
+      buttonText: 'Save with Annual',
+      popular: false
     }
   ];
 
@@ -61,43 +78,69 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="max-w-5xl mx-auto"
+          className="max-w-6xl mx-auto"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 text-center">
             Choose Your Plan
           </h2>
           <p className="text-xl text-gray-300 mb-12 text-center">
-            Start with our free tier or unlock unlimited potential with our pro plans
+            Your Personal Acting Coach, Powered by AI
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {plans.map((plan, index) => (
-              <Card key={plan.name} className="bg-black/30 backdrop-blur-sm border-white/10 p-6 relative overflow-hidden">
-                {index === 1 && (
-                  <div className="absolute top-0 right-0 bg-theater-gold text-theater-purple px-4 py-1 text-sm font-semibold">
-                    Most Popular
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {plans.map((plan) => (
+              <Card 
+                key={plan.name} 
+                className={`relative bg-black/30 backdrop-blur-sm border-white/10 ${
+                  plan.popular ? 'border-theater-gold shadow-lg shadow-theater-gold/20' : ''
+                }`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-theater-gold text-theater-purple px-3 py-1 rounded-full text-sm font-semibold">
+                      Most Popular
+                    </span>
                   </div>
                 )}
-                <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-                <div className="mb-4">
-                  <span className="text-4xl font-bold text-theater-gold">{plan.price}</span>
-                  <span className="text-gray-400 ml-2">{plan.period}</span>
-                </div>
-                <ul className="space-y-3 mb-6">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-center text-gray-300">
-                      <Check className="w-5 h-5 text-theater-gold mr-2" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  onClick={onGetStarted}
-                  variant={index === 1 ? "default" : "outline"}
-                  className={index === 1 ? "w-full bg-theater-gold hover:bg-theater-gold/90 text-theater-purple" : "w-full"}
-                >
-                  Get Started
-                </Button>
+                
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold text-white">{plan.name}</CardTitle>
+                  <CardDescription className="text-gray-300">{plan.description}</CardDescription>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold text-theater-gold">${plan.price}</span>
+                    <span className="text-gray-400">/{plan.period}</span>
+                  </div>
+                </CardHeader>
+                
+                <CardContent>
+                  <ul className="space-y-3">
+                    {plan.features.map((feature) => (
+                      <li key={feature.name} className="flex items-center gap-2">
+                        {feature.included ? (
+                          <Check className="h-5 w-5 text-theater-gold" />
+                        ) : (
+                          <X className="h-5 w-5 text-gray-500" />
+                        )}
+                        <span className={feature.included ? 'text-gray-200' : 'text-gray-500'}>
+                          {feature.name}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                
+                <CardFooter>
+                  <Button 
+                    onClick={onGetStarted}
+                    className={`w-full ${
+                      plan.popular 
+                        ? 'bg-theater-gold hover:bg-theater-gold/90 text-theater-purple' 
+                        : 'bg-white/10 hover:bg-white/20 text-white'
+                    }`}
+                  >
+                    {plan.buttonText}
+                  </Button>
+                </CardFooter>
               </Card>
             ))}
           </div>
