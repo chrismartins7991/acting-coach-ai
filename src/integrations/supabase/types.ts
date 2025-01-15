@@ -128,6 +128,8 @@ export type Database = {
           id: string
           is_subscribed: boolean | null
           performance_count: number | null
+          subscription_expiry: string | null
+          subscription_tier: string | null
           updated_at: string
           user_id: string
         }
@@ -136,6 +138,8 @@ export type Database = {
           id?: string
           is_subscribed?: boolean | null
           performance_count?: number | null
+          subscription_expiry?: string | null
+          subscription_tier?: string | null
           updated_at?: string
           user_id: string
         }
@@ -144,6 +148,8 @@ export type Database = {
           id?: string
           is_subscribed?: boolean | null
           performance_count?: number | null
+          subscription_expiry?: string | null
+          subscription_tier?: string | null
           updated_at?: string
           user_id?: string
         }
