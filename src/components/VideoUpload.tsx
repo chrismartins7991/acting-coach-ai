@@ -5,41 +5,60 @@ import { supabase } from "@/lib/supabase";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthModal } from "./AuthModal";
 
 interface VideoUploadProps {
-  userId: string;
   onAnalysisComplete: (analysis: any) => void;
   isAnalyzing: boolean;
 }
 
-export const VideoUpload = ({ userId, onAnalysisComplete, isAnalyzing }: VideoUploadProps) => {
-  const { handleFileUpload, isUploading, retryCount } = useVideoUpload(userId, onAnalysisComplete);
+export const VideoUpload = ({ onAnalysisComplete, isAnalyzing }: VideoUploadProps) => {
+  const { user } = useAuth();
+  const { handleFileUpload, isUploading, retryCount } = useVideoUpload(user?.id, onAnalysisComplete);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [userUsage, setUserUsage] = useState<{ performance_count: number, is_subscribed: boolean } | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserUsage = async () => {
-      const { data, error } = await supabase
-        .from('user_usage')
-        .select('performance_count, is_subscribed')
-        .eq('user_id', userId)
-        .single();
+      if (!user) return;
 
-      if (error) {
+      console.log('Fetching user usage for user:', user.id);
+      try {
+        const { data, error } = await supabase
+          .from('user_usage')
+          .select('performance_count, is_subscribed')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error fetching user usage:', error);
+          return;
+        }
+
+        console.log('User usage data:', data);
+        setUserUsage(data);
+      } catch (error) {
         console.error('Error fetching user usage:', error);
-        return;
       }
-
-      setUserUsage(data);
     };
 
     fetchUserUsage();
-  }, [userId]);
+  }, [user]);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to upload videos.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     if (userUsage && !userUsage.is_subscribed && userUsage.performance_count >= 1) {
       setShowUpgradeDialog(true);
@@ -48,6 +67,15 @@ export const VideoUpload = ({ userId, onAnalysisComplete, isAnalyzing }: VideoUp
 
     handleFileUpload(file);
   };
+
+  if (!user) {
+    return (
+      <div className="text-center space-y-4">
+        <p className="text-white/80">Please sign in to upload videos</p>
+        <AuthModal buttonText="Sign In" mode="sign_in" />
+      </div>
+    );
+  }
 
   return (
     <>

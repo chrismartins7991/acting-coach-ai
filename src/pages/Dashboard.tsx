@@ -11,6 +11,7 @@ import { FeatureCard } from "@/components/FeatureCard";
 import { SparklesCore } from "@/components/ui/sparkles";
 import { motion, AnimatePresence } from "framer-motion";
 import { PerformanceChart } from "@/components/PerformanceChart";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -19,6 +20,7 @@ const Dashboard = () => {
   const { isAnalyzing } = useVideoAnalysis();
   const [currentAnalysis, setCurrentAnalysis] = useState(null);
   const fromLanding = location.state?.fromLanding;
+  const { user } = useAuth();
 
   const handleViewHistory = () => {
     navigate('/history');
@@ -40,9 +42,6 @@ const Dashboard = () => {
       onClick: handleViewHistory,
     },
   ];
-
-  // Since authentication is temporarily disabled, we'll use a placeholder user ID
-  const temporaryUserId = "temp-user-id";
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -178,7 +177,6 @@ const Dashboard = () => {
               >
                 <motion.div variants={itemVariants}>
                   <VideoUpload
-                    userId={temporaryUserId}
                     onAnalysisComplete={setCurrentAnalysis}
                     isAnalyzing={isAnalyzing}
                   />
