@@ -58,6 +58,9 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      fontFamily: {
+        handwriting: ['Caveat', 'cursive'],
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

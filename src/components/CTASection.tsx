@@ -55,6 +55,7 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
     {
       name: 'Actor',
       price: '9.22',
+      originalPrice: '12.90',
       period: 'month',
       description: 'Full access to all AI coaching features',
       features: [
@@ -134,7 +135,18 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
                   <CardDescription className="text-gray-300">{plan.description}</CardDescription>
                   <div className="mt-4">
                     <span className="text-4xl font-bold text-theater-gold">€{plan.price}</span>
+                    {plan.originalPrice && (
+                      <span className="ml-2 text-2xl text-gray-400 relative">
+                        <span className="absolute top-1/2 left-0 w-full h-0.5 bg-theater-red transform -rotate-6 rounded-full"></span>
+                        <span className="font-handwriting">€{plan.originalPrice}</span>
+                      </span>
+                    )}
                     <span className="text-gray-400">/{plan.period}</span>
+                    {plan.originalPrice && (
+                      <div className="mt-1 text-sm text-theater-red font-semibold">
+                        40% Early Bird Discount!
+                      </div>
+                    )}
                   </div>
                 </CardHeader>
                 
