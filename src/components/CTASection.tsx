@@ -22,10 +22,10 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         { name: '2 Scene Analyses per Month', included: true },
         { name: 'Basic Emotion Accuracy Score', included: true },
         { name: 'Basic Body Language Analysis', included: true },
+        { name: 'AI Professor Pick (Strasberg, Chekhov, etc)', included: false },
         { name: 'Detailed Feedback Reports', included: false },
         { name: 'Professional Actor Comparisons', included: false },
-        { name: 'Unlimited Analyses', included: false },
-        { name: 'Advanced Vocal Delivery Metrics', included: false }
+        { name: 'Unlimited Analyses', included: false }
       ],
       buttonText: 'Get Started',
       popular: false
@@ -40,10 +40,10 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         { name: 'Unlimited Scene Analyses', included: true },
         { name: 'Advanced Emotion Accuracy Score', included: true },
         { name: 'Detailed Body Language Analysis', included: true },
+        { name: 'AI Professor Pick (Strasberg, Chekhov, etc)', included: true },
         { name: 'Detailed Feedback Reports', included: true },
         { name: 'Professional Actor Comparisons', included: true },
-        { name: 'Performance Tracking Over Time', included: true },
-        { name: 'Advanced Vocal Delivery Metrics', included: true }
+        { name: 'Performance Tracking Over Time', included: true }
       ],
       buttonText: 'Start Pro Trial',
       popular: true
@@ -58,10 +58,10 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
         { name: 'Unlimited Scene Analyses', included: true },
         { name: 'Advanced Emotion Accuracy Score', included: true },
         { name: 'Detailed Body Language Analysis', included: true },
+        { name: 'AI Professor Pick (Strasberg, Chekhov, etc)', included: true },
         { name: 'Detailed Feedback Reports', included: true },
         { name: 'Professional Actor Comparisons', included: true },
-        { name: 'Performance Tracking Over Time', included: true },
-        { name: 'Advanced Vocal Delivery Metrics', included: true }
+        { name: 'Performance Tracking Over Time', included: true }
       ],
       buttonText: 'Save with Annual',
       popular: false
