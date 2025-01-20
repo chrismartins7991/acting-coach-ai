@@ -74,6 +74,7 @@ export type Database = {
           updated_at: string | null
           user_id: string
           video_url: string
+          voice_feedback: Json | null
         }
         Insert: {
           ai_feedback?: Json | null
@@ -83,6 +84,7 @@ export type Database = {
           updated_at?: string | null
           user_id: string
           video_url: string
+          voice_feedback?: Json | null
         }
         Update: {
           ai_feedback?: Json | null
@@ -92,6 +94,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           video_url?: string
+          voice_feedback?: Json | null
         }
         Relationships: []
       }

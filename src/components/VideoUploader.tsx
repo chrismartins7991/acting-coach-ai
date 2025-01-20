@@ -3,13 +3,16 @@ import { Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PerformanceAnalysis } from "./PerformanceAnalysis";
 import { supabase } from "@/lib/supabase";
+import { extractAudioFromVideo } from "@/utils/videoAnalysis/audioExtractor";
+import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
 const VideoUploader = () => {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [analysis, setAnalysis] = useState<any>(null);
+  const [analysis, setAnalysis] = useState<Analysis | null>(null);
+  const [voiceAnalysis, setVoiceAnalysis] = useState<VoiceAnalysis | null>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -52,23 +55,32 @@ const VideoUploader = () => {
         .from('videos')
         .getPublicUrl(filePath);
 
-      console.log("Starting video analysis with Gemini...");
+      console.log("Starting video and voice analysis...");
 
-      // Call the analyze-performance edge function instead of analyze-video
-      const { data: analysisResult, error: analysisError } = await supabase.functions
-        .invoke('analyze-performance', {
+      // Extract audio from video
+      const audioData = await extractAudioFromVideo(file);
+
+      // Parallel processing of video and voice analysis
+      const [videoAnalysis, voiceAnalysisResult] = await Promise.all([
+        // Analyze video performance
+        supabase.functions.invoke('analyze-performance', {
           body: { videoUrl: publicUrl }
-        });
+        }),
+        // Analyze voice performance
+        supabase.functions.invoke('analyze-voice', {
+          body: { audioData }
+        })
+      ]);
 
-      if (analysisError) {
-        throw new Error('Error analyzing video: ' + analysisError.message);
+      if (videoAnalysis.error) {
+        throw new Error('Error analyzing video: ' + videoAnalysis.error.message);
       }
 
-      if (!analysisResult) {
-        throw new Error('No analysis results received');
+      if (voiceAnalysisResult.error) {
+        throw new Error('Error analyzing voice: ' + voiceAnalysisResult.error.message);
       }
 
-      console.log("Analysis received:", analysisResult);
+      console.log("Analysis received:", { video: videoAnalysis.data, voice: voiceAnalysisResult.data });
 
       // Save the performance and analysis to the database
       const { error: dbError } = await supabase
@@ -76,7 +88,8 @@ const VideoUploader = () => {
         .insert({
           title: file.name,
           video_url: publicUrl,
-          ai_feedback: analysisResult
+          ai_feedback: videoAnalysis.data,
+          voice_feedback: voiceAnalysisResult.data
         });
 
       if (dbError) {
@@ -84,7 +97,8 @@ const VideoUploader = () => {
         throw new Error('Error saving analysis to database');
       }
 
-      setAnalysis(analysisResult);
+      setAnalysis(videoAnalysis.data);
+      setVoiceAnalysis(voiceAnalysisResult.data);
       
       toast({
         title: "Analysis Complete",
@@ -126,9 +140,13 @@ const VideoUploader = () => {
       </div>
 
       {isProcessing ? (
-        <PerformanceAnalysis analysis={null} isLoading={true} />
+        <PerformanceAnalysis analysis={null} voiceAnalysis={null} isLoading={true} />
       ) : (
-        analysis && <PerformanceAnalysis analysis={analysis} />
+        (analysis || voiceAnalysis) && 
+        <PerformanceAnalysis 
+          analysis={analysis} 
+          voiceAnalysis={voiceAnalysis}
+        />
       )}
     </div>
   );
