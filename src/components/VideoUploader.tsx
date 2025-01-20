@@ -61,7 +61,7 @@ const VideoUploader = () => {
       const audioData = await extractAudioFromVideo(file);
 
       // Parallel processing of video and voice analysis
-      const [videoAnalysis, voiceAnalysisResult] = await Promise.all([
+      const [videoAnalysisResponse, voiceAnalysisResponse] = await Promise.all([
         // Analyze video performance
         supabase.functions.invoke('analyze-performance', {
           body: { videoUrl: publicUrl }
@@ -72,15 +72,21 @@ const VideoUploader = () => {
         })
       ]);
 
-      if (videoAnalysis.error) {
-        throw new Error('Error analyzing video: ' + videoAnalysis.error.message);
+      console.log("Video analysis response:", videoAnalysisResponse);
+      console.log("Voice analysis response:", voiceAnalysisResponse);
+
+      if (videoAnalysisResponse.error) {
+        throw new Error('Error analyzing video: ' + videoAnalysisResponse.error.message);
       }
 
-      if (voiceAnalysisResult.error) {
-        throw new Error('Error analyzing voice: ' + voiceAnalysisResult.error.message);
+      if (voiceAnalysisResponse.error) {
+        throw new Error('Error analyzing voice: ' + voiceAnalysisResponse.error.message);
       }
 
-      console.log("Analysis received:", { video: videoAnalysis.data, voice: voiceAnalysisResult.data });
+      const videoAnalysis = videoAnalysisResponse.data as Analysis;
+      const voiceAnalysis = voiceAnalysisResponse.data as VoiceAnalysis;
+
+      console.log("Processed analysis:", { videoAnalysis, voiceAnalysis });
 
       // Save the performance and analysis to the database
       const { error: dbError } = await supabase
@@ -88,8 +94,8 @@ const VideoUploader = () => {
         .insert({
           title: file.name,
           video_url: publicUrl,
-          ai_feedback: videoAnalysis.data,
-          voice_feedback: voiceAnalysisResult.data
+          ai_feedback: videoAnalysis,
+          voice_feedback: voiceAnalysis
         });
 
       if (dbError) {
@@ -97,8 +103,8 @@ const VideoUploader = () => {
         throw new Error('Error saving analysis to database');
       }
 
-      setAnalysis(videoAnalysis.data);
-      setVoiceAnalysis(voiceAnalysisResult.data);
+      setAnalysis(videoAnalysis);
+      setVoiceAnalysis(voiceAnalysis);
       
       toast({
         title: "Analysis Complete",
@@ -146,6 +152,7 @@ const VideoUploader = () => {
         <PerformanceAnalysis 
           analysis={analysis} 
           voiceAnalysis={voiceAnalysis}
+          isLoading={false}
         />
       )}
     </div>
