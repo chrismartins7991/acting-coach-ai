@@ -1,21 +1,15 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Camera, History } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { TopMenu } from "@/components/TopMenu";
-import { useState } from "react";
 import { useVideoAnalysis } from "@/hooks/useVideoAnalysis";
-import { PerformanceAnalysis } from "@/components/PerformanceAnalysis";
-import { VideoUpload } from "@/components/VideoUpload";
-import { FeatureCard } from "@/components/FeatureCard";
-import { SparklesCore } from "@/components/ui/sparkles";
 import { motion, AnimatePresence } from "framer-motion";
 import { PerformanceChart } from "@/components/PerformanceChart";
-import { useAuth } from "@/contexts/AuthContext";
+import { TopMenu } from "@/components/TopMenu";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
+import { BackgroundEffects } from "@/components/dashboard/BackgroundEffects";
+import { PerformanceSection } from "@/components/dashboard/PerformanceSection";
+import { FeaturesGrid } from "@/components/dashboard/FeaturesGrid";
+import { useState } from "react";
 
 const Dashboard = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const { isAnalyzing } = useVideoAnalysis();
@@ -24,7 +18,6 @@ const Dashboard = () => {
     voiceAnalysis: VoiceAnalysis | null;
   } | null>(null);
   const fromLanding = location.state?.fromLanding;
-  const { user } = useAuth();
 
   const handleViewHistory = () => {
     navigate('/history');
@@ -34,23 +27,6 @@ const Dashboard = () => {
     console.log("Analysis complete in Dashboard, setting state:", data);
     setCurrentAnalysis(data);
   };
-
-  const features = [
-    {
-      title: "Record Performance",
-      description: "Use your camera to record a new performance",
-      icon: Camera,
-      color: "from-theater-purple to-theater-gold",
-      onClick: () => console.log("Record performance clicked"),
-    },
-    {
-      title: "View History",
-      description: "Review your past performances and feedback",
-      icon: History,
-      color: "from-theater-purple to-theater-gold",
-      onClick: handleViewHistory,
-    },
-  ];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -80,63 +56,7 @@ const Dashboard = () => {
         animate="visible"
         variants={containerVariants}
       >
-        {fromLanding && (
-          <motion.div 
-            className="fixed inset-0 pointer-events-none z-50"
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 0 }}
-            transition={{ duration: 3 }}
-          >
-            <SparklesCore
-              background="transparent"
-              minSize={0.2}
-              maxSize={0.8}
-              particleDensity={100}
-              className="w-full h-full"
-              particleColor="#FFD700"
-            />
-          </motion.div>
-        )}
-
-        {/* Background particles */}
-        <div className="absolute top-0 left-0 w-full h-64 opacity-50 pointer-events-none">
-          <SparklesCore
-            background="transparent"
-            minSize={0.2}
-            maxSize={0.8}
-            particleDensity={70}
-            className="w-full h-full"
-            particleColor="#FFD700"
-          />
-        </div>
-
-        <motion.div 
-          variants={itemVariants}
-          className="absolute right-0 top-1/4 w-64 h-96 opacity-40 pointer-events-none"
-        >
-          <SparklesCore
-            background="transparent"
-            minSize={0.1}
-            maxSize={0.6}
-            particleDensity={50}
-            className="w-full h-full"
-            particleColor="#FFD700"
-          />
-        </motion.div>
-
-        <motion.div 
-          variants={itemVariants}
-          className="absolute left-0 bottom-0 w-96 h-64 opacity-30 pointer-events-none"
-        >
-          <SparklesCore
-            background="transparent"
-            minSize={0.2}
-            maxSize={0.7}
-            particleDensity={60}
-            className="w-full h-full"
-            particleColor="#FFD700"
-          />
-        </motion.div>
+        <BackgroundEffects fromLanding={fromLanding} />
 
         <motion.div variants={itemVariants}>
           <TopMenu />
@@ -162,49 +82,17 @@ const Dashboard = () => {
             </motion.div>
 
             {currentAnalysis ? (
-              <motion.div 
-                className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10"
-                variants={itemVariants}
-              >
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-                  <h2 className="text-xl md:text-2xl font-bold text-white">Performance Analysis</h2>
-                  <Button
-                    variant="outline"
-                    onClick={() => setCurrentAnalysis(null)}
-                    className="text-white hover:text-theater-gold border-white/20 hover:bg-white/10"
-                  >
-                    Upload Another Video
-                  </Button>
-                </div>
-                <PerformanceAnalysis 
-                  analysis={currentAnalysis.analysis}
-                  voiceAnalysis={currentAnalysis.voiceAnalysis}
-                  isLoading={isAnalyzing}
-                />
-              </motion.div>
+              <PerformanceSection
+                currentAnalysis={currentAnalysis}
+                isAnalyzing={isAnalyzing}
+                onReset={() => setCurrentAnalysis(null)}
+              />
             ) : (
-              <motion.div 
-                className="grid grid-cols-1 sm:grid-cols-2 gap-6"
-                variants={containerVariants}
-              >
-                <motion.div variants={itemVariants}>
-                  <VideoUpload
-                    onAnalysisComplete={handleAnalysisComplete}
-                    isAnalyzing={isAnalyzing}
-                  />
-                </motion.div>
-                {features.map((feature, index) => (
-                  <motion.div 
-                    key={feature.title}
-                    variants={itemVariants}
-                  >
-                    <FeatureCard
-                      {...feature}
-                      delay={index * 0.1}
-                    />
-                  </motion.div>
-                ))}
-              </motion.div>
+              <FeaturesGrid
+                onAnalysisComplete={handleAnalysisComplete}
+                isAnalyzing={isAnalyzing}
+                onViewHistory={handleViewHistory}
+              />
             )}
           </motion.div>
         </motion.div>
