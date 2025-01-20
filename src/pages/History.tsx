@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { TopMenu } from "@/components/TopMenu";
 import { PerformanceAnalysis } from "@/components/PerformanceAnalysis";
-import { Analysis } from "@/utils/videoAnalysis/types";
+import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -17,6 +17,7 @@ interface Performance {
   title: string;
   created_at: string;
   ai_feedback: Analysis;
+  voice_feedback: VoiceAnalysis;
 }
 
 const History = () => {
@@ -93,7 +94,10 @@ const History = () => {
             animate={{ opacity: 1, y: 0 }}
             className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10"
           >
-            <PerformanceAnalysis analysis={selectedPerformance.ai_feedback} />
+            <PerformanceAnalysis 
+              analysis={selectedPerformance.ai_feedback}
+              voiceAnalysis={selectedPerformance.voice_feedback}
+            />
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

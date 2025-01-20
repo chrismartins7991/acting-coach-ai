@@ -12,13 +12,17 @@ import { SparklesCore } from "@/components/ui/sparkles";
 import { motion, AnimatePresence } from "framer-motion";
 import { PerformanceChart } from "@/components/PerformanceChart";
 import { useAuth } from "@/contexts/AuthContext";
+import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 
 const Dashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const { isAnalyzing } = useVideoAnalysis();
-  const [currentAnalysis, setCurrentAnalysis] = useState(null);
+  const [currentAnalysis, setCurrentAnalysis] = useState<{
+    analysis: Analysis | null;
+    voiceAnalysis: VoiceAnalysis | null;
+  } | null>(null);
   const fromLanding = location.state?.fromLanding;
   const { user } = useAuth();
 
@@ -168,7 +172,10 @@ const Dashboard = () => {
                     Upload Another Video
                   </Button>
                 </div>
-                <PerformanceAnalysis analysis={currentAnalysis} />
+                <PerformanceAnalysis 
+                  analysis={currentAnalysis.analysis} 
+                  voiceAnalysis={currentAnalysis.voiceAnalysis}
+                />
               </motion.div>
             ) : (
               <motion.div 
