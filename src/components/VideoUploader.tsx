@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PerformanceAnalysis } from "./PerformanceAnalysis";
 import { supabase } from "@/lib/supabase";
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
 const VideoUploader = () => {
   const { toast } = useToast();
@@ -18,7 +18,7 @@ const VideoUploader = () => {
     if (file.size > MAX_FILE_SIZE) {
       toast({
         title: "File too large",
-        description: "Please upload a video file smaller than 50MB.",
+        description: "Please upload a video file smaller than 100MB.",
         variant: "destructive",
       });
       return;
@@ -117,7 +117,7 @@ const VideoUploader = () => {
           <div className="text-center">
             <Upload className="w-12 h-12 text-white mb-4 mx-auto" />
             <h3 className="text-xl font-semibold text-white mb-2">Upload Video</h3>
-            <p className="text-white/80">Upload a video file (max 50MB) for analysis</p>
+            <p className="text-white/80">Upload a video file (max 100MB) for analysis</p>
             {isProcessing && (
               <p className="text-white/80 mt-2">Processing video...</p>
             )}

@@ -15,10 +15,10 @@ export const VideoUpload = ({ onAnalysisComplete, isAnalyzing }: VideoUploadProp
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 50 * 1024 * 1024) { // 50MB limit
+    if (file.size > 100 * 1024 * 1024) { // 100MB limit
       toast({
         title: "File too large",
-        description: "Please upload a video file smaller than 50MB",
+        description: "Please upload a video file smaller than 100MB",
         variant: "destructive",
       });
       return;
