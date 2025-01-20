@@ -85,10 +85,11 @@ const VideoUploader = () => {
         throw new Error('Error analyzing voice: ' + voiceAnalysisResponse.error.message);
       }
 
+      // Ensure the responses match the expected types
       const videoAnalysis = videoAnalysisResponse.data as Analysis;
       const voiceAnalysis = voiceAnalysisResponse.data as VoiceAnalysis;
 
-      console.log("Setting analysis state:", { videoAnalysis, voiceAnalysis });
+      console.log("Setting analysis states:", { videoAnalysis, voiceAnalysis });
 
       setAnalysis(videoAnalysis);
       setVoiceAnalysis(voiceAnalysis);
