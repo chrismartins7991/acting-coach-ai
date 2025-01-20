@@ -30,6 +30,11 @@ const Dashboard = () => {
     navigate('/history');
   };
 
+  const handleAnalysisComplete = (data: { analysis: Analysis; voiceAnalysis: VoiceAnalysis }) => {
+    console.log("Analysis complete in Dashboard, setting state:", data);
+    setCurrentAnalysis(data);
+  };
+
   const features = [
     {
       title: "Record Performance",
@@ -67,8 +72,6 @@ const Dashboard = () => {
     }
   };
 
-  console.log("Current Analysis State:", currentAnalysis); // Debug log
-
   return (
     <AnimatePresence mode="wait">
       <motion.div 
@@ -77,7 +80,6 @@ const Dashboard = () => {
         animate="visible"
         variants={containerVariants}
       >
-        {/* Transition particles */}
         {fromLanding && (
           <motion.div 
             className="fixed inset-0 pointer-events-none z-50"
@@ -174,19 +176,11 @@ const Dashboard = () => {
                     Upload Another Video
                   </Button>
                 </div>
-                {isAnalyzing ? (
-                  <PerformanceAnalysis 
-                    analysis={null}
-                    voiceAnalysis={null}
-                    isLoading={true}
-                  />
-                ) : (
-                  <PerformanceAnalysis 
-                    analysis={currentAnalysis.analysis}
-                    voiceAnalysis={currentAnalysis.voiceAnalysis}
-                    isLoading={false}
-                  />
-                )}
+                <PerformanceAnalysis 
+                  analysis={currentAnalysis.analysis}
+                  voiceAnalysis={currentAnalysis.voiceAnalysis}
+                  isLoading={isAnalyzing}
+                />
               </motion.div>
             ) : (
               <motion.div 
@@ -195,10 +189,7 @@ const Dashboard = () => {
               >
                 <motion.div variants={itemVariants}>
                   <VideoUpload
-                    onAnalysisComplete={(data) => {
-                      console.log("Analysis complete, setting state:", data); // Debug log
-                      setCurrentAnalysis(data);
-                    }}
+                    onAnalysisComplete={handleAnalysisComplete}
                     isAnalyzing={isAnalyzing}
                   />
                 </motion.div>
