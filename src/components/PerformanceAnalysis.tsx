@@ -13,6 +13,14 @@ interface PerformanceAnalysisProps {
 export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: PerformanceAnalysisProps) => {
   console.log("PerformanceAnalysis received:", { analysis, voiceAnalysis, isLoading });
 
+  const methodologyPortraits = {
+    strasberg: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/strasberg-portrait.jpg",
+    chekhov: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/chekhov-portrait.jpg",
+    stanislavski: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/stanislavski-portrait.jpg",
+    brecht: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/brecht-portrait.jpg",
+    meisner: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/meisner-portrait.jpg"
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -124,8 +132,21 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
             <div className="space-y-6">
               {Object.entries(analysis.methodologicalAnalysis.methodologies).map(([method, data]) => (
                 <Card key={method} className="bg-black/30 backdrop-blur-sm border-white/10">
-                  <CardHeader>
-                    <CardTitle className="text-white capitalize">{method} Method</CardTitle>
+                  <CardHeader className="flex md:flex-row gap-6 items-start">
+                    <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 border-2 border-theater-gold">
+                      <img 
+                        src={methodologyPortraits[method as keyof typeof methodologyPortraits]} 
+                        alt={`${method} portrait`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.error(`Error loading image for ${method}`);
+                          e.currentTarget.src = "/placeholder.svg";
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <CardTitle className="text-white capitalize">{method} Method</CardTitle>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-white/60">{data.analysis}</p>
