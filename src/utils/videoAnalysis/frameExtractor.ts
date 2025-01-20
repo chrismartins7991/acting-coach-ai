@@ -11,7 +11,11 @@ export const extractFramesFromVideo = async (videoFile: File): Promise<string[]>
     video.muted = true;
     
     video.onloadedmetadata = () => {
-      console.log("Video metadata loaded:", { duration: video.duration, width: video.videoWidth, height: video.videoHeight });
+      console.log("Video metadata loaded:", { 
+        duration: video.duration, 
+        width: video.videoWidth, 
+        height: video.videoHeight 
+      });
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       
