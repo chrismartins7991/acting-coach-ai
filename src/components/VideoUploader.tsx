@@ -54,9 +54,9 @@ const VideoUploader = () => {
 
       console.log("Starting video analysis with Gemini...");
 
-      // Call the analyze-video edge function
+      // Call the analyze-performance edge function instead of analyze-video
       const { data: analysisResult, error: analysisError } = await supabase.functions
-        .invoke('analyze-video', {
+        .invoke('analyze-performance', {
           body: { videoUrl: publicUrl }
         });
 
