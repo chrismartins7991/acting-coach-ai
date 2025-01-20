@@ -22,13 +22,26 @@ serve(async (req) => {
       throw new Error('Method not allowed');
     }
 
-    const { videoUrl, frames } = await req.json();
-    console.log("Starting video analysis with Gemini...");
-    
-    if (!videoUrl || !frames || !Array.isArray(frames)) {
-      throw new Error('Invalid request data');
+    const requestData = await req.json();
+    console.log("Received request data:", requestData);
+
+    // Validate required fields
+    if (!requestData) {
+      throw new Error('Request body is empty');
     }
 
+    const { videoUrl, frames } = requestData;
+
+    if (!videoUrl || typeof videoUrl !== 'string') {
+      throw new Error('Invalid or missing videoUrl');
+    }
+
+    if (!frames || !Array.isArray(frames) || frames.length === 0) {
+      throw new Error('Invalid or missing frames array');
+    }
+
+    console.log("Starting video analysis with Gemini...");
+    
     // Initialize Gemini with the new model
     const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -37,7 +50,7 @@ serve(async (req) => {
     
     // Analyze each frame
     const framePositions = ['beginning', 'middle', 'end'];
-    const framePromises = frames.map(async (frame, index) => {
+    const framePromises = frames.slice(0, 3).map(async (frame, index) => {
       console.log(`Analyzing frame at ${framePositions[index]}...`);
       
       const prompt = `You are an acting coach AI analyzing a frame from a ${framePositions[index]} of an acting performance video.
@@ -50,11 +63,18 @@ serve(async (req) => {
       }`;
 
       try {
+        if (!frame || typeof frame !== 'string') {
+          throw new Error(`Invalid frame data at position ${index}`);
+        }
+
+        // Remove data URL prefix if present
+        const base64Data = frame.includes('base64,') ? frame.split('base64,')[1] : frame;
+
         const result = await model.generateContent([
           {
             inlineData: {
               mimeType: "image/jpeg",
-              data: frame.split(',')[1] // Remove the data:image/jpeg;base64, prefix
+              data: base64Data
             }
           },
           prompt
