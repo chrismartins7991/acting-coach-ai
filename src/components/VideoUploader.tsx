@@ -59,7 +59,7 @@ const VideoUploader = () => {
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: false,
-          onProgress: (progress) => {
+          onUploadProgress: (progress) => {
             const percent = (progress.loaded / progress.total) * 100;
             setUploadProgress(Math.round(percent));
           }
