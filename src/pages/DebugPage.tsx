@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { VideoUploader } from "@/components/VideoUploader";
+import VideoUploader from "@/components/VideoUploader";
 import { Card } from "@/components/ui/card";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 
