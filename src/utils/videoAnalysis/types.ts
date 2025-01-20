@@ -14,6 +14,23 @@ export interface VoiceAnalysis {
   recommendations: string[];
 }
 
+export interface MethodologyAnalysis {
+  analysis: string;
+  recommendations: string[];
+}
+
+export interface CombinedMethodologicalAnalysis {
+  methodologies: {
+    strasberg: MethodologyAnalysis;
+    chekhov: MethodologyAnalysis;
+    stanislavski: MethodologyAnalysis;
+    brecht: MethodologyAnalysis;
+    meisner: MethodologyAnalysis;
+  };
+  synthesis: string;
+  overallRecommendations: string[];
+}
+
 export interface Analysis {
   overallScore: number;
   categories: {
@@ -24,19 +41,11 @@ export interface Analysis {
   };
   recommendations: string[];
   timestamp?: string;
+  methodologicalAnalysis?: CombinedMethodologicalAnalysis;
 }
 
 export interface AnalyzeVideoParams {
   videoUrl: string;
   title: string;
   userId: string;
-}
-
-export interface Performance {
-  id: string;
-  title: string;
-  video_url: string;
-  ai_feedback: Analysis;
-  voice_feedback?: VoiceAnalysis;
-  created_at: string;
 }

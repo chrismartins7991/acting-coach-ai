@@ -73,14 +73,12 @@ const VideoUploader = () => {
 
       // Parallel processing of video and voice analysis
       const [videoAnalysisResponse, voiceAnalysisResponse] = await Promise.all([
-        // Analyze video performance with frames
         supabase.functions.invoke('analyze-performance', {
           body: { 
             videoUrl: publicUrl,
-            frames: frames // Make sure frames are included in the request
+            frames: frames
           }
         }),
-        // Analyze voice performance
         supabase.functions.invoke('analyze-voice', {
           body: { audioData }
         })
@@ -97,13 +95,34 @@ const VideoUploader = () => {
         throw new Error('Error analyzing voice: ' + voiceAnalysisResponse.error.message);
       }
 
-      // Ensure the responses match the expected types
+      // Get initial analyses
       const videoAnalysis = videoAnalysisResponse.data as Analysis;
       const voiceAnalysis = voiceAnalysisResponse.data as VoiceAnalysis;
 
-      console.log("Setting analysis states:", { videoAnalysis, voiceAnalysis });
+      // Combine analyses through acting methodologies perspective
+      console.log("Combining analyses through acting methodologies...");
+      const { data: combinedAnalysis, error: combinedError } = await supabase.functions.invoke(
+        'combine-analysis',
+        {
+          body: {
+            videoAnalysis,
+            voiceAnalysis,
+          }
+        }
+      );
 
-      setAnalysis(videoAnalysis);
+      if (combinedError) {
+        console.error("Error combining analyses:", combinedError);
+        throw new Error('Error combining analyses');
+      }
+
+      console.log("Combined analysis:", combinedAnalysis);
+
+      // Update the analyses with the combined perspective
+      setAnalysis({
+        ...videoAnalysis,
+        methodologicalAnalysis: combinedAnalysis
+      });
       setVoiceAnalysis(voiceAnalysis);
 
       // Save the performance and analysis to the database
@@ -114,7 +133,10 @@ const VideoUploader = () => {
             user_id: user.id,
             title: file.name,
             video_url: publicUrl,
-            ai_feedback: videoAnalysis,
+            ai_feedback: {
+              ...videoAnalysis,
+              methodologicalAnalysis: combinedAnalysis
+            },
             voice_feedback: voiceAnalysis
           });
 
@@ -126,7 +148,7 @@ const VideoUploader = () => {
       
       toast({
         title: "Analysis Complete",
-        description: "Your video has been analyzed successfully!",
+        description: "Your video has been analyzed through multiple acting methodologies!",
       });
 
     } catch (error: any) {

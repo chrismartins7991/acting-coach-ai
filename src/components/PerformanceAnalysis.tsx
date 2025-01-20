@@ -77,9 +77,10 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
       </Card>
 
       <Tabs defaultValue="visual" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="visual" disabled={!analysis}>Visual Performance</TabsTrigger>
           <TabsTrigger value="voice" disabled={!voiceAnalysis}>Voice Analysis</TabsTrigger>
+          <TabsTrigger value="methodologies" disabled={!analysis?.methodologicalAnalysis}>Acting Methodologies</TabsTrigger>
         </TabsList>
 
         <TabsContent value="visual">
@@ -117,6 +118,40 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
             </div>
           )}
         </TabsContent>
+
+        <TabsContent value="methodologies">
+          {analysis?.methodologicalAnalysis && (
+            <div className="space-y-6">
+              {Object.entries(analysis.methodologicalAnalysis.methodologies).map(([method, data]) => (
+                <Card key={method} className="bg-black/30 backdrop-blur-sm border-white/10">
+                  <CardHeader>
+                    <CardTitle className="text-white capitalize">{method} Method</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-white/60">{data.analysis}</p>
+                    <div>
+                      <h4 className="text-white font-semibold mb-2">Recommendations:</h4>
+                      <ul className="list-disc pl-6 space-y-1">
+                        {data.recommendations.map((rec, index) => (
+                          <li key={index} className="text-white/60">{rec}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+
+              <Card className="bg-black/30 backdrop-blur-sm border-white/10">
+                <CardHeader>
+                  <CardTitle className="text-white">Synthesis</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-white/60">{analysis.methodologicalAnalysis.synthesis}</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </TabsContent>
       </Tabs>
 
       <Card className="bg-black/30 backdrop-blur-sm border-white/10">
@@ -131,6 +166,9 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
             ))}
             {voiceAnalysis?.recommendations?.map((recommendation, index) => (
               <li key={`voice-${index}`} className="text-white/60">{recommendation}</li>
+            ))}
+            {analysis?.methodologicalAnalysis?.overallRecommendations?.map((recommendation, index) => (
+              <li key={`method-${index}`} className="text-white/60">{recommendation}</li>
             ))}
           </ul>
         </CardContent>
