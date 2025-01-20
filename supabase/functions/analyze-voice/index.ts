@@ -19,12 +19,17 @@ serve(async (req) => {
       throw new Error('No audio data provided');
     }
 
+    const apiKey = Deno.env.get('GEMINI_API_KEY');
+    if (!apiKey) {
+      throw new Error('Gemini API key not configured');
+    }
+
     // Call Gemini API for voice analysis
     const response = await fetch('https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Deno.env.get('GEMINI_API_KEY')}`,
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         contents: [{
@@ -62,7 +67,13 @@ serve(async (req) => {
     const result = await response.json();
     console.log("Gemini API response:", result);
 
-    const analysis = JSON.parse(result.candidates[0].content.parts[0].text);
+    // Extract JSON from the response text
+    const jsonMatch = result.candidates[0].content.parts[0].text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No valid JSON found in Gemini response');
+    }
+
+    const analysis = JSON.parse(jsonMatch[0]);
     console.log("Parsed analysis:", analysis);
 
     return new Response(JSON.stringify(analysis), {

@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PerformanceAnalysis } from "./PerformanceAnalysis";
 import { supabase } from "@/lib/supabase";
 import { extractAudioFromVideo } from "@/utils/videoAnalysis/audioExtractor";
+import { extractFramesFromVideo } from "@/utils/videoAnalysis/frameExtractor";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -32,6 +33,14 @@ const VideoUploader = () => {
     try {
       setIsProcessing(true);
       console.log("Starting video upload...");
+
+      // Extract frames first
+      const frames = await extractFramesFromVideo(file);
+      console.log("Extracted frames:", frames.length);
+      
+      if (!frames || frames.length === 0) {
+        throw new Error("Failed to extract frames from video");
+      }
 
       // Upload video to Supabase Storage
       const fileExt = file.name.split('.').pop();
@@ -64,9 +73,12 @@ const VideoUploader = () => {
 
       // Parallel processing of video and voice analysis
       const [videoAnalysisResponse, voiceAnalysisResponse] = await Promise.all([
-        // Analyze video performance
+        // Analyze video performance with frames
         supabase.functions.invoke('analyze-performance', {
-          body: { videoUrl: publicUrl }
+          body: { 
+            videoUrl: publicUrl,
+            frames: frames // Make sure frames are included in the request
+          }
         }),
         // Analyze voice performance
         supabase.functions.invoke('analyze-voice', {

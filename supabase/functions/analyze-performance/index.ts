@@ -23,7 +23,7 @@ serve(async (req) => {
     }
 
     const requestData = await req.json();
-    console.log("Received request with data length:", JSON.stringify(requestData).length);
+    console.log("Received request data length:", JSON.stringify(requestData).length);
 
     // Validate required fields
     if (!requestData || !requestData.frames || !Array.isArray(requestData.frames)) {
