@@ -1,8 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSubscription } from "@/hooks/useSubscription";
-import { Lock } from "lucide-react";
 import { Analysis } from "@/utils/videoAnalysis/types";
 
 interface PerformanceAnalysisProps {
@@ -11,8 +9,6 @@ interface PerformanceAnalysisProps {
 }
 
 export const PerformanceAnalysis = ({ analysis, isLoading }: PerformanceAnalysisProps) => {
-  const { subscriptionTier } = useSubscription();
-
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -50,11 +46,6 @@ export const PerformanceAnalysis = ({ analysis, isLoading }: PerformanceAnalysis
     return null;
   }
 
-  const isProFeature = (feature: string) => {
-    const proFeatures = ['emotionalRange', 'characterEmbodiment', 'recommendations'];
-    return proFeatures.includes(feature) && subscriptionTier === 'free';
-  };
-
   const formatCategoryName = (name: string) => {
     return name.replace(/([A-Z])/g, ' $1').trim();
   };
@@ -76,22 +67,13 @@ export const PerformanceAnalysis = ({ analysis, isLoading }: PerformanceAnalysis
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {Object.entries(analysis.categories).map(([category, data]) => (
-          <Card key={category} className={isProFeature(category) ? 'opacity-50' : ''}>
+          <Card key={category}>
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>{formatCategoryName(category)}</CardTitle>
-                {isProFeature(category) && (
-                  <Lock className="h-4 w-4 text-muted-foreground" />
-                )}
-              </div>
+              <CardTitle>{formatCategoryName(category)}</CardTitle>
               <Progress value={data.score} className="mt-2" />
             </CardHeader>
             <CardContent>
-              {isProFeature(category) ? (
-                <p className="text-muted-foreground">Upgrade to Pro to unlock detailed feedback</p>
-              ) : (
-                <p className="text-muted-foreground">{data.feedback}</p>
-              )}
+              <p className="text-muted-foreground">{data.feedback}</p>
             </CardContent>
           </Card>
         ))}
@@ -99,24 +81,15 @@ export const PerformanceAnalysis = ({ analysis, isLoading }: PerformanceAnalysis
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Recommendations</CardTitle>
-            {subscriptionTier === 'free' && (
-              <Lock className="h-4 w-4 text-muted-foreground" />
-            )}
-          </div>
+          <CardTitle>Recommendations</CardTitle>
           <CardDescription>Areas for improvement and next steps</CardDescription>
         </CardHeader>
         <CardContent>
-          {subscriptionTier === 'free' ? (
-            <p className="text-muted-foreground">Upgrade to Pro to unlock personalized recommendations</p>
-          ) : (
-            <ul className="list-disc pl-6 space-y-2">
-              {analysis.recommendations?.map((recommendation, index) => (
-                <li key={index} className="text-muted-foreground">{recommendation}</li>
-              ))}
-            </ul>
-          )}
+          <ul className="list-disc pl-6 space-y-2">
+            {analysis.recommendations?.map((recommendation, index) => (
+              <li key={index} className="text-muted-foreground">{recommendation}</li>
+            ))}
+          </ul>
         </CardContent>
       </Card>
     </div>
