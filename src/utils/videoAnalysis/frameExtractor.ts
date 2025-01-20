@@ -19,12 +19,23 @@ export const extractFramesFromVideo = async (videoFile: File): Promise<string[]>
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       
-      // Extract frames at beginning, middle, and end
-      const timePoints = [0, video.duration / 2, video.duration * 0.99];
+      // Calculate timestamps for 2 frames per second
+      const framesPerSecond = 2;
+      const totalFrames = Math.floor(video.duration * framesPerSecond);
+      const timeInterval = 1 / framesPerSecond;
+      const timePoints = Array.from({ length: totalFrames }, (_, i) => i * timeInterval);
+      
+      // Add the last frame at 99% of duration if not already included
+      const lastTimePoint = video.duration * 0.99;
+      if (timePoints[timePoints.length - 1] < lastTimePoint) {
+        timePoints.push(lastTimePoint);
+      }
+      
+      console.log(`Will extract ${timePoints.length} frames at ${framesPerSecond} fps`);
       let framesProcessed = 0;
       
       const extractFrame = (time: number) => {
-        console.log(`Extracting frame at time: ${time}`);
+        console.log(`Extracting frame at time: ${time.toFixed(2)}s`);
         video.currentTime = time;
       };
       
@@ -32,7 +43,7 @@ export const extractFramesFromVideo = async (videoFile: File): Promise<string[]>
         if (ctx) {
           ctx.drawImage(video, 0, 0);
           const frameData = canvas.toDataURL('image/jpeg', 0.8);
-          console.log(`Frame ${framesProcessed + 1} extracted, length: ${frameData.length}`);
+          console.log(`Frame ${framesProcessed + 1}/${timePoints.length} extracted`);
           frames.push(frameData);
           framesProcessed++;
           

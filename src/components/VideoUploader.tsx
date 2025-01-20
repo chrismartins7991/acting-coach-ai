@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PerformanceAnalysis } from "./PerformanceAnalysis";
 import { supabase } from "@/lib/supabase";
@@ -7,6 +7,7 @@ import { extractAudioFromVideo } from "@/utils/videoAnalysis/audioExtractor";
 import { extractFramesFromVideo } from "@/utils/videoAnalysis/frameExtractor";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import { useAuth } from "@/contexts/AuthContext";
+import { Progress } from "./ui/progress";
 
 // Reduce max file size to 50MB to stay within Supabase limits
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -15,6 +16,8 @@ const VideoUploader = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStep, setProcessingStep] = useState<string>("");
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [voiceAnalysis, setVoiceAnalysis] = useState<VoiceAnalysis | null>(null);
 
@@ -33,9 +36,10 @@ const VideoUploader = () => {
 
     try {
       setIsProcessing(true);
+      setProcessingStep("Starting video upload...");
       console.log("Starting video upload...");
 
-      // Extract frames first
+      setProcessingStep("Extracting video frames...");
       const frames = await extractFramesFromVideo(file);
       console.log("Extracted frames:", frames.length);
       
@@ -43,7 +47,7 @@ const VideoUploader = () => {
         throw new Error("Failed to extract frames from video");
       }
 
-      // Upload video to Supabase Storage with a more unique filename
+      setProcessingStep("Uploading video to storage...");
       const timestamp = new Date().getTime();
       const randomString = Math.random().toString(36).substring(7);
       const fileExt = file.name.split('.').pop();
@@ -54,7 +58,11 @@ const VideoUploader = () => {
         .from('videos')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
+          onUploadProgress: (progress) => {
+            const percent = (progress.loaded / progress.total) * 100;
+            setUploadProgress(Math.round(percent));
+          }
         });
 
       if (uploadError) {
@@ -68,17 +76,15 @@ const VideoUploader = () => {
 
       console.log("Video uploaded successfully, getting public URL...");
 
-      // Get the public URL of the uploaded video
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
         .getPublicUrl(filePath);
 
+      setProcessingStep("Analyzing performance...");
       console.log("Starting video and voice analysis...");
 
-      // Extract audio from video
       const audioData = await extractAudioFromVideo(file);
 
-      // Parallel processing of video and voice analysis
       const [videoAnalysisResponse, voiceAnalysisResponse] = await Promise.all([
         supabase.functions.invoke('analyze-performance', {
           body: { 
@@ -167,6 +173,8 @@ const VideoUploader = () => {
       });
     } finally {
       setIsProcessing(false);
+      setProcessingStep("");
+      setUploadProgress(0);
     }
   };
 
@@ -182,11 +190,23 @@ const VideoUploader = () => {
             disabled={isProcessing}
           />
           <div className="text-center">
-            <Upload className="w-12 h-12 text-white mb-4 mx-auto" />
-            <h3 className="text-xl font-semibold text-white mb-2">Upload Video</h3>
-            <p className="text-white/80">Upload a video file (max 50MB) for analysis</p>
-            {isProcessing && (
-              <p className="text-white/80 mt-2">Processing video...</p>
+            {isProcessing ? (
+              <div className="space-y-4">
+                <Loader2 className="w-12 h-12 text-white animate-spin mx-auto" />
+                <h3 className="text-xl font-semibold text-white">{processingStep}</h3>
+                {uploadProgress > 0 && (
+                  <div className="w-full max-w-xs mx-auto space-y-2">
+                    <Progress value={uploadProgress} />
+                    <p className="text-sm text-white/60">{uploadProgress}% uploaded</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Upload className="w-12 h-12 text-white mb-4 mx-auto" />
+                <h3 className="text-xl font-semibold text-white mb-2">Upload Video</h3>
+                <p className="text-white/80">Upload a video file (max 50MB) for analysis</p>
+              </>
             )}
           </div>
         </label>
