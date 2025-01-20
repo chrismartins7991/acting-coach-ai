@@ -5,11 +5,13 @@ import { PerformanceAnalysis } from "./PerformanceAnalysis";
 import { supabase } from "@/lib/supabase";
 import { extractAudioFromVideo } from "@/utils/videoAnalysis/audioExtractor";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
+import { useAuth } from "@/contexts/AuthContext";
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
 const VideoUploader = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [voiceAnalysis, setVoiceAnalysis] = useState<VoiceAnalysis | null>(null);
@@ -86,25 +88,28 @@ const VideoUploader = () => {
       const videoAnalysis = videoAnalysisResponse.data as Analysis;
       const voiceAnalysis = voiceAnalysisResponse.data as VoiceAnalysis;
 
-      console.log("Processed analysis:", { videoAnalysis, voiceAnalysis });
-
-      // Save the performance and analysis to the database
-      const { error: dbError } = await supabase
-        .from('performances')
-        .insert({
-          title: file.name,
-          video_url: publicUrl,
-          ai_feedback: videoAnalysis,
-          voice_feedback: voiceAnalysis
-        });
-
-      if (dbError) {
-        console.error("Database error:", dbError);
-        throw new Error('Error saving analysis to database');
-      }
+      console.log("Setting analysis state:", { videoAnalysis, voiceAnalysis });
 
       setAnalysis(videoAnalysis);
       setVoiceAnalysis(voiceAnalysis);
+
+      // Save the performance and analysis to the database
+      if (user) {
+        const { error: dbError } = await supabase
+          .from('performances')
+          .insert({
+            user_id: user.id,
+            title: file.name,
+            video_url: publicUrl,
+            ai_feedback: videoAnalysis,
+            voice_feedback: voiceAnalysis
+          });
+
+        if (dbError) {
+          console.error("Database error:", dbError);
+          throw new Error('Error saving analysis to database');
+        }
+      }
       
       toast({
         title: "Analysis Complete",
@@ -145,14 +150,11 @@ const VideoUploader = () => {
         </label>
       </div>
 
-      {isProcessing ? (
-        <PerformanceAnalysis analysis={null} voiceAnalysis={null} isLoading={true} />
-      ) : (
-        (analysis || voiceAnalysis) && 
+      {(analysis || voiceAnalysis) && (
         <PerformanceAnalysis 
           analysis={analysis} 
           voiceAnalysis={voiceAnalysis}
-          isLoading={false}
+          isLoading={isProcessing}
         />
       )}
     </div>

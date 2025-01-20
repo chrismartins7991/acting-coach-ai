@@ -11,6 +11,8 @@ interface PerformanceAnalysisProps {
 }
 
 export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: PerformanceAnalysisProps) => {
+  console.log("PerformanceAnalysis received:", { analysis, voiceAnalysis, isLoading });
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -45,6 +47,7 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
   }
 
   if (!analysis && !voiceAnalysis) {
+    console.log("No analysis data available");
     return null;
   }
 
@@ -56,17 +59,19 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
     ? Math.round((analysis.overallScore + voiceAnalysis.overallScore) / 2)
     : analysis?.overallScore || voiceAnalysis?.overallScore || 0;
 
+  console.log("Rendering analysis with score:", combinedScore);
+
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="bg-black/30 backdrop-blur-sm border-white/10">
         <CardHeader>
-          <CardTitle>Overall Performance Score</CardTitle>
-          <CardDescription>Combined score based on visual performance and voice analysis</CardDescription>
+          <CardTitle className="text-white">Overall Performance Score</CardTitle>
+          <CardDescription className="text-white/60">Combined score based on visual performance and voice analysis</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
             <Progress value={combinedScore} className="w-full" />
-            <span className="text-2xl font-bold">{combinedScore}%</span>
+            <span className="text-2xl font-bold text-white">{combinedScore}%</span>
           </div>
         </CardContent>
       </Card>
@@ -81,13 +86,13 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
           {analysis && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {Object.entries(analysis.categories).map(([category, data]) => (
-                <Card key={category}>
+                <Card key={category} className="bg-black/30 backdrop-blur-sm border-white/10">
                   <CardHeader>
-                    <CardTitle>{formatCategoryName(category)}</CardTitle>
+                    <CardTitle className="text-white">{formatCategoryName(category)}</CardTitle>
                     <Progress value={data.score} className="mt-2" />
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">{data.feedback}</p>
+                    <p className="text-white/60">{data.feedback}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -99,13 +104,13 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
           {voiceAnalysis && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {Object.entries(voiceAnalysis.categories).map(([category, data]) => (
-                <Card key={category}>
+                <Card key={category} className="bg-black/30 backdrop-blur-sm border-white/10">
                   <CardHeader>
-                    <CardTitle>{formatCategoryName(category)}</CardTitle>
+                    <CardTitle className="text-white">{formatCategoryName(category)}</CardTitle>
                     <Progress value={data.score} className="mt-2" />
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">{data.feedback}</p>
+                    <p className="text-white/60">{data.feedback}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -114,18 +119,18 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
         </TabsContent>
       </Tabs>
 
-      <Card>
+      <Card className="bg-black/30 backdrop-blur-sm border-white/10">
         <CardHeader>
-          <CardTitle>Recommendations</CardTitle>
-          <CardDescription>Areas for improvement and next steps</CardDescription>
+          <CardTitle className="text-white">Recommendations</CardTitle>
+          <CardDescription className="text-white/60">Areas for improvement and next steps</CardDescription>
         </CardHeader>
         <CardContent>
           <ul className="list-disc pl-6 space-y-2">
             {analysis?.recommendations?.map((recommendation, index) => (
-              <li key={`visual-${index}`} className="text-muted-foreground">{recommendation}</li>
+              <li key={`visual-${index}`} className="text-white/60">{recommendation}</li>
             ))}
             {voiceAnalysis?.recommendations?.map((recommendation, index) => (
-              <li key={`voice-${index}`} className="text-muted-foreground">{recommendation}</li>
+              <li key={`voice-${index}`} className="text-white/60">{recommendation}</li>
             ))}
           </ul>
         </CardContent>
