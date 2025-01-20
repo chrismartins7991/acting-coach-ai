@@ -69,7 +69,9 @@ export type Database = {
         Row: {
           ai_feedback: Json | null
           created_at: string | null
+          detailed_analysis: Json | null
           id: string
+          timeline_observations: Json[] | null
           title: string
           updated_at: string | null
           user_id: string
@@ -79,7 +81,9 @@ export type Database = {
         Insert: {
           ai_feedback?: Json | null
           created_at?: string | null
+          detailed_analysis?: Json | null
           id?: string
+          timeline_observations?: Json[] | null
           title: string
           updated_at?: string | null
           user_id: string
@@ -89,7 +93,9 @@ export type Database = {
         Update: {
           ai_feedback?: Json | null
           created_at?: string | null
+          detailed_analysis?: Json | null
           id?: string
+          timeline_observations?: Json[] | null
           title?: string
           updated_at?: string | null
           user_id?: string

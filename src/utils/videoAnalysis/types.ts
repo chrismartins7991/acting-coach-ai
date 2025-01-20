@@ -31,6 +31,24 @@ export interface CombinedMethodologicalAnalysis {
   overallRecommendations: string[];
 }
 
+export interface TimelineObservation {
+  timestamp: number;
+  visualAnalysis: {
+    emotionalState: string;
+    bodyLanguage: string;
+    facialExpression: string;
+    spatialPresence: string;
+  };
+  audioAnalysis?: {
+    voiceQuality: string;
+    emotionalTone: string;
+    clarity: string;
+    volume: string;
+  };
+  score: number;
+  feedback: string;
+}
+
 export interface Analysis {
   overallScore: number;
   categories: {
@@ -42,6 +60,7 @@ export interface Analysis {
   recommendations: string[];
   timestamp?: string;
   methodologicalAnalysis?: CombinedMethodologicalAnalysis;
+  timelineObservations?: TimelineObservation[];
 }
 
 export interface AnalyzeVideoParams {

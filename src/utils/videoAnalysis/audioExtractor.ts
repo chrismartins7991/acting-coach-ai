@@ -1,83 +1,102 @@
-export const extractAudioFromVideo = async (videoFile: File): Promise<string> => {
+export interface TimestampedAudio {
+  audioData: string;
+  startTime: number;
+  endTime: number;
+}
+
+export const extractAudioFromVideo = async (
+  videoFile: File, 
+  frameTimestamps: number[]
+): Promise<TimestampedAudio[]> => {
   try {
-    console.log("Starting audio extraction from video...");
+    console.log("Starting synchronized audio extraction...");
     
-    // Create an audio context
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    
-    // Create video element
     const video = document.createElement('video');
     video.src = URL.createObjectURL(videoFile);
     
-    // Wait for metadata to load
     await new Promise((resolve) => {
       video.onloadedmetadata = resolve;
     });
     
-    // Create media stream destination
     const destination = audioContext.createMediaStreamDestination();
-    
-    // Create media element source
     const source = audioContext.createMediaElementSource(video);
     source.connect(destination);
     
-    // Create media recorder with the destination stream
-    const mediaRecorder = new MediaRecorder(destination.stream);
-    const chunks: BlobPart[] = [];
+    const audioSegments: TimestampedAudio[] = [];
+    let currentSegment: {
+      chunks: BlobPart[];
+      startTime: number;
+      endTime: number;
+    } | null = null;
     
-    mediaRecorder.ondataavailable = (e) => {
-      if (e.data.size > 0) {
-        chunks.push(e.data);
-      }
+    // Create a MediaRecorder for each segment between frame timestamps
+    const processSegment = async (startTime: number, endTime: number) => {
+      return new Promise<TimestampedAudio>((resolve, reject) => {
+        const mediaRecorder = new MediaRecorder(destination.stream);
+        const chunks: BlobPart[] = [];
+        
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            chunks.push(e.data);
+          }
+        };
+        
+        mediaRecorder.onstop = async () => {
+          try {
+            const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+            const base64Audio = await blobToBase64(audioBlob);
+            resolve({
+              audioData: base64Audio,
+              startTime,
+              endTime
+            });
+          } catch (error) {
+            reject(error);
+          }
+        };
+        
+        video.currentTime = startTime;
+        mediaRecorder.start();
+        
+        setTimeout(() => {
+          mediaRecorder.stop();
+        }, (endTime - startTime) * 1000);
+        
+        video.play();
+      });
     };
     
-    // Create promise to handle recording completion
-    const recordingPromise = new Promise<string>((resolve, reject) => {
-      mediaRecorder.onstop = () => {
-        try {
-          const audioBlob = new Blob(chunks, { type: 'audio/webm' });
-          const reader = new FileReader();
-          
-          reader.onloadend = () => {
-            const base64Audio = (reader.result as string).split(',')[1];
-            resolve(base64Audio);
-          };
-          
-          reader.onerror = reject;
-          reader.readAsDataURL(audioBlob);
-        } catch (error) {
-          console.error("Error processing audio blob:", error);
-          reject(error);
-        }
-      };
-    });
+    // Process audio segments between frame timestamps
+    const audioPromises = [];
+    for (let i = 0; i < frameTimestamps.length - 1; i++) {
+      audioPromises.push(
+        processSegment(frameTimestamps[i], frameTimestamps[i + 1])
+      );
+    }
     
-    // Start recording and playing
-    mediaRecorder.start();
-    video.play();
+    const segments = await Promise.all(audioPromises);
     
-    // Stop recording when video ends
-    video.onended = () => {
-      mediaRecorder.stop();
-      video.remove();
-      audioContext.close();
-    };
+    video.remove();
+    await audioContext.close();
     
-    // Set video duration if it's too long
-    const MAX_DURATION = 300; // 5 minutes
-    setTimeout(() => {
-      if (!mediaRecorder.state.includes('inactive')) {
-        mediaRecorder.stop();
-        video.remove();
-        audioContext.close();
-      }
-    }, MAX_DURATION * 1000);
-    
-    console.log("Audio extraction setup complete, waiting for recording...");
-    return await recordingPromise;
+    console.log(`Extracted ${segments.length} synchronized audio segments`);
+    return segments;
     
   } catch (error) {
     console.error("Error in audio extraction:", error);
     throw new Error(`Failed to extract audio: ${error.message}`);
   }
+};
+
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = (reader.result as string).split(',')[1];
+      resolve(base64String);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 };
