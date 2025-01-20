@@ -40,18 +40,13 @@ serve(async (req) => {
     const framePromises = frames.map(async (frame, index) => {
       console.log(`Analyzing frame at ${framePositions[index]}...`);
       
-      const prompt = `Analyze this frame from a ${framePositions[index]} of an acting performance video. 
-      Evaluate:
-      1. Emotional expression and range
-      2. Physical presence and body language
-      3. Overall stage presence and engagement
-      
-      Format response as JSON:
+      const prompt = `You are an acting coach AI analyzing a frame from a ${framePositions[index]} of an acting performance video.
+      Evaluate the performance and return ONLY a JSON object in this exact format, with no additional text:
       {
-        "emotionalRange": { "score": number 0-100, "feedback": "specific feedback" },
-        "physicalPresence": { "score": number 0-100, "feedback": "specific feedback" },
-        "characterEmbodiment": { "score": number 0-100, "feedback": "specific feedback" },
-        "voiceAndDelivery": { "score": number 0-100, "feedback": "estimated from visual cues" }
+        "emotionalRange": { "score": <number 0-100>, "feedback": "<specific feedback>" },
+        "physicalPresence": { "score": <number 0-100>, "feedback": "<specific feedback>" },
+        "characterEmbodiment": { "score": <number 0-100>, "feedback": "<specific feedback>" },
+        "voiceAndDelivery": { "score": <number 0-100>, "feedback": "<estimated from visual cues>" }
       }`;
 
       try {
@@ -66,11 +61,27 @@ serve(async (req) => {
         ]);
         
         const response = await result.response;
-        console.log(`Analysis received for ${framePositions[index]}:`, response.text());
-        return JSON.parse(response.text());
+        const responseText = response.text();
+        console.log(`Raw response for ${framePositions[index]}:`, responseText);
+
+        // Try to extract JSON from the response
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+          throw new Error(`No valid JSON found in response for frame ${index}`);
+        }
+
+        const parsedJson = JSON.parse(jsonMatch[0]);
+        console.log(`Parsed analysis for ${framePositions[index]}:`, parsedJson);
+        return parsedJson;
       } catch (error) {
         console.error(`Error analyzing frame ${index}:`, error);
-        throw error;
+        // Return a default analysis for this frame to prevent the whole process from failing
+        return {
+          emotionalRange: { score: 50, feedback: "Unable to analyze emotional range" },
+          physicalPresence: { score: 50, feedback: "Unable to analyze physical presence" },
+          characterEmbodiment: { score: 50, feedback: "Unable to analyze character embodiment" },
+          voiceAndDelivery: { score: 50, feedback: "Unable to analyze voice and delivery" }
+        };
       }
     });
 
