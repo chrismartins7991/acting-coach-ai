@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Camera, History } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { TopMenu } from "@/components/TopMenu";
 import { useState } from "react";
 import { useVideoAnalysis } from "@/hooks/useVideoAnalysis";
@@ -66,6 +66,8 @@ const Dashboard = () => {
       transition: { duration: 0.5 } 
     }
   };
+
+  console.log("Current Analysis State:", currentAnalysis); // Debug log
 
   return (
     <AnimatePresence mode="wait">
@@ -172,10 +174,19 @@ const Dashboard = () => {
                     Upload Another Video
                   </Button>
                 </div>
-                <PerformanceAnalysis 
-                  analysis={currentAnalysis.analysis} 
-                  voiceAnalysis={currentAnalysis.voiceAnalysis}
-                />
+                {isAnalyzing ? (
+                  <PerformanceAnalysis 
+                    analysis={null}
+                    voiceAnalysis={null}
+                    isLoading={true}
+                  />
+                ) : (
+                  <PerformanceAnalysis 
+                    analysis={currentAnalysis.analysis}
+                    voiceAnalysis={currentAnalysis.voiceAnalysis}
+                    isLoading={false}
+                  />
+                )}
               </motion.div>
             ) : (
               <motion.div 
@@ -184,7 +195,10 @@ const Dashboard = () => {
               >
                 <motion.div variants={itemVariants}>
                   <VideoUpload
-                    onAnalysisComplete={setCurrentAnalysis}
+                    onAnalysisComplete={(data) => {
+                      console.log("Analysis complete, setting state:", data); // Debug log
+                      setCurrentAnalysis(data);
+                    }}
                     isAnalyzing={isAnalyzing}
                   />
                 </motion.div>
