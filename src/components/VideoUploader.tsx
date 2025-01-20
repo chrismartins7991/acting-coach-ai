@@ -62,22 +62,25 @@ const VideoUploader = () => {
           contentType: file.type
         });
 
-      // Track upload progress separately
-      const uploadProgressEvent = new EventSource(`${supabase.storage.url}/upload-progress/${filePath}`);
-      uploadProgressEvent.onmessage = (event) => {
-        const progress = JSON.parse(event.data);
-        const percent = (progress.loaded / progress.total) * 100;
-        setUploadProgress(Math.round(percent));
-      };
+      // Track upload progress using a custom progress handler
+      const progressInterval = setInterval(() => {
+        // Simulate progress until we get actual progress
+        setUploadProgress(prev => Math.min(prev + 10, 90));
+      }, 500);
 
       if (uploadError) {
+        clearInterval(progressInterval);
         console.error("Upload error:", uploadError);
         throw new Error('Error uploading video: ' + uploadError.message);
       }
 
       if (!uploadData) {
+        clearInterval(progressInterval);
         throw new Error('No upload data received');
       }
+
+      clearInterval(progressInterval);
+      setUploadProgress(100);
 
       console.log("Video uploaded successfully, getting public URL...");
 
