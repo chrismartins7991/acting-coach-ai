@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { format } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface PerformanceData {
   date: string;
@@ -13,48 +15,75 @@ interface PerformanceData {
 export const PerformanceChart = () => {
   const [performances, setPerformances] = useState<PerformanceData[]>([]);
   const [totalPoints, setTotalPoints] = useState(0);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchPerformanceData = async () => {
-      console.log("Fetching performance data...");
-      const { data: performanceData, error: performanceError } = await supabase
-        .from('performances')
-        .select('created_at, ai_feedback')
-        .order('created_at', { ascending: true });
-
-      if (performanceError) {
-        console.error("Error fetching performances:", performanceError);
+      if (!user) {
+        console.log("No authenticated user found");
         return;
       }
 
-      const formattedData = performanceData
-        .filter(p => p.ai_feedback && p.ai_feedback.overallScore)
-        .map(p => ({
-          date: format(new Date(p.created_at), 'MMM d'),
-          score: p.ai_feedback.overallScore
-        }));
+      try {
+        console.log("Fetching performance data...");
+        const { data: performanceData, error: performanceError } = await supabase
+          .from('performances')
+          .select('created_at, ai_feedback')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: true });
 
-      setPerformances(formattedData);
-      console.log("Performance data:", formattedData);
+        if (performanceError) {
+          console.error("Error fetching performances:", performanceError);
+          toast({
+            title: "Error",
+            description: "Failed to load performance data",
+            variant: "destructive",
+          });
+          return;
+        }
 
-      // Fetch total points using maybeSingle() instead of single()
-      const { data: pointsData, error: pointsError } = await supabase
-        .from('user_points')
-        .select('total_points')
-        .maybeSingle();
+        const formattedData = performanceData
+          .filter(p => p.ai_feedback && p.ai_feedback.overallScore)
+          .map(p => ({
+            date: format(new Date(p.created_at), 'MMM d'),
+            score: p.ai_feedback.overallScore
+          }));
 
-      if (pointsError) {
-        console.error("Error fetching points:", pointsError);
-        return;
+        setPerformances(formattedData);
+        console.log("Performance data:", formattedData);
+
+        // Fetch total points using maybeSingle()
+        const { data: pointsData, error: pointsError } = await supabase
+          .from('user_points')
+          .select('total_points')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (pointsError) {
+          console.error("Error fetching points:", pointsError);
+          toast({
+            title: "Error",
+            description: "Failed to load points data",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        setTotalPoints(pointsData?.total_points || 0);
+        console.log("Total points:", pointsData?.total_points || 0);
+      } catch (error) {
+        console.error("Unexpected error:", error);
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        });
       }
-
-      // Set points to 0 if no data exists yet
-      setTotalPoints(pointsData?.total_points || 0);
-      console.log("Total points:", pointsData?.total_points || 0);
     };
 
     fetchPerformanceData();
-  }, []);
+  }, [user, toast]);
 
   const chartConfig = {
     score: {
