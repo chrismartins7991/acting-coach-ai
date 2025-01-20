@@ -8,7 +8,8 @@ import { extractFramesFromVideo } from "@/utils/videoAnalysis/frameExtractor";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import { useAuth } from "@/contexts/AuthContext";
 
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+// Reduce max file size to 50MB to stay within Supabase limits
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 const VideoUploader = () => {
   const { toast } = useToast();
@@ -24,7 +25,7 @@ const VideoUploader = () => {
     if (file.size > MAX_FILE_SIZE) {
       toast({
         title: "File too large",
-        description: "Please upload a video file smaller than 100MB.",
+        description: "Please upload a video file smaller than 50MB. Try compressing your video or uploading a shorter clip.",
         variant: "destructive",
       });
       return;
@@ -42,16 +43,22 @@ const VideoUploader = () => {
         throw new Error("Failed to extract frames from video");
       }
 
-      // Upload video to Supabase Storage
+      // Upload video to Supabase Storage with a more unique filename
+      const timestamp = new Date().getTime();
+      const randomString = Math.random().toString(36).substring(7);
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
+      const fileName = `${timestamp}-${randomString}.${fileExt}`;
       const filePath = `${fileName}`;
 
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('videos')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) {
+        console.error("Upload error:", uploadError);
         throw new Error('Error uploading video: ' + uploadError.message);
       }
 
@@ -177,7 +184,7 @@ const VideoUploader = () => {
           <div className="text-center">
             <Upload className="w-12 h-12 text-white mb-4 mx-auto" />
             <h3 className="text-xl font-semibold text-white mb-2">Upload Video</h3>
-            <p className="text-white/80">Upload a video file (max 100MB) for analysis</p>
+            <p className="text-white/80">Upload a video file (max 50MB) for analysis</p>
             {isProcessing && (
               <p className="text-white/80 mt-2">Processing video...</p>
             )}
