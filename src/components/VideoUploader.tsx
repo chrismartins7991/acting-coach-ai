@@ -58,13 +58,17 @@ const VideoUploader = () => {
         .from('videos')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
-        }, {
-          onProgress: (progress) => {
-            const percent = (progress.loaded / progress.total) * 100;
-            setUploadProgress(Math.round(percent));
-          }
+          upsert: false,
+          contentType: file.type
         });
+
+      // Track upload progress separately
+      const uploadProgressEvent = new EventSource(`${supabase.storage.url}/upload-progress/${filePath}`);
+      uploadProgressEvent.onmessage = (event) => {
+        const progress = JSON.parse(event.data);
+        const percent = (progress.loaded / progress.total) * 100;
+        setUploadProgress(Math.round(percent));
+      };
 
       if (uploadError) {
         console.error("Upload error:", uploadError);
@@ -79,7 +83,9 @@ const VideoUploader = () => {
 
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
-        .getPublicUrl(filePath);
+        .getPublicUrl(filePath, {
+          download: false
+        });
 
       setProcessingStep("Analyzing performance...");
       console.log("Starting video and voice analysis...");
