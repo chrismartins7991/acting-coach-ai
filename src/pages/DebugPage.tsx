@@ -1,16 +1,19 @@
 import { useState } from "react";
-import { VideoUpload } from "@/components/VideoUpload";
+import { VideoUploader } from "@/components/VideoUploader";
 import { Card } from "@/components/ui/card";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 
-export const DebugPage = () => {
+const DebugPage = () => {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [voiceAnalysis, setVoiceAnalysis] = useState<VoiceAnalysis | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleAnalysisComplete = (data: { analysis: Analysis | null; voiceAnalysis: VoiceAnalysis | null }) => {
-    console.log("Debug: Received analysis data:", data);
-    setAnalysis(data.analysis);
-    setVoiceAnalysis(data.voiceAnalysis);
+  const handleAnalysisComplete = (videoAnalysis: Analysis | null, audioAnalysis: VoiceAnalysis | null) => {
+    console.log("Debug: Received video analysis:", videoAnalysis);
+    console.log("Debug: Received voice analysis:", audioAnalysis);
+    setAnalysis(videoAnalysis);
+    setVoiceAnalysis(audioAnalysis);
+    setIsProcessing(false);
   };
 
   return (
@@ -19,11 +22,14 @@ export const DebugPage = () => {
         <h1 className="text-2xl font-bold text-white">Debug: Raw Analysis Data</h1>
         
         <div className="mb-8">
-          <VideoUpload 
-            onAnalysisComplete={handleAnalysisComplete}
-            isAnalyzing={false}
-          />
+          <VideoUploader />
         </div>
+
+        {isProcessing && (
+          <Card className="p-6 bg-black/30 backdrop-blur-sm border-white/10">
+            <p className="text-white">Processing video...</p>
+          </Card>
+        )}
 
         {(analysis || voiceAnalysis) && (
           <div className="space-y-6">
