@@ -20,9 +20,9 @@ serve(async (req) => {
       throw new Error('Invalid request data');
     }
 
-    // Initialize Gemini
+    // Initialize Gemini with the new model
     const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
-    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     console.log("Analyzing frames with Gemini Vision...");
     
@@ -45,19 +45,24 @@ serve(async (req) => {
         "voiceAndDelivery": { "score": number 0-100, "feedback": "estimated from visual cues" }
       }`;
 
-      const result = await model.generateContent([
-        {
-          inlineData: {
-            mimeType: "image/jpeg",
-            data: frame.split(',')[1] // Remove the data:image/jpeg;base64, prefix
-          }
-        },
-        prompt
-      ]);
-      
-      const response = await result.response;
-      console.log(`Analysis received for ${framePositions[index]}:`, response.text());
-      return JSON.parse(response.text());
+      try {
+        const result = await model.generateContent([
+          {
+            inlineData: {
+              mimeType: "image/jpeg",
+              data: frame.split(',')[1] // Remove the data:image/jpeg;base64, prefix
+            }
+          },
+          prompt
+        ]);
+        
+        const response = await result.response;
+        console.log(`Analysis received for ${framePositions[index]}:`, response.text());
+        return JSON.parse(response.text());
+      } catch (error) {
+        console.error(`Error analyzing frame ${index}:`, error);
+        throw error;
+      }
     });
 
     const frameAnalyses = await Promise.all(framePromises);
