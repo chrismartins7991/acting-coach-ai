@@ -13,6 +13,7 @@ serve(async (req) => {
 
   try {
     const { audioData } = await req.json();
+    console.log("Received audio data length:", audioData?.length || 0);
     
     if (!audioData) {
       throw new Error('No audio data provided');
@@ -33,7 +34,6 @@ serve(async (req) => {
                    2. Emotional expression through voice
                    3. Pace and timing
                    4. Volume control and modulation
-                   5. Accent consistency (if applicable)
                    
                    Provide feedback in this JSON format:
                    {
@@ -47,18 +47,23 @@ serve(async (req) => {
                      "recommendations": ["string"]
                    }
                    
-                   Audio data: ${audioData}`
+                   Audio data length: ${audioData.length} characters`
           }]
         }]
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${await response.text()}`);
+      const errorText = await response.text();
+      console.error("Gemini API error response:", errorText);
+      throw new Error(`Gemini API error: ${errorText}`);
     }
 
     const result = await response.json();
+    console.log("Gemini API response:", result);
+
     const analysis = JSON.parse(result.candidates[0].content.parts[0].text);
+    console.log("Parsed analysis:", analysis);
 
     return new Response(JSON.stringify(analysis), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

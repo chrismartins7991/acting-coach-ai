@@ -23,26 +23,21 @@ serve(async (req) => {
     }
 
     const requestData = await req.json();
-    console.log("Received request data:", requestData);
+    console.log("Received request with data length:", JSON.stringify(requestData).length);
 
     // Validate required fields
-    if (!requestData) {
-      throw new Error('Request body is empty');
-    }
-
-    const { videoUrl, frames } = requestData;
-
-    if (!videoUrl || typeof videoUrl !== 'string') {
-      throw new Error('Invalid or missing videoUrl');
-    }
-
-    if (!frames || !Array.isArray(frames) || frames.length === 0) {
+    if (!requestData || !requestData.frames || !Array.isArray(requestData.frames)) {
+      console.error("Invalid request data:", requestData);
       throw new Error('Invalid or missing frames array');
     }
 
-    console.log("Starting video analysis with Gemini...");
+    if (requestData.frames.length === 0) {
+      throw new Error('No frames provided for analysis');
+    }
+
+    console.log(`Processing ${requestData.frames.length} frames...`);
     
-    // Initialize Gemini with the new model
+    // Initialize Gemini
     const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -50,7 +45,7 @@ serve(async (req) => {
     
     // Analyze each frame
     const framePositions = ['beginning', 'middle', 'end'];
-    const framePromises = frames.slice(0, 3).map(async (frame, index) => {
+    const framePromises = requestData.frames.slice(0, 3).map(async (frame: string, index: number) => {
       console.log(`Analyzing frame at ${framePositions[index]}...`);
       
       const prompt = `You are an acting coach AI analyzing a frame from a ${framePositions[index]} of an acting performance video.
@@ -109,7 +104,7 @@ serve(async (req) => {
     console.log("All frame analyses completed");
 
     // Aggregate the analyses
-    console.log("Aggregating analyses from Gemini...");
+    console.log("Aggregating analyses...");
     const aggregatedAnalysis = {
       timestamp: new Date().toISOString(),
       overallScore: Math.round(
@@ -155,7 +150,7 @@ serve(async (req) => {
       ]
     };
 
-    console.log("Analysis aggregated:", aggregatedAnalysis);
+    console.log("Analysis complete:", aggregatedAnalysis);
 
     return new Response(
       JSON.stringify(aggregatedAnalysis),

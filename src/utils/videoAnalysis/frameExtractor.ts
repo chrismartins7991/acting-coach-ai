@@ -1,5 +1,5 @@
 export const extractFramesFromVideo = async (videoFile: File): Promise<string[]> => {
-  console.log("Extracting frames from video on client side...");
+  console.log("Starting frame extraction...");
   
   return new Promise((resolve, reject) => {
     const video = document.createElement('video');
@@ -10,8 +10,8 @@ export const extractFramesFromVideo = async (videoFile: File): Promise<string[]>
     video.autoplay = false;
     video.muted = true;
     
-    // Set up video metadata loading
     video.onloadedmetadata = () => {
+      console.log("Video metadata loaded:", { duration: video.duration, width: video.videoWidth, height: video.videoHeight });
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       
@@ -20,13 +20,16 @@ export const extractFramesFromVideo = async (videoFile: File): Promise<string[]>
       let framesProcessed = 0;
       
       const extractFrame = (time: number) => {
+        console.log(`Extracting frame at time: ${time}`);
         video.currentTime = time;
       };
       
       video.onseeked = () => {
         if (ctx) {
           ctx.drawImage(video, 0, 0);
-          frames.push(canvas.toDataURL('image/jpeg', 0.8));
+          const frameData = canvas.toDataURL('image/jpeg', 0.8);
+          console.log(`Frame ${framesProcessed + 1} extracted, length: ${frameData.length}`);
+          frames.push(frameData);
           framesProcessed++;
           
           if (framesProcessed < timePoints.length) {
@@ -43,12 +46,12 @@ export const extractFramesFromVideo = async (videoFile: File): Promise<string[]>
       extractFrame(timePoints[0]);
     };
     
-    video.onerror = () => {
+    video.onerror = (error) => {
+      console.error("Error loading video:", error);
       URL.revokeObjectURL(video.src);
-      reject(new Error("Error loading video"));
+      reject(new Error("Error loading video for frame extraction"));
     };
     
-    // Load the video file
     video.src = URL.createObjectURL(videoFile);
   });
 };
