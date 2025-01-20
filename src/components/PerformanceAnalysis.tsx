@@ -1,9 +1,24 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Analysis } from "@/utils/videoAnalysis/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Lock } from "lucide-react";
+
+interface Category {
+  score: number;
+  feedback: string;
+}
+
+interface Analysis {
+  overallScore: number;
+  categories: {
+    emotionalRange: Category;
+    voiceAndDelivery: Category;
+    physicalPresence: Category;
+    characterEmbodiment: Category;
+  };
+  recommendations: string[];
+}
 
 interface PerformanceAnalysisProps {
   analysis: Analysis | null;
@@ -29,8 +44,8 @@ export const PerformanceAnalysis = ({ analysis, isLoading }: PerformanceAnalysis
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[1, 2, 3, 4].map((i) => (
             <Card key={i}>
               <CardHeader>
                 <Skeleton className="h-6 w-1/2" />
@@ -51,8 +66,12 @@ export const PerformanceAnalysis = ({ analysis, isLoading }: PerformanceAnalysis
   }
 
   const isProFeature = (feature: string) => {
-    const proFeatures = ['emotionalRange', 'recommendations'];
+    const proFeatures = ['emotionalRange', 'characterEmbodiment', 'recommendations'];
     return proFeatures.includes(feature) && subscriptionTier === 'free';
+  };
+
+  const formatCategoryName = (name: string) => {
+    return name.replace(/([A-Z])/g, ' $1').trim();
   };
 
   return (
@@ -70,12 +89,12 @@ export const PerformanceAnalysis = ({ analysis, isLoading }: PerformanceAnalysis
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {Object.entries(analysis.categories).map(([category, data]) => (
           <Card key={category} className={isProFeature(category) ? 'opacity-50' : ''}>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="capitalize">{category}</CardTitle>
+                <CardTitle>{formatCategoryName(category)}</CardTitle>
                 {isProFeature(category) && (
                   <Lock className="h-4 w-4 text-muted-foreground" />
                 )}

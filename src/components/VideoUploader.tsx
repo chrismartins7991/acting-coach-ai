@@ -52,11 +52,11 @@ const VideoUploader = () => {
         .from('videos')
         .getPublicUrl(filePath);
 
-      console.log("Starting video analysis...");
+      console.log("Starting video analysis with Gemini...");
 
-      // Call the analyze-performance edge function
+      // Call the analyze-video edge function
       const { data: analysisResult, error: analysisError } = await supabase.functions
-        .invoke('analyze-performance', {
+        .invoke('analyze-video', {
           body: { videoUrl: publicUrl }
         });
 
@@ -68,7 +68,9 @@ const VideoUploader = () => {
         throw new Error('No analysis results received');
       }
 
-      // Save the analysis to the database
+      console.log("Analysis received:", analysisResult);
+
+      // Save the performance and analysis to the database
       const { error: dbError } = await supabase
         .from('performances')
         .insert({
@@ -78,7 +80,7 @@ const VideoUploader = () => {
         });
 
       if (dbError) {
-        console.error("Error saving to database:", dbError);
+        console.error("Database error:", dbError);
         throw new Error('Error saving analysis to database');
       }
 
