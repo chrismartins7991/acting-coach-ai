@@ -58,8 +58,9 @@ const VideoUploader = () => {
         .from('videos')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false,
-          onUploadProgress: (progress) => {
+          upsert: false
+        }, {
+          onProgress: (progress) => {
             const percent = (progress.loaded / progress.total) * 100;
             setUploadProgress(Math.round(percent));
           }
@@ -78,9 +79,7 @@ const VideoUploader = () => {
 
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
-        .getPublicUrl(filePath, {
-          download: false,
-        });
+        .getPublicUrl(filePath);
 
       setProcessingStep("Analyzing performance...");
       console.log("Starting video and voice analysis...");
