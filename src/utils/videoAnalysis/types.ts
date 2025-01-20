@@ -6,12 +6,13 @@ export interface Category {
 export interface Analysis {
   overallScore: number;
   categories: {
-    delivery: Category;
-    presence: Category;
     emotionalRange: Category;
+    voiceAndDelivery: Category;
+    physicalPresence: Category;
+    characterEmbodiment: Category;
   };
   recommendations: string[];
-  timestamp: string;
+  timestamp?: string;
 }
 
 export interface AnalyzeVideoParams {

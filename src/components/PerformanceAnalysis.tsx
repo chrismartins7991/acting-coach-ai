@@ -3,22 +3,7 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Lock } from "lucide-react";
-
-interface Category {
-  score: number;
-  feedback: string;
-}
-
-interface Analysis {
-  overallScore: number;
-  categories: {
-    emotionalRange: Category;
-    voiceAndDelivery: Category;
-    physicalPresence: Category;
-    characterEmbodiment: Category;
-  };
-  recommendations: string[];
-}
+import { Analysis } from "@/utils/videoAnalysis/types";
 
 interface PerformanceAnalysisProps {
   analysis: Analysis | null;
