@@ -24,32 +24,40 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured')
     }
 
-    const prompt = `As an expert in acting methodologies, analyze the following performance data through the perspectives of Strasberg, Chekhov, Stanislavski, Brecht, and Meisner. 
+    const prompt = `As an expert in acting methodologies, analyze this performance through multiple perspectives. Here's the data:
 
-Video Analysis:
-${JSON.stringify(videoAnalysis, null, 2)}
+Video Analysis: ${JSON.stringify(videoAnalysis)}
+Voice Analysis: ${JSON.stringify(voiceAnalysis)}
 
-Voice Analysis:
-${JSON.stringify(voiceAnalysis, null, 2)}
-
-Provide a comprehensive analysis that includes:
-1. Each method's perspective on the performance
-2. Specific techniques from each methodology that could enhance the performance
-3. A synthesis of how these different approaches could be combined for optimal improvement
-
-Format the response as JSON with the following structure:
+Provide analysis from each methodology perspective and format as JSON with this exact structure:
 {
   "methodologies": {
-    "strasberg": { "analysis": "", "recommendations": [] },
-    "chekhov": { "analysis": "", "recommendations": [] },
-    "stanislavski": { "analysis": "", "recommendations": [] },
-    "brecht": { "analysis": "", "recommendations": [] },
-    "meisner": { "analysis": "", "recommendations": [] }
+    "strasberg": {
+      "analysis": "string",
+      "recommendations": ["string"]
+    },
+    "chekhov": {
+      "analysis": "string",
+      "recommendations": ["string"]
+    },
+    "stanislavski": {
+      "analysis": "string",
+      "recommendations": ["string"]
+    },
+    "brecht": {
+      "analysis": "string",
+      "recommendations": ["string"]
+    },
+    "meisner": {
+      "analysis": "string",
+      "recommendations": ["string"]
+    }
   },
-  "synthesis": "",
-  "overallRecommendations": []
+  "synthesis": "string",
+  "overallRecommendations": ["string"]
 }`
 
+    console.log('Sending prompt to OpenAI')
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -79,7 +87,27 @@ Format the response as JSON with the following structure:
     }
 
     const data = await response.json()
-    const analysis = JSON.parse(data.choices[0].message.content)
+    console.log('OpenAI response:', data)
+
+    // Extract the content and parse it as JSON
+    const content = data.choices[0].message.content
+    console.log('Raw content:', content)
+
+    // Try to parse the content directly
+    let analysis
+    try {
+      analysis = JSON.parse(content)
+    } catch (e) {
+      console.error('Failed to parse content directly:', e)
+      // If direct parsing fails, try to extract JSON from the content
+      const jsonMatch = content.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) {
+        throw new Error('No valid JSON found in response')
+      }
+      analysis = JSON.parse(jsonMatch[0])
+    }
+
+    console.log('Parsed analysis:', analysis)
 
     return new Response(
       JSON.stringify(analysis),
