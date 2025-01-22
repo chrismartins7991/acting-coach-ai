@@ -1,5 +1,5 @@
 import { useState } from "react";
-import VideoUploader from "@/components/VideoUploader";
+import { VideoUploader } from "@/components/VideoUploader";
 import { Card } from "@/components/ui/card";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 
@@ -22,7 +22,7 @@ const DebugPage = () => {
         <h1 className="text-2xl font-bold text-white">Debug: Raw Analysis Data</h1>
         
         <div className="mb-8">
-          <VideoUploader />
+          <VideoUploader onVideoUploaded={() => {}} />
         </div>
 
         {isProcessing && (
