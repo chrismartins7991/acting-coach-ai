@@ -1,6 +1,7 @@
 import { Hero } from "@/components/Hero";
 import { Features } from "@/components/Features";
 import { WhyUseSection } from "@/components/WhyUseSection";
+import { IconicCoachesSection } from "@/components/IconicCoachesSection";
 import { LearningProcess } from "@/components/learning-process/LearningProcess";
 import { OscarWinnersCarousel } from "@/components/OscarWinnersCarousel";
 import { Testimonials } from "@/components/Testimonials";
@@ -36,6 +37,7 @@ const Index = () => {
           <LearningProcess />
           <Features />
           <WhyUseSection />
+          <IconicCoachesSection />
           <OscarWinnersCarousel />
           <Testimonials />
           <CTASection onGetStarted={handleLoginTransition} />
