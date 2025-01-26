@@ -75,7 +75,9 @@ export const useVideoProcessing = (userId?: string) => {
 
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
-        .getPublicUrl(filePath);
+        .getPublicUrl(filePath, {
+          download: false,
+        });
 
       setProcessingStep("Analyzing performance...");
       console.log("Starting video and voice analysis...");
