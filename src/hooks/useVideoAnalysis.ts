@@ -1,66 +1,77 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-
-interface AnalyzeVideoParams {
-  videoUrl: string;
-  title: string;
-  userId: string;
-}
+import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
+import { extractAudioFromVideo } from "@/utils/videoAnalysis/audioExtractor";
+import { extractFramesFromVideo } from "@/utils/videoAnalysis/frameExtractor";
 
 export const useVideoAnalysis = () => {
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [processingStep, setProcessingStep] = useState<string>("");
 
-  const analyzeVideo = async ({ videoUrl, title, userId }: AnalyzeVideoParams) => {
-    setIsAnalyzing(true);
-    console.log("Starting video analysis...");
-
+  const analyzeVideo = async (file: File, publicUrl: string) => {
     try {
-      // Call the analyze-performance edge function using Supabase client
-      const { data: analysis, error } = await supabase.functions.invoke('analyze-performance', {
-        body: { videoUrl }
-      });
-
-      if (error) {
-        console.error("Edge function error:", error);
-        throw new Error(`Failed to analyze video: ${error.message}`);
+      setProcessingStep("Extracting video frames...");
+      const frames = await extractFramesFromVideo(file);
+      console.log("Extracted frames:", frames.length);
+      
+      if (!frames || frames.length === 0) {
+        throw new Error("Failed to extract frames from video");
       }
 
-      if (!analysis) {
-        throw new Error('No analysis results received');
-      }
+      setProcessingStep("Analyzing performance...");
+      console.log("Starting video and voice analysis...");
 
-      console.log("Analysis received:", analysis);
+      const audioData = await extractAudioFromVideo(file);
 
-      // Save the performance and analysis to the database
-      const { data, error: dbError } = await supabase
-        .from('performances')
-        .insert({
-          user_id: userId,
-          title,
-          video_url: videoUrl,
-          ai_feedback: analysis,
+      const [videoAnalysisResponse, voiceAnalysisResponse] = await Promise.all([
+        supabase.functions.invoke('analyze-performance', {
+          body: { 
+            videoUrl: publicUrl,
+            frames: frames
+          }
+        }),
+        supabase.functions.invoke('analyze-voice', {
+          body: { audioData }
         })
-        .select()
-        .single();
+      ]);
 
-      if (dbError) {
-        console.error("Database error:", dbError);
-        throw dbError;
+      if (videoAnalysisResponse.error || voiceAnalysisResponse.error) {
+        throw new Error('Error analyzing video or voice');
       }
 
-      console.log("Performance saved to database:", data);
-      return data;
+      const videoAnalysis = videoAnalysisResponse.data as Analysis;
+      const voiceAnalysis = voiceAnalysisResponse.data as VoiceAnalysis;
 
-    } catch (error: any) {
-      console.error("Error in video analysis:", error);
+      console.log("Combining analyses through acting methodologies...");
+      const { data: combinedAnalysis, error: combinedError } = await supabase.functions.invoke(
+        'combine-analysis',
+        {
+          body: {
+            videoAnalysis,
+            voiceAnalysis,
+          }
+        }
+      );
+
+      if (combinedError) {
+        console.error("Error combining analyses:", combinedError);
+        throw new Error('Error combining analyses');
+      }
+
+      return {
+        videoAnalysis: {
+          ...videoAnalysis,
+          methodologicalAnalysis: combinedAnalysis
+        },
+        voiceAnalysis
+      };
+    } catch (error) {
+      console.error("Error in analyzeVideo:", error);
       throw error;
-    } finally {
-      setIsAnalyzing(false);
     }
   };
 
   return {
     analyzeVideo,
-    isAnalyzing,
+    processingStep,
   };
 };
