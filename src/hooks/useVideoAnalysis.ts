@@ -29,15 +29,13 @@ export const useVideoAnalysis = () => {
           body: { 
             videoUrl: publicUrl,
             frames: frames
-          }
-        }, {
+          },
           headers: {
             'Content-Type': 'application/json'
           }
         }),
         supabase.functions.invoke<{ data: VoiceAnalysis }>('analyze-voice', {
-          body: { audioData }
-        }, {
+          body: { audioData },
           headers: {
             'Content-Type': 'application/json'
           }
@@ -48,8 +46,8 @@ export const useVideoAnalysis = () => {
         throw new Error('Error analyzing video or voice');
       }
 
-      const videoAnalysis = videoAnalysisResponse.data;
-      const voiceAnalysis = voiceAnalysisResponse.data;
+      const videoAnalysis = videoAnalysisResponse.data.data;
+      const voiceAnalysis = voiceAnalysisResponse.data.data;
 
       console.log("Combining analyses through acting methodologies...");
       const { data: combinedAnalysis, error: combinedError } = await supabase.functions.invoke(
@@ -58,8 +56,7 @@ export const useVideoAnalysis = () => {
           body: {
             videoAnalysis,
             voiceAnalysis,
-          }
-        }, {
+          },
           headers: {
             'Content-Type': 'application/json'
           }
