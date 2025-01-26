@@ -84,13 +84,7 @@ const VideoUploader = () => {
 
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
-        .getPublicUrl(filePath, {
-          transform: {
-            width: 1280,
-            height: 720,
-            quality: 80
-          }
-        });
+        .getPublicUrl(filePath);
 
       setProcessingStep("Analyzing performance...");
       console.log("Starting video and voice analysis...");
