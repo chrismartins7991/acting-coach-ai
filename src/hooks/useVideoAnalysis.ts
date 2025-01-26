@@ -6,9 +6,11 @@ import { extractFramesFromVideo } from "@/utils/videoAnalysis/frameExtractor";
 
 export const useVideoAnalysis = () => {
   const [processingStep, setProcessingStep] = useState<string>("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const analyzeVideo = async (file: File, publicUrl: string) => {
     try {
+      setIsAnalyzing(true);
       setProcessingStep("Extracting video frames...");
       const frames = await extractFramesFromVideo(file);
       console.log("Extracted frames:", frames.length);
@@ -67,11 +69,14 @@ export const useVideoAnalysis = () => {
     } catch (error) {
       console.error("Error in analyzeVideo:", error);
       throw error;
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
   return {
     analyzeVideo,
     processingStep,
+    isAnalyzing,
   };
 };

@@ -1,5 +1,4 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { useVideoAnalysis } from "@/hooks/useVideoAnalysis";
 import { motion, AnimatePresence } from "framer-motion";
 import { PerformanceChart } from "@/components/PerformanceChart";
 import { TopMenu } from "@/components/TopMenu";
@@ -8,11 +7,12 @@ import { BackgroundEffects } from "@/components/dashboard/BackgroundEffects";
 import { PerformanceSection } from "@/components/dashboard/PerformanceSection";
 import { FeaturesGrid } from "@/components/dashboard/FeaturesGrid";
 import { useState } from "react";
+import { useVideoProcessing } from "@/hooks/useVideoProcessing";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAnalyzing } = useVideoAnalysis();
+  const { isProcessing: isAnalyzing } = useVideoProcessing();
   const [currentAnalysis, setCurrentAnalysis] = useState<{
     analysis: Analysis | null;
     voiceAnalysis: VoiceAnalysis | null;
