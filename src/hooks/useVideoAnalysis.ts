@@ -25,20 +25,14 @@ export const useVideoAnalysis = () => {
       const audioData = await extractAudioFromVideo(file);
 
       const [videoAnalysisResponse, voiceAnalysisResponse] = await Promise.all([
-        supabase.functions.invoke('analyze-performance', {
+        supabase.functions.invoke<{ data: Analysis }>('analyze-performance', {
           body: { 
             videoUrl: publicUrl,
             frames: frames
-          },
-          headers: {
-            'Content-Type': 'application/json'
           }
         }),
-        supabase.functions.invoke('analyze-voice', {
-          body: { audioData },
-          headers: {
-            'Content-Type': 'application/json'
-          }
+        supabase.functions.invoke<{ data: VoiceAnalysis }>('analyze-voice', {
+          body: { audioData }
         })
       ]);
 
@@ -56,9 +50,6 @@ export const useVideoAnalysis = () => {
           body: {
             videoAnalysis,
             voiceAnalysis,
-          },
-          headers: {
-            'Content-Type': 'application/json'
           }
         }
       );
