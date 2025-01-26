@@ -8,25 +8,37 @@ export const IconicCoachesSection = () => {
     {
       name: "Constantin Stanislavski",
       description: "Master of emotional memory and the 'magic if' technique",
-      image: "/lovable-uploads/iconic-movie-frames/Pin-Image-(1).jpeg",
+      image: "/Acting-Methods-Iconic-Coaches/Stanislavski-Portrait-Enhanced.png",
       contribution: "Method Acting Foundation"
     },
     {
       name: "Lee Strasberg",
       description: "Pioneer of method acting in America",
-      image: "/lovable-uploads/iconic-movie-frames/Pin-Image.jpeg",
+      image: "/Acting-Methods-Iconic-Coaches/Strasberg-Portrait-Enhanced.png",
       contribution: "Psychological Realism"
     },
     {
-      name: "Stella Adler",
-      description: "Expert in script interpretation and character development",
-      image: "/lovable-uploads/iconic-movie-frames/Pinterest-Image.jpeg",
-      contribution: "Script Analysis"
+      name: "Bertolt Brecht",
+      description: "Pioneer of epic theater and alienation effect",
+      image: "/Acting-Methods-Iconic-Coaches/Brecht-Portrait-Enhanced.png",
+      contribution: "Epic Theater"
+    },
+    {
+      name: "Michael Chekhov",
+      description: "Master of psychological gesture technique",
+      image: "/Acting-Methods-Iconic-Coaches/Chekhov-Portrait-Enhanced.png",
+      contribution: "Psychological Gesture"
+    },
+    {
+      name: "Sanford Meisner",
+      description: "Developer of the Meisner technique",
+      image: "/Acting-Methods-Iconic-Coaches/Meisner-Portrait-Enhanced.png",
+      contribution: "Repetition Technique"
     }
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-theater-purple to-black">
+    <section className="py-20 bg-gradient-to-br from-theater-purple to-black overflow-hidden">
       <div className="container mx-auto px-4">
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
@@ -48,12 +60,12 @@ export const IconicCoachesSection = () => {
               transition={{ duration: 0.8, delay: index * 0.2 }}
               className="relative group"
             >
-              <div className="relative h-96 mb-6 overflow-hidden rounded-lg">
+              <div className="relative h-96 mb-6 overflow-hidden rounded-lg bg-theater-red">
                 <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent z-10" />
                 <img
                   src={coach.image}
                   alt={coach.name}
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 mix-blend-multiply"
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
                   <h3 className="text-2xl font-semibold text-white mb-2">{coach.name}</h3>
