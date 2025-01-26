@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { SparklesCore } from "./ui/sparkles";
 import { useTranslation } from "react-i18next";
+import { AuthModal } from "./AuthModal";
 
 export const Hero = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   const handleGetStarted = () => {
-    navigate('/dashboard');
+    navigate('/auth');
   };
 
   return (
@@ -53,13 +54,11 @@ export const Hero = () => {
               </Button>
             </div>
 
-            <Button
+            <AuthModal
+              buttonText="Sign In"
               variant="link"
-              onClick={() => navigate('/learn-more')}
               className="text-white hover:text-theater-gold text-lg font-medium"
-            >
-              Learn more →
-            </Button>
+            />
           </div>
 
           <p className="mt-6 text-sm text-gray-400">

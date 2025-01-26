@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
 import ChatPage from "./pages/ChatPage";
 import DebugPage from "./pages/DebugPage";
+import AuthPage from "./pages/AuthPage";
 
 const queryClient = new QueryClient();
 
@@ -15,6 +16,7 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<AuthPage />} />
           <Route path="/dashboard/*" element={<Dashboard />} />
           <Route path="/history" element={<History />} />
           <Route path="/chat" element={<ChatPage />} />
