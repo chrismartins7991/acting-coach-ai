@@ -44,8 +44,16 @@ export const IconicCoachesSection = () => {
   useEffect(() => {
     if (emblaApi) {
       console.log('Carousel initialized');
+      // Log the image paths to verify they're correct
+      coaches.forEach(coach => {
+        console.log(`Loading image for ${coach.name}:`, coach.image);
+      });
     }
   }, [emblaApi]);
+
+  const handleImageError = (name: string, src: string) => {
+    console.error(`Error loading image for ${name}. Image source:`, src);
+  };
 
   return (
     <section className="py-20 bg-gradient-to-br from-theater-purple to-black overflow-hidden">
@@ -76,6 +84,7 @@ export const IconicCoachesSection = () => {
                   <img
                     src={coach.image}
                     alt={coach.name}
+                    onError={() => handleImageError(coach.name, coach.image)}
                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 opacity-80"
                   />
                   <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
