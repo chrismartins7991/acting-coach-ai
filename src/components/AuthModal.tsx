@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from './ui/alert';
 
 interface AuthModalProps {
   buttonText: string;
-  variant?: "primary" | "outline";
+  variant?: "primary" | "outline" | "link";  // Added "link" as a valid variant
   className?: string;
   mode?: "sign_in" | "sign_up";
 }

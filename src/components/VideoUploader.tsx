@@ -64,7 +64,6 @@ const VideoUploader = () => {
 
       // Track upload progress using a custom progress handler
       const progressInterval = setInterval(() => {
-        // Simulate progress until we get actual progress
         setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 500);
 
@@ -86,9 +85,7 @@ const VideoUploader = () => {
 
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
-        .getPublicUrl(filePath, {
-          download: false
-        });
+        .getPublicUrl(filePath);  // Removed the second argument as it's not needed
 
       setProcessingStep("Analyzing performance...");
       console.log("Starting video and voice analysis...");
