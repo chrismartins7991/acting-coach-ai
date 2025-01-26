@@ -29,10 +29,16 @@ export const useVideoAnalysis = () => {
           body: { 
             videoUrl: publicUrl,
             frames: frames
+          },
+          headers: {
+            'Content-Type': 'application/json'
           }
         }),
         supabase.functions.invoke('analyze-voice', {
-          body: { audioData }
+          body: { audioData },
+          headers: {
+            'Content-Type': 'application/json'
+          }
         })
       ]);
 
@@ -50,6 +56,9 @@ export const useVideoAnalysis = () => {
           body: {
             videoAnalysis,
             voiceAnalysis,
+          },
+          headers: {
+            'Content-Type': 'application/json'
           }
         }
       );
