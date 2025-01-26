@@ -62,7 +62,6 @@ const VideoUploader = () => {
           contentType: file.type
         });
 
-      // Track upload progress using a custom progress handler
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 500);
@@ -85,7 +84,13 @@ const VideoUploader = () => {
 
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
-        .getPublicUrl(filePath);  // Removed the second argument as it's not needed
+        .getPublicUrl(filePath, {
+          transform: {
+            width: 1280,
+            height: 720,
+            quality: 80
+          }
+        });
 
       setProcessingStep("Analyzing performance...");
       console.log("Starting video and voice analysis...");
