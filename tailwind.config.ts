@@ -22,7 +22,7 @@ export default {
         theater: {
           purple: "#4A154B",
           gold: "#FFD700",
-          red: "#DC2626",
+          red: "#4A0404", // Updated to a more velvet-like red
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

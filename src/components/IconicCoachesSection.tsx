@@ -1,8 +1,12 @@
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import useEmblaCarousel from 'embla-carousel-react'
+import Autoplay from 'embla-carousel-autoplay'
+import { useEffect } from "react";
 
 export const IconicCoachesSection = () => {
   const { t } = useTranslation();
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 4000 })]);
 
   const coaches = [
     {
@@ -37,6 +41,12 @@ export const IconicCoachesSection = () => {
     }
   ];
 
+  useEffect(() => {
+    if (emblaApi) {
+      console.log('Carousel initialized');
+    }
+  }, [emblaApi]);
+
   return (
     <section className="py-20 bg-gradient-to-br from-theater-purple to-black overflow-hidden">
       <div className="container mx-auto px-4">
@@ -50,33 +60,35 @@ export const IconicCoachesSection = () => {
           Get feedback and Learn from the most iconic perspectives in History
         </motion.h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {coaches.map((coach, index) => (
-            <motion.div
-              key={coach.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: index * 0.2 }}
-              className="relative group"
-            >
-              <div className="relative h-96 mb-6 overflow-hidden rounded-lg bg-theater-red">
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent z-10" />
-                <img
-                  src={coach.image}
-                  alt={coach.name}
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 mix-blend-multiply"
-                />
-                <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
-                  <h3 className="text-2xl font-semibold text-white mb-2">{coach.name}</h3>
-                  <p className="text-gray-300 mb-2">{coach.description}</p>
-                  <span className="inline-block bg-theater-gold/20 text-theater-gold px-3 py-1 rounded-full text-sm">
-                    {coach.contribution}
-                  </span>
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex">
+            {coaches.map((coach, index) => (
+              <motion.div
+                key={coach.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: index * 0.2 }}
+                className="relative group flex-[0_0_100%] min-w-0 md:flex-[0_0_33.33%] px-4"
+              >
+                <div className="relative h-[500px] mb-6 overflow-hidden rounded-lg bg-[#4A0404] shadow-xl">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-60 z-10" />
+                  <img
+                    src={coach.image}
+                    alt={coach.name}
+                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 opacity-80"
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+                    <h3 className="text-2xl font-semibold text-white mb-2">{coach.name}</h3>
+                    <p className="text-gray-300 mb-2">{coach.description}</p>
+                    <span className="inline-block bg-theater-gold/20 text-theater-gold px-3 py-1 rounded-full text-sm">
+                      {coach.contribution}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
