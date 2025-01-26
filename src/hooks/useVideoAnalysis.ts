@@ -71,6 +71,7 @@ export const useVideoAnalysis = () => {
       throw error;
     } finally {
       setIsAnalyzing(false);
+      setProcessingStep("");
     }
   };
 
