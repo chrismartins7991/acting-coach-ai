@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from './ui/alert';
 
 interface AuthModalProps {
   buttonText: string;
-  variant?: "primary" | "outline" | "link";  // Added "link" as a valid variant
+  variant?: "primary" | "outline" | "link";
   className?: string;
   mode?: "sign_in" | "sign_up";
 }
@@ -28,8 +28,9 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session) => {
       console.log('Auth state changed:', event, session);
       
-      if (!isOpen || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-        setError(null);
+      if (event === 'USER_DELETED') {
+        setError('Your account has been deleted.');
+        return;
       }
 
       if (event === 'PASSWORD_RECOVERY') {
@@ -38,6 +39,11 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
           description: "Check your email for the password reset link.",
         });
         return;
+      }
+
+      // Clear error when modal closes or on successful auth
+      if (!isOpen || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+        setError(null);
       }
 
       // Handle authentication errors
@@ -115,7 +121,6 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button 
-          size="lg"
           variant={variant === "primary" ? "default" : "outline"}
           className={className}
         >
