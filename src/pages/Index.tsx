@@ -6,6 +6,7 @@ import { LearningProcess } from "@/components/learning-process/LearningProcess";
 import { OscarWinnersCarousel } from "@/components/OscarWinnersCarousel";
 import { Testimonials } from "@/components/Testimonials";
 import { CTASection } from "@/components/CTASection";
+import { FounderStory } from "@/components/FounderStory";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -41,6 +42,7 @@ const Index = () => {
           <OscarWinnersCarousel />
           <Testimonials />
           <CTASection onGetStarted={handleLoginTransition} />
+          <FounderStory />
         </div>
       </motion.main>
     </AnimatePresence>
