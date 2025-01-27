@@ -24,7 +24,11 @@ const VideoUploader = () => {
   return (
     <div className="space-y-8">
       <div className="relative">
-        <label className={`block p-8 rounded-lg border-2 border-dashed border-white/20 bg-black/20 cursor-pointer transition-all hover:bg-black/40 ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}>
+        <label 
+          className={`block p-8 rounded-lg border-2 border-dashed border-white/20 bg-black/20 cursor-pointer transition-all hover:bg-black/40 ${
+            isProcessing ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+        >
           <input
             type="file"
             accept="video/*"
