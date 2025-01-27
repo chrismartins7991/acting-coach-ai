@@ -25,6 +25,15 @@ export const Hero = () => {
           className="w-16 h-16 object-contain"
         />
       </div>
+
+      {/* Login Button in top right */}
+      <div className="absolute top-4 right-4 z-20">
+        <AuthModal
+          buttonText="Login"
+          variant="outline"
+          className="text-white border-white/20 hover:bg-white/10"
+        />
+      </div>
       
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
@@ -59,12 +68,12 @@ export const Hero = () => {
                 size="lg"
                 className="bg-[#FFD700] hover:bg-[#FFD700]/90 text-black font-semibold text-lg px-8 py-6 relative z-10 transition-all duration-300 hover:scale-105"
               >
-                Start Free Trial
+                Analyse my Performance
               </Button>
             </div>
 
             <AuthModal
-              buttonText="Sign In"
+              buttonText="Start the Trial"
               variant="link"
               className="text-white hover:text-theater-gold text-lg font-medium"
             />
