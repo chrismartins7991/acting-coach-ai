@@ -17,6 +17,15 @@ export const Hero = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-theater-purple via-black to-theater-red">
       <div className="absolute inset-0 w-full h-full bg-black/50" />
       
+      {/* Logo */}
+      <div className="absolute top-4 left-4 z-20">
+        <img 
+          src="/AI-ACTING-COACH-Favicon.ico" 
+          alt="AI Acting Coach Logo" 
+          className="w-12 h-12 object-contain"
+        />
+      </div>
+      
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
