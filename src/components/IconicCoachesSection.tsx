@@ -79,7 +79,7 @@ export const IconicCoachesSection = () => {
                 transition={{ duration: 0.8, delay: index * 0.2 }}
                 className="relative group flex-[0_0_100%] min-w-0 md:flex-[0_0_33.33%] px-4"
               >
-                <div className="relative h-[500px] mb-6 overflow-hidden rounded-lg bg-[#4A0404] shadow-xl">
+                <div className="relative h-[500px] mb-6 overflow-hidden rounded-lg bg-theater-red shadow-xl">
                   <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-60 z-10" />
                   <img
                     src={coach.image}
