@@ -31,9 +31,9 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
 
   const plans = [
     {
-      name: 'Free',
-      price: '0',
-      period: 'forever',
+      name: 'Trial',
+      price: '1',
+      period: 'trial',
       description: 'Perfect for trying out AI acting analysis',
       features: [
         { name: 'AI Performance Analysis', included: true },
