@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
-import { Check, X } from "lucide-react";
+import { Check, X, Home, Video, Target } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface CTASectionProps {
@@ -10,6 +10,24 @@ interface CTASectionProps {
 
 export const CTASection = ({ onGetStarted }: CTASectionProps) => {
   const { t } = useTranslation();
+
+  const whyUseReasons = [
+    {
+      icon: Home,
+      title: "Rehearse Drama School Exercises at Home",
+      description: "Practice and perfect your drama school exercises in a comfortable, private environment with instant AI feedback."
+    },
+    {
+      icon: Video,
+      title: "Prepare and Refine Self Tapes",
+      description: "Get professional-level analysis and improvements for your self-tape auditions before sending them out."
+    },
+    {
+      icon: Target,
+      title: "Targeted Skill Improvement",
+      description: "Focus on specific weaknesses and work towards your individual acting goals with personalized AI guidance."
+    }
+  ];
 
   const plans = [
     {
@@ -101,6 +119,35 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
       
       <div className="container mx-auto px-4 relative z-10">
+        {/* Why Use Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="max-w-7xl mx-auto mb-20"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 text-center">
+            Why use AI Acting Coach?
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+            {whyUseReasons.map((reason, index) => (
+              <motion.div
+                key={reason.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.2 }}
+                className="bg-black/30 backdrop-blur-sm p-6 rounded-lg border border-theater-gold/20"
+              >
+                <reason.icon className="w-12 h-12 text-theater-gold mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-3">{reason.title}</h3>
+                <p className="text-gray-300">{reason.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Pricing Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
