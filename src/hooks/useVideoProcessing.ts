@@ -1,83 +1,34 @@
-import { useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { useToast } from "@/hooks/use-toast";
-import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
-import { useVideoUpload } from "./useVideoUpload";
-import { useVideoAnalysis } from "./useVideoAnalysis";
+import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+interface VideoProcessingHook {
+  analyzeVideo: (videoUrl: string, performanceId: string) => Promise<any>;
+  isAnalyzing: boolean;
+}
 
-export const useVideoProcessing = (userId?: string) => {
-  const { toast } = useToast();
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [analysis, setAnalysis] = useState<Analysis | null>(null);
-  const [voiceAnalysis, setVoiceAnalysis] = useState<VoiceAnalysis | null>(null);
+export const useVideoProcessing = (): VideoProcessingHook => {
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const { uploadVideoToStorage, uploadProgress, setUploadProgress } = useVideoUpload();
-  const { analyzeVideo, processingStep } = useVideoAnalysis();
-
-  const processVideo = async (file: File) => {
-    if (file.size > MAX_FILE_SIZE) {
-      toast({
-        title: "File too large",
-        description: "Please upload a video file smaller than 50MB. Try compressing your video or uploading a shorter clip.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const analyzeVideo = async (videoUrl: string, performanceId: string) => {
     try {
-      setIsProcessing(true);
-      console.log("Starting video upload...");
-
-      const { publicUrl } = await uploadVideoToStorage(file);
+      setIsAnalyzing(true);
       
-      const { videoAnalysis, voiceAnalysis: voiceAnalysisResult } = await analyzeVideo(file, publicUrl);
-
-      setAnalysis(videoAnalysis);
-      setVoiceAnalysis(voiceAnalysisResult);
-
-      if (userId) {
-        const { error: dbError } = await supabase
-          .from('performances')
-          .insert({
-            user_id: userId,
-            title: file.name,
-            video_url: publicUrl,
-            ai_feedback: videoAnalysis,
-            voice_feedback: voiceAnalysisResult
-          });
-
-        if (dbError) {
-          console.error("Database error:", dbError);
-          throw new Error('Error saving analysis to database');
-        }
-      }
-      
-      toast({
-        title: "Analysis Complete",
-        description: "Your video has been analyzed through multiple acting methodologies!",
+      const { data, error } = await supabase.functions.invoke('analyze-video', {
+        body: { videoUrl, performanceId }
       });
 
-    } catch (error: any) {
-      console.error("Error processing video:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to process video",
-        variant: "destructive",
-      });
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error analyzing video:', error);
+      throw error;
     } finally {
-      setIsProcessing(false);
-      setUploadProgress(0);
+      setIsAnalyzing(false);
     }
   };
 
   return {
-    processVideo,
-    isProcessing,
-    processingStep,
-    uploadProgress,
-    analysis,
-    voiceAnalysis,
+    analyzeVideo,
+    isAnalyzing
   };
 };

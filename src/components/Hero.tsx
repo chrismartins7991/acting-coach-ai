@@ -20,7 +20,7 @@ export const Hero = () => {
       {/* Logo */}
       <div className="absolute top-4 left-4 z-20">
         <img 
-          src="/official-png-logo-ai-acting-coach.png" 
+          src="/AI Acting Coach Logo-nobackground.png" 
           alt="AI Acting Coach Logo" 
           className="w-16 h-16 object-contain"
         />
