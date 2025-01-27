@@ -80,7 +80,7 @@ export const Hero = () => {
           </div>
 
           <p className="mt-6 text-sm text-gray-400">
-            No credit card required • 14-day free trial • Cancel anytime
+            This app was made by actors, for actors
           </p>
         </motion.div>
       </div>
