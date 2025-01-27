@@ -185,12 +185,12 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
                     <span className="text-gray-400">/{plan.period}</span>
                     {plan.originalPrice && (
                       <span className="ml-2 text-2xl text-white relative inline-block">
-                        <span className="absolute top-1/2 left-0 w-full h-[2px] bg-theater-red transform -rotate-12"></span>
+                        <span className="absolute top-1/2 left-0 w-full h-[2px] bg-[#ff0000] transform -rotate-12"></span>
                         €{plan.originalPrice}
                       </span>
                     )}
                     {plan.originalPrice && (
-                      <div className="mt-1 text-sm text-theater-red font-semibold">
+                      <div className="mt-1 text-sm text-[#ff0000] font-semibold">
                         40% Early Bird Discount!
                       </div>
                     )}
