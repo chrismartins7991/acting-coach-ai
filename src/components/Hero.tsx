@@ -80,7 +80,7 @@ export const Hero = () => {
           </div>
 
           <p className="mt-6 text-sm text-gray-400">
-            This app was made by actors, for actors
+            This app was made by actors, for actors • Cancel anytime
           </p>
         </motion.div>
       </div>
