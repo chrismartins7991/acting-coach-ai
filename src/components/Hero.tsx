@@ -23,6 +23,7 @@ export const Hero = () => {
           src="/AI Acting Coach Logo-nobackground.png" 
           alt="AI Acting Coach Logo" 
           className="w-16 h-16 object-contain"
+          loading="eager"
         />
       </div>
 
