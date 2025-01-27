@@ -31,7 +31,7 @@ export const Hero = () => {
         <AuthModal
           buttonText="Login"
           variant="outline"
-          className="text-black bg-white border-white/20 hover:bg-white/90"
+          className="text-black bg-white border-white/20 hover:bg-white/90 px-4 py-1 text-sm"
         />
       </div>
       
