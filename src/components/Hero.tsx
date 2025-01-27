@@ -31,7 +31,7 @@ export const Hero = () => {
         <AuthModal
           buttonText="Login"
           variant="outline"
-          className="text-white border-white/20 hover:bg-white/10"
+          className="text-black bg-white border-white/20 hover:bg-white/90"
         />
       </div>
       
@@ -75,7 +75,7 @@ export const Hero = () => {
             <AuthModal
               buttonText="Start the Trial"
               variant="link"
-              className="text-white hover:text-theater-gold text-lg font-medium"
+              className="text-[#6B1525] hover:text-theater-gold text-lg font-medium"
             />
           </div>
 
