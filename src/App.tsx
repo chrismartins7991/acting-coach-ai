@@ -7,7 +7,8 @@ import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
 import ChatPage from "./pages/ChatPage";
 import DebugPage from "./pages/DebugPage";
-import AuthPage from "./pages/AuthPage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 
 const queryClient = new QueryClient();
 
@@ -20,7 +21,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;
@@ -33,7 +34,8 @@ const App = () => {
         <Router>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
             <Route
               path="/dashboard/*"
               element={

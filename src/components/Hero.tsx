@@ -3,14 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { SparklesCore } from "./ui/sparkles";
 import { useTranslation } from "react-i18next";
-import { AuthModal } from "./AuthModal";
 
 export const Hero = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   const handleGetStarted = () => {
-    navigate('/auth');
+    navigate('/signup');
   };
 
   return (
@@ -29,11 +28,13 @@ export const Hero = () => {
 
       {/* Login Button in top right */}
       <div className="absolute top-4 right-4 z-20">
-        <AuthModal
-          buttonText="Login"
+        <Button
+          onClick={() => navigate('/login')}
           variant="outline"
           className="text-black bg-white border-white/20 hover:bg-white/90 px-4 py-1 text-sm"
-        />
+        >
+          Login
+        </Button>
       </div>
       
       <div className="container mx-auto px-4 relative z-10">
@@ -73,11 +74,13 @@ export const Hero = () => {
               </Button>
             </div>
 
-            <AuthModal
-              buttonText="Start the Trial"
+            <Button
+              onClick={handleGetStarted}
               variant="link"
               className="text-[#6B1525] hover:text-theater-gold text-lg font-medium"
-            />
+            >
+              Start the Trial
+            </Button>
           </div>
 
           <p className="mt-6 text-sm text-gray-400">
