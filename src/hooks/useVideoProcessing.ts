@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from "@/components/ui/use-toast";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
+import { extractFramesFromVideo } from '@/utils/videoAnalysis/frameExtractor';
 
 export interface VideoProcessingHook {
   processVideo: (file: File) => Promise<void>;
@@ -22,6 +23,10 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
 
   const processVideo = async (file: File) => {
     try {
+      if (!userId) {
+        throw new Error('User ID is required');
+      }
+
       setIsProcessing(true);
       setProcessingStep('Uploading video...');
       console.log("Starting video processing...");
@@ -47,8 +52,15 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
         .from('videos')
         .getPublicUrl(filePath);
 
+      setProcessingStep('Extracting frames...');
+      console.log("Video uploaded, extracting frames...");
+
+      // Extract frames
+      const frames = await extractFramesFromVideo(file);
+      console.log(`Extracted ${frames.length} frames from video`);
+
       setProcessingStep('Analyzing performance...');
-      console.log("Video uploaded, starting analysis...");
+      console.log("Starting performance analysis...");
 
       // Get user's coach preferences
       const { data: preferences, error: preferencesError } = await supabase
@@ -61,47 +73,54 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
         throw new Error('Error fetching user preferences: ' + preferencesError.message);
       }
 
-      // Call analyze-video function with proper headers and preferences
+      console.log("User preferences:", preferences);
+
+      // Get session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('No active session found');
+      }
+
+      // Call analyze-performance function
       const { data: analysisData, error: analysisError } = await supabase.functions
-        .invoke('analyze-video', {
+        .invoke('analyze-performance', {
           body: { 
+            frames: frames.map(frame => frame.frameData),
             videoUrl: publicUrl,
             userId,
             coachPreferences: preferences
           },
           headers: {
-            Authorization: `Bearer ${supabase.auth.getSession()}`
+            Authorization: `Bearer ${session.access_token}`
           }
         });
 
       if (analysisError) {
+        console.error("Analysis error:", analysisError);
         throw analysisError;
       }
 
-      setAnalysis(analysisData.analysis);
-      setVoiceAnalysis(analysisData.voiceAnalysis);
+      console.log("Analysis completed:", analysisData);
+      setAnalysis(analysisData);
 
-      // Save to database if we have a user ID
-      if (userId) {
-        const { error: dbError } = await supabase
-          .from('performances')
-          .insert({
-            user_id: userId,
-            title: file.name,
-            video_url: publicUrl,
-            ai_feedback: analysisData.analysis,
-            voice_feedback: analysisData.voiceAnalysis
-          });
+      // Save to database
+      const { error: dbError } = await supabase
+        .from('performances')
+        .insert({
+          user_id: userId,
+          title: file.name,
+          video_url: publicUrl,
+          ai_feedback: analysisData
+        });
 
-        if (dbError) {
-          console.error("Database error:", dbError);
-          throw new Error('Error saving analysis to database');
-        }
+      if (dbError) {
+        console.error("Database error:", dbError);
+        throw new Error('Error saving analysis to database');
       }
 
       toast({
         title: "Analysis Complete",
-        description: "Your video has been analyzed successfully!",
+        description: "Your performance has been analyzed successfully!",
       });
 
     } catch (error: any) {
@@ -111,6 +130,7 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
         description: error.message || "Failed to process video",
         variant: "destructive",
       });
+      throw error;
     } finally {
       setIsProcessing(false);
       setProcessingStep('');

@@ -19,15 +19,12 @@ serve(async (req) => {
   }
 
   try {
-    if (req.method !== 'POST') {
-      throw new Error('Method not allowed');
-    }
-
     const requestData = await req.json();
     console.log("Received request data:", { 
       hasFrames: !!requestData.frames,
       framesCount: requestData.frames?.length,
-      userId: requestData.userId
+      userId: requestData.userId,
+      hasCoachPreferences: !!requestData.coachPreferences
     });
 
     // Validate required fields
@@ -40,43 +37,25 @@ serve(async (req) => {
       throw new Error('User ID is required');
     }
 
-    if (requestData.frames.length === 0) {
-      throw new Error('No frames provided for analysis');
+    if (!requestData.coachPreferences) {
+      throw new Error('Coach preferences are required');
     }
 
-    // Initialize Supabase client
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') || '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || ''
-    );
+    const preferences = requestData.coachPreferences;
+    console.log("Using coach preferences:", preferences);
 
-    // Fetch user's coach preferences
-    console.log("Fetching user preferences...");
-    const { data: preferences, error: preferencesError } = await supabase
-      .from('user_coach_preferences')
-      .select('*')
-      .eq('user_id', requestData.userId)
-      .single();
-
-    if (preferencesError) {
-      console.error("Error fetching preferences:", preferencesError);
-      throw new Error('Failed to fetch user preferences');
-    }
-
-    console.log("User preferences:", preferences);
-    
     // Initialize Gemini
     const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     console.log("Analyzing frames with Gemini Vision...");
     
-    // Analyze each frame with coach-specific context
-    const framePositions = ['beginning', 'middle', 'end'];
+    // Analyze frames with coach-specific context
     const framePromises = requestData.frames.slice(0, 3).map(async (frame: string, index: number) => {
-      console.log(`Analyzing frame at ${framePositions[index]}...`);
+      const position = ['beginning', 'middle', 'end'][index];
+      console.log(`Analyzing frame at ${position}...`);
       
-      const prompt = `You are ${preferences.selected_coach}, a renowned acting coach, analyzing a frame from the ${framePositions[index]} of an acting performance video.
+      const prompt = `You are ${preferences.selected_coach}, analyzing a frame from the ${position} of an acting performance video.
       Focus specifically on these aspects that the actor wants feedback on:
       ${preferences.emotion_in_voice ? '- Emotional expression in voice' : ''}
       ${preferences.voice_expressiveness ? '- Voice expressiveness and variation' : ''}
@@ -84,19 +63,15 @@ serve(async (req) => {
       ${preferences.face_expressions ? '- Facial expressions and emotional conveyance' : ''}
       ${preferences.clearness_of_diction ? '- Clarity of diction and pronunciation' : ''}
       
-      Evaluate the performance and return ONLY a JSON object in this exact format, with no additional text:
+      Evaluate the performance and return ONLY a JSON object in this exact format:
       {
-        "emotionalRange": { "score": <number 0-100>, "feedback": "<specific feedback in the style of ${preferences.selected_coach}>" },
-        "physicalPresence": { "score": <number 0-100>, "feedback": "<specific feedback in the style of ${preferences.selected_coach}>" },
-        "characterEmbodiment": { "score": <number 0-100>, "feedback": "<specific feedback in the style of ${preferences.selected_coach}>" },
-        "voiceAndDelivery": { "score": <number 0-100>, "feedback": "<specific feedback in the style of ${preferences.selected_coach}>" }
+        "emotionalRange": { "score": <number 0-100>, "feedback": "<specific feedback in your teaching style>" },
+        "physicalPresence": { "score": <number 0-100>, "feedback": "<specific feedback in your teaching style>" },
+        "characterEmbodiment": { "score": <number 0-100>, "feedback": "<specific feedback in your teaching style>" },
+        "voiceAndDelivery": { "score": <number 0-100>, "feedback": "<specific feedback in your teaching style>" }
       }`;
 
       try {
-        if (!frame || typeof frame !== 'string') {
-          throw new Error(`Invalid frame data at position ${index}`);
-        }
-
         const base64Data = frame.includes('base64,') ? frame.split('base64,')[1] : frame;
 
         const result = await model.generateContent([
@@ -111,7 +86,7 @@ serve(async (req) => {
         
         const response = await result.response;
         const responseText = response.text();
-        console.log(`Raw response for ${framePositions[index]}:`, responseText);
+        console.log(`Raw response for ${position}:`, responseText);
 
         const jsonMatch = responseText.match(/\{[\s\S]*\}/);
         if (!jsonMatch) {
@@ -119,7 +94,7 @@ serve(async (req) => {
         }
 
         const parsedJson = JSON.parse(jsonMatch[0]);
-        console.log(`Parsed analysis for ${framePositions[index]}:`, parsedJson);
+        console.log(`Parsed analysis for ${position}:`, parsedJson);
         return parsedJson;
       } catch (error) {
         console.error(`Error analyzing frame ${index}:`, error);
@@ -130,8 +105,7 @@ serve(async (req) => {
     const frameAnalyses = await Promise.all(framePromises);
     console.log("All frame analyses completed");
 
-    // Aggregate the analyses with coach-specific context
-    console.log("Aggregating analyses...");
+    // Aggregate analyses with coach-specific context
     const aggregatedAnalysis = {
       timestamp: new Date().toISOString(),
       overallScore: Math.round(
@@ -173,7 +147,7 @@ serve(async (req) => {
       methodologicalAnalysis: {
         methodologies: {
           [preferences.selected_coach.toLowerCase()]: {
-            analysis: `Analysis based on ${preferences.selected_coach}'s methodology`,
+            analysis: `Analysis based on ${preferences.selected_coach}'s methodology and teaching style`,
             recommendations: [
               `Focus on ${frameAnalyses[1].emotionalRange.score < 80 ? 'improving emotional range' : 'maintaining strong emotional presence'}`,
               `Work on ${frameAnalyses[1].physicalPresence.score < 80 ? 'enhancing physical presence' : 'continuing excellent stage presence'}`,
@@ -181,13 +155,13 @@ serve(async (req) => {
             ]
           }
         },
-        synthesis: `Overall analysis through the lens of ${preferences.selected_coach}'s teaching methods`
-      },
-      recommendations: [
-        `Focus on ${frameAnalyses[1].emotionalRange.score < 80 ? 'improving emotional range' : 'maintaining strong emotional presence'}`,
-        `Work on ${frameAnalyses[1].physicalPresence.score < 80 ? 'enhancing physical presence' : 'continuing excellent stage presence'}`,
-        `Consider ${frameAnalyses[1].characterEmbodiment.score < 80 ? 'deepening character embodiment' : 'sharing your character development techniques'}`
-      ]
+        synthesis: `Overall analysis through the lens of ${preferences.selected_coach}'s teaching methods`,
+        overallRecommendations: [
+          `Focus on ${frameAnalyses[1].emotionalRange.score < 80 ? 'improving emotional range' : 'maintaining strong emotional presence'}`,
+          `Work on ${frameAnalyses[1].physicalPresence.score < 80 ? 'enhancing physical presence' : 'continuing excellent stage presence'}`,
+          `Consider ${frameAnalyses[1].characterEmbodiment.score < 80 ? 'deepening character embodiment' : 'sharing your character development techniques'}`
+        ]
+      }
     };
 
     console.log("Analysis complete:", aggregatedAnalysis);
