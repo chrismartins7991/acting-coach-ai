@@ -36,9 +36,9 @@ const Index = () => {
         <div className="relative z-10">
           <Hero />
           <LearningProcess />
+          <IconicCoachesSection />
           <Features />
           <WhyUseSection />
-          <IconicCoachesSection />
           <OscarWinnersCarousel />
           <Testimonials />
           <CTASection onGetStarted={handleLoginTransition} />

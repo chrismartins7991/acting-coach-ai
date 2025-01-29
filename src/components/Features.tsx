@@ -36,11 +36,6 @@ export const Features = () => {
       description: "Monitor your growth with detailed performance metrics over time",
       icon: Trophy,
     },
-    {
-      name: "Quick Improvements",
-      description: "Receive actionable tips to enhance your performance instantly",
-      icon: Zap,
-    },
   ];
 
   return (
