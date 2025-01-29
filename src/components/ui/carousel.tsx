@@ -158,7 +158,7 @@ const CarouselContent = React.forwardRef<
         className={cn(
           "flex relative",
           orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
-          "[&>*]:px-4 [&>*:not(.embla-center)]:opacity-50 [&>*:not(.embla-center)]:blur-sm",
+          "[&>*]:px-4 [&>*:not(.embla-center)]:opacity-50",
           className
         )}
         {...props}
