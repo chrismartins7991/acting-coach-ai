@@ -6,6 +6,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -69,10 +70,12 @@ const DebugPage = () => {
               align: "center",
               loop: true,
             }}
-            onSelect={(api) => {
-              const selectedIndex = api.selectedScrollSnap();
-              setCenterIndex(selectedIndex);
-              setSelectedCoach(coaches[selectedIndex].name);
+            onSelect={(api: CarouselApi) => {
+              if (api) {
+                const selectedIndex = api.selectedScrollSnap();
+                setCenterIndex(selectedIndex);
+                setSelectedCoach(coaches[selectedIndex].name);
+              }
             }}
           >
             <CarouselContent className="-ml-2 md:-ml-4">
