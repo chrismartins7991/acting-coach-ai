@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { useToast } from "@/components/ui/use-toast";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import { extractFramesFromVideo } from '@/utils/videoAnalysis/frameExtractor';
+import { extractAudioFromVideo } from '@/utils/videoAnalysis/audioExtractor';
 
 export interface VideoProcessingHook {
   processVideo: (file: File) => Promise<void>;
@@ -28,10 +29,20 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
       }
 
       setIsProcessing(true);
-      setProcessingStep('Uploading video...');
+      setProcessingStep('Extracting frames and audio...');
       console.log("Starting video processing...");
 
+      // Extract frames
+      const frames = await extractFramesFromVideo(file);
+      console.log(`Extracted ${frames.length} frames from video`);
+
+      // Extract audio segments
+      const frameTimestamps = frames.map(frame => frame.timestamp);
+      const audioSegments = await extractAudioFromVideo(file, frameTimestamps);
+      console.log(`Extracted ${audioSegments.length} audio segments`);
+
       // Upload to storage
+      setProcessingStep('Uploading video...');
       const timestamp = new Date().getTime();
       const fileExt = file.name.split('.').pop();
       const filePath = `${userId}/${timestamp}.${fileExt}`;
@@ -52,16 +63,6 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
         .from('videos')
         .getPublicUrl(filePath);
 
-      setProcessingStep('Extracting frames...');
-      console.log("Video uploaded, extracting frames...");
-
-      // Extract frames
-      const frames = await extractFramesFromVideo(file);
-      console.log(`Extracted ${frames.length} frames from video`);
-
-      setProcessingStep('Analyzing performance...');
-      console.log("Starting performance analysis...");
-
       // Get user's coach preferences
       const { data: preferences, error: preferencesError } = await supabase
         .from('user_coach_preferences')
@@ -73,7 +74,8 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
         throw new Error('Error fetching user preferences: ' + preferencesError.message);
       }
 
-      console.log("User preferences:", preferences);
+      setProcessingStep('Analyzing performance...');
+      console.log("Starting performance and voice analysis...");
 
       // Get session
       const { data: { session } } = await supabase.auth.getSession();
@@ -81,9 +83,10 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
         throw new Error('No active session found');
       }
 
-      // Call analyze-performance function
-      const { data: analysisData, error: analysisError } = await supabase.functions
-        .invoke('analyze-performance', {
+      // Parallel processing of visual and audio analysis
+      const [visualAnalysis, audioAnalysis] = await Promise.all([
+        // Visual analysis
+        supabase.functions.invoke('analyze-performance', {
           body: { 
             frames: frames.map(frame => frame.frameData),
             videoUrl: publicUrl,
@@ -93,15 +96,33 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
           headers: {
             Authorization: `Bearer ${session.access_token}`
           }
-        });
+        }),
+        // Voice analysis
+        supabase.functions.invoke('analyze-voice', {
+          body: { 
+            audioSegments,
+            userId,
+            coachPreferences: preferences
+          },
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
+          }
+        })
+      ]);
 
-      if (analysisError) {
-        console.error("Analysis error:", analysisError);
-        throw analysisError;
+      if (visualAnalysis.error) {
+        console.error("Visual analysis error:", visualAnalysis.error);
+        throw visualAnalysis.error;
       }
 
-      console.log("Analysis completed:", analysisData);
-      setAnalysis(analysisData);
+      if (audioAnalysis.error) {
+        console.error("Audio analysis error:", audioAnalysis.error);
+        throw audioAnalysis.error;
+      }
+
+      console.log("Analysis completed:", { visualAnalysis, audioAnalysis });
+      setAnalysis(visualAnalysis.data);
+      setVoiceAnalysis(audioAnalysis.data);
 
       // Save to database
       const { error: dbError } = await supabase
@@ -110,7 +131,8 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
           user_id: userId,
           title: file.name,
           video_url: publicUrl,
-          ai_feedback: analysisData
+          ai_feedback: visualAnalysis.data,
+          voice_feedback: audioAnalysis.data
         });
 
       if (dbError) {
