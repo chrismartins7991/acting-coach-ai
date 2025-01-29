@@ -39,8 +39,8 @@ export default function SignupPage() {
 
       if (signInError) throw signInError;
 
-      // Changed redirection from /debug to /dashboard
-      navigate("/dashboard");
+      // Changed redirection from /dashboard to /debug
+      navigate("/debug");
     } catch (error: any) {
       toast({
         title: "Error creating account",
