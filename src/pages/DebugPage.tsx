@@ -49,7 +49,6 @@ const DebugPage = () => {
   const [centerIndex, setCenterIndex] = useState(0);
   const [api, setApi] = useState<CarouselApi>();
 
-  // Update center index when carousel scrolls
   useEffect(() => {
     if (!api) return;
 
@@ -94,8 +93,7 @@ const DebugPage = () => {
                       className={`relative h-full flex flex-col bg-black/30 backdrop-blur-sm rounded-lg p-6 border transition-all duration-300
                         ${index === centerIndex 
                           ? 'border-theater-gold shadow-[0_0_15px_rgba(255,215,0,0.3)] scale-105 z-10' 
-                          : 'border-white/10 opacity-50'} 
-                        ${index !== centerIndex ? 'blur-[2px]' : ''}
+                          : 'border-white/10 opacity-50 blur-sm'} 
                         hover:border-theater-gold/50`}
                     >
                       <div className="relative aspect-square mb-4 overflow-hidden rounded-lg">
