@@ -24,16 +24,13 @@ export const extractAudioFromVideo = async (
     source.connect(destination);
     
     const audioSegments: TimestampedAudio[] = [];
-    let currentSegment: {
-      chunks: BlobPart[];
-      startTime: number;
-      endTime: number;
-    } | null = null;
     
     // Create a MediaRecorder for each segment between frame timestamps
     const processSegment = async (startTime: number, endTime: number) => {
       return new Promise<TimestampedAudio>((resolve, reject) => {
-        const mediaRecorder = new MediaRecorder(destination.stream);
+        const mediaRecorder = new MediaRecorder(destination.stream, {
+          mimeType: 'audio/webm'
+        });
         const chunks: BlobPart[] = [];
         
         mediaRecorder.ondataavailable = (e) => {

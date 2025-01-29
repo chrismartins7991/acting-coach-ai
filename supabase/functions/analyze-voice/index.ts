@@ -1,123 +1,130 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import "https://deno.land/x/xhr@0.1.0/mod.ts"
+import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.1.3"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { audioSegments, coachPreferences } = await req.json();
-    console.log("Received audio segments:", audioSegments.length);
-    
-    if (!audioSegments || !audioSegments.length) {
-      throw new Error('No audio segments provided');
+    const { audioSegments, userId, coachPreferences } = await req.json();
+    console.log("Received audio analysis request:", { 
+      segmentsCount: audioSegments?.length,
+      userId,
+      hasPreferences: !!coachPreferences
+    });
+
+    if (!audioSegments || !Array.isArray(audioSegments)) {
+      throw new Error('Invalid or missing audio segments');
     }
 
-    const apiKey = Deno.env.get('GEMINI_API_KEY');
-    if (!apiKey) {
-      throw new Error('Gemini API key not configured');
-    }
+    // Initialize Gemini for final analysis
+    const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // Process each audio segment with Gemini
-    const segmentAnalyses = await Promise.all(audioSegments.map(async (segment: any) => {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`, {
-        method: 'POST',
+    // Process each audio segment with Deepgram
+    const deepgramPromises = audioSegments.map(async (segment) => {
+      const response = await fetch("https://api.deepgram.com/v1/listen", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          Authorization: `Token ${Deno.env.get("DEEPGRAM_API_KEY")}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `Analyze this voice performance segment for an actor. Consider:
-                     1. Voice clarity and diction
-                     2. Emotional expression through voice
-                     3. Pace and timing
-                     4. Volume control and modulation
-                     
-                     Segment duration: ${segment.endTime - segment.startTime} seconds
-                     
-                     Provide analysis in this JSON format:
-                     {
-                       "segmentScore": number (0-100),
-                       "voiceClarity": { "score": number, "feedback": "string" },
-                       "emotionalExpression": { "score": number, "feedback": "string" },
-                       "paceAndTiming": { "score": number, "feedback": "string" },
-                       "volumeControl": { "score": number, "feedback": "string" }
-                     }`
-            }]
-          }]
+          buffer: segment.audioData,
+          mimetype: 'audio/webm',
+          model: "nova-2",
+          language: "en",
+          detect_language: true,
+          punctuate: true,
+          diarize: true,
+          filler_words: true,
+          utterances: true,
+          sentiment: true
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Gemini API error: ${await response.text()}`);
+        const error = await response.text();
+        console.error("Deepgram API error:", error);
+        throw new Error(`Deepgram API error: ${error}`);
       }
 
       const result = await response.json();
-      const jsonMatch = result.candidates[0].content.parts[0].text.match(/\{[\s\S]*\}/);
-      return JSON.parse(jsonMatch[0]);
-    }));
+      return {
+        timestamp: segment.startTime,
+        analysis: result
+      };
+    });
 
-    // Aggregate segment analyses
-    const overallScore = Math.round(
-      segmentAnalyses.reduce((sum, analysis) => sum + analysis.segmentScore, 0) / segmentAnalyses.length
-    );
+    console.log("Processing audio segments with Deepgram...");
+    const segmentAnalyses = await Promise.all(deepgramPromises);
 
-    const voiceAnalysis = {
-      overallScore,
-      categories: {
-        voiceClarity: {
-          score: Math.round(
-            segmentAnalyses.reduce((sum, a) => sum + a.voiceClarity.score, 0) / segmentAnalyses.length
-          ),
-          feedback: segmentAnalyses[Math.floor(segmentAnalyses.length / 2)].voiceClarity.feedback
-        },
-        emotionalExpression: {
-          score: Math.round(
-            segmentAnalyses.reduce((sum, a) => sum + a.emotionalExpression.score, 0) / segmentAnalyses.length
-          ),
-          feedback: segmentAnalyses[Math.floor(segmentAnalyses.length / 2)].emotionalExpression.feedback
-        },
-        paceAndTiming: {
-          score: Math.round(
-            segmentAnalyses.reduce((sum, a) => sum + a.paceAndTiming.score, 0) / segmentAnalyses.length
-          ),
-          feedback: segmentAnalyses[Math.floor(segmentAnalyses.length / 2)].paceAndTiming.feedback
-        },
-        volumeControl: {
-          score: Math.round(
-            segmentAnalyses.reduce((sum, a) => sum + a.volumeControl.score, 0) / segmentAnalyses.length
-          ),
-          feedback: segmentAnalyses[Math.floor(segmentAnalyses.length / 2)].volumeControl.feedback
-        }
-      },
-      recommendations: [
-        "Practice vocal exercises focusing on breath control and projection",
-        "Work on maintaining consistent emotional expression through voice",
-        "Focus on pacing and rhythm in dialogue delivery"
-      ]
+    // Aggregate Deepgram results
+    const aggregatedResults = {
+      transcript: segmentAnalyses.map(sa => sa.analysis.results?.channels[0]?.alternatives[0]?.transcript || '').join(' '),
+      confidence: segmentAnalyses.reduce((acc, sa) => acc + (sa.analysis.results?.channels[0]?.alternatives[0]?.confidence || 0), 0) / segmentAnalyses.length,
+      words: segmentAnalyses.flatMap(sa => sa.analysis.results?.channels[0]?.alternatives[0]?.words || []),
+      sentiment: segmentAnalyses.map(sa => sa.analysis.results?.channels[0]?.alternatives[0]?.sentiment || {}),
+      fillerWords: segmentAnalyses.reduce((acc, sa) => acc + (sa.analysis.results?.channels[0]?.alternatives[0]?.filler_words?.length || 0), 0)
     };
 
-    console.log("Voice analysis complete:", voiceAnalysis);
+    console.log("Analyzing voice performance with Gemini...");
+    const analysisPrompt = `
+      As ${coachPreferences?.selected_coach || 'an expert acting coach'}, analyze this voice performance:
+
+      Transcript: "${aggregatedResults.transcript}"
+      Overall Confidence: ${aggregatedResults.confidence}
+      Filler Words Count: ${aggregatedResults.fillerWords}
+      Sentiment Analysis: ${JSON.stringify(aggregatedResults.sentiment)}
+
+      Focus on:
+      ${coachPreferences?.emotion_in_voice ? '- Emotional authenticity in voice' : ''}
+      ${coachPreferences?.voice_expressiveness ? '- Voice expressiveness and variation' : ''}
+      ${coachPreferences?.clearness_of_diction ? '- Clarity of speech and diction' : ''}
+
+      Provide analysis in this JSON format:
+      {
+        "overallScore": <number 0-100>,
+        "categories": {
+          "emotionalRange": { "score": <number 0-100>, "feedback": "<specific feedback>" },
+          "voiceControl": { "score": <number 0-100>, "feedback": "<specific feedback>" },
+          "clarity": { "score": <number 0-100>, "feedback": "<specific feedback>" }
+        },
+        "recommendations": ["<specific recommendation>", "<specific recommendation>", "<specific recommendation>"]
+      }`;
+
+    const result = await model.generateContent([analysisPrompt]);
+    const response = await result.response;
+    const analysisText = response.text();
+    
+    console.log("Parsing Gemini analysis...");
+    const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No valid JSON found in Gemini response');
+    }
+
+    const analysis = JSON.parse(jsonMatch[0]);
+    console.log("Voice analysis complete:", analysis);
 
     return new Response(
-      JSON.stringify(voiceAnalysis),
+      JSON.stringify(analysis),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error in voice analysis:', error);
+    console.error("Error in analyze-voice function:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      {
+      { 
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }
