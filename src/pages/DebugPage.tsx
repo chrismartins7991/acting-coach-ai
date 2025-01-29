@@ -90,11 +90,10 @@ const DebugPage = () => {
                     className="h-full relative group"
                   >
                     <Card 
-                      className={`relative h-full flex flex-col bg-black/30 backdrop-blur-sm rounded-lg p-6 border transition-all duration-300
+                      className={`relative h-full flex flex-col bg-black/30 rounded-lg p-6 border transition-all duration-300
                         ${index === centerIndex 
                           ? 'border-theater-gold shadow-[0_0_15px_rgba(255,215,0,0.3)] scale-105 z-10' 
-                          : 'border-white/10 opacity-50'} 
-                        hover:border-theater-gold/50`}
+                          : 'border-white/10'}`}
                     >
                       <div className="relative aspect-square mb-4 overflow-hidden rounded-lg">
                         <img
