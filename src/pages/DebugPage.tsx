@@ -47,6 +47,7 @@ const coaches = [
 const DebugPage = () => {
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
   const [centerIndex, setCenterIndex] = useState(0);
+  const [api, setApi] = useState<CarouselApi>();
 
   const handleSelect = () => {
     const coach = coaches[centerIndex];
@@ -70,13 +71,7 @@ const DebugPage = () => {
               align: "center",
               loop: true,
             }}
-            onSelect={(api: CarouselApi) => {
-              if (api) {
-                const selectedIndex = api.selectedScrollSnap();
-                setCenterIndex(selectedIndex);
-                setSelectedCoach(coaches[selectedIndex].name);
-              }
-            }}
+            setApi={setApi}
           >
             <CarouselContent className="-ml-2 md:-ml-4">
               {coaches.map((coach, index) => (
