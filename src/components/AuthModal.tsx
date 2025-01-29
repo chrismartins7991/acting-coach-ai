@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { Button } from './ui/button';
 import { useToast } from './ui/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { AuthChangeEvent, AuthError, AuthApiError } from '@supabase/supabase-js';
+import { AuthError, AuthApiError } from '@supabase/supabase-js';
 import { Alert, AlertDescription } from './ui/alert';
 
 interface AuthModalProps {
@@ -25,21 +25,8 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
   useEffect(() => {
     console.log('Setting up auth state change listener');
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session);
-      
-      if (event === 'USER_DELETED') {
-        setError('Your account has been deleted.');
-        return;
-      }
-
-      if (event === 'PASSWORD_RECOVERY') {
-        toast({
-          title: "Password reset requested",
-          description: "Check your email for the password reset link.",
-        });
-        return;
-      }
 
       // Clear error when modal closes or on successful auth
       if (!isOpen || event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
@@ -75,6 +62,12 @@ export const AuthModal = ({ buttonText, variant = "primary", className, mode = "
           toast({
             title: "Profile updated",
             description: "Your profile has been updated successfully.",
+          });
+          break;
+        case 'PASSWORD_RECOVERY':
+          toast({
+            title: "Password reset requested",
+            description: "Check your email for the password reset link.",
           });
           break;
         case 'INITIAL_SESSION':
