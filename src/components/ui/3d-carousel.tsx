@@ -240,5 +240,3 @@ export function ThreeDCoachCarousel({ coaches }: { coaches: any[] }) {
     </motion.div>
   )
 }
-
-export { ThreeDCoachCarousel }
