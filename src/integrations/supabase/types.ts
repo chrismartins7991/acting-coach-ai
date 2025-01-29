@@ -128,6 +128,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_coach_preferences: {
+        Row: {
+          clearness_of_diction: boolean | null
+          created_at: string | null
+          emotion_in_voice: boolean | null
+          face_expressions: boolean | null
+          id: string
+          physical_presence: boolean | null
+          selected_coach: string
+          updated_at: string | null
+          user_id: string
+          voice_expressiveness: boolean | null
+        }
+        Insert: {
+          clearness_of_diction?: boolean | null
+          created_at?: string | null
+          emotion_in_voice?: boolean | null
+          face_expressions?: boolean | null
+          id?: string
+          physical_presence?: boolean | null
+          selected_coach: string
+          updated_at?: string | null
+          user_id: string
+          voice_expressiveness?: boolean | null
+        }
+        Update: {
+          clearness_of_diction?: boolean | null
+          created_at?: string | null
+          emotion_in_voice?: boolean | null
+          face_expressions?: boolean | null
+          id?: string
+          physical_presence?: boolean | null
+          selected_coach?: string
+          updated_at?: string | null
+          user_id?: string
+          voice_expressiveness?: boolean | null
+        }
+        Relationships: []
+      }
       user_points: {
         Row: {
           created_at: string | null
