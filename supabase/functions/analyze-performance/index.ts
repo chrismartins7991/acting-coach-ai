@@ -23,7 +23,10 @@ serve(async (req) => {
     }
 
     const requestData = await req.json();
-    console.log("Received request data length:", JSON.stringify(requestData).length);
+    console.log("Received request data:", { 
+      hasFrames: !!requestData.frames,
+      framesCount: requestData.frames?.length 
+    });
 
     // Validate required fields
     if (!requestData || !requestData.frames || !Array.isArray(requestData.frames)) {
@@ -90,13 +93,7 @@ serve(async (req) => {
         return parsedJson;
       } catch (error) {
         console.error(`Error analyzing frame ${index}:`, error);
-        // Return a default analysis for this frame to prevent the whole process from failing
-        return {
-          emotionalRange: { score: 50, feedback: "Unable to analyze emotional range" },
-          physicalPresence: { score: 50, feedback: "Unable to analyze physical presence" },
-          characterEmbodiment: { score: 50, feedback: "Unable to analyze character embodiment" },
-          voiceAndDelivery: { score: 50, feedback: "Unable to analyze voice and delivery" }
-        };
+        throw error;
       }
     });
 
