@@ -64,7 +64,7 @@ const DebugPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple p-8">
+    <div className="min-h-screen bg-theater-purple p-8">
       <div className="max-w-7xl mx-auto space-y-12">
         <div className="text-center space-y-4">
           <h1 className="text-3xl md:text-4xl font-bold text-white">Choose Your Acting Coach</h1>
@@ -90,7 +90,7 @@ const DebugPage = () => {
                     className="h-full relative group"
                   >
                     <Card 
-                      className={`relative h-full flex flex-col bg-black/30 rounded-lg p-6 border transition-all duration-300
+                      className={`relative h-full flex flex-col bg-black rounded-lg p-6 border transition-all duration-300
                         ${index === centerIndex 
                           ? 'border-theater-gold shadow-[0_0_15px_rgba(255,215,0,0.3)] scale-105 z-10' 
                           : 'border-white/10'}`}
@@ -99,12 +99,12 @@ const DebugPage = () => {
                         <img
                           src={coach.image}
                           alt={coach.name}
-                          className="w-full h-full object-cover transform transition-transform duration-300"
+                          className="w-full h-full object-cover"
                         />
                       </div>
                       <h3 className="text-xl font-semibold text-white mb-2">{coach.name}</h3>
                       <p className="text-gray-300 mb-4 flex-grow">{coach.description}</p>
-                      <span className="inline-block bg-theater-gold/20 text-theater-gold px-3 py-1 rounded-full text-sm">
+                      <span className="inline-block bg-theater-gold text-black px-3 py-1 rounded-full text-sm">
                         {coach.contribution}
                       </span>
                     </Card>
@@ -112,8 +112,8 @@ const DebugPage = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="flex absolute -left-4 md:-left-8 bg-theater-gold/20 text-theater-gold border-theater-gold/30 hover:bg-theater-gold/30" />
-            <CarouselNext className="flex absolute -right-4 md:-right-8 bg-theater-gold/20 text-theater-gold border-theater-gold/30 hover:bg-theater-gold/30" />
+            <CarouselPrevious className="flex absolute -left-4 md:-left-8 bg-theater-gold text-black border-theater-gold hover:bg-theater-gold/80" />
+            <CarouselNext className="flex absolute -right-4 md:-right-8 bg-theater-gold text-black border-theater-gold hover:bg-theater-gold/80" />
           </Carousel>
 
           <div className="flex justify-center mt-8">
