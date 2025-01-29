@@ -50,10 +50,28 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
       setProcessingStep('Analyzing performance...');
       console.log("Video uploaded, starting analysis...");
 
-      // Call analyze-video function
+      // Get user's coach preferences
+      const { data: preferences, error: preferencesError } = await supabase
+        .from('user_coach_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (preferencesError) {
+        throw new Error('Error fetching user preferences: ' + preferencesError.message);
+      }
+
+      // Call analyze-video function with proper headers and preferences
       const { data: analysisData, error: analysisError } = await supabase.functions
         .invoke('analyze-video', {
-          body: { videoUrl: publicUrl }
+          body: { 
+            videoUrl: publicUrl,
+            userId,
+            coachPreferences: preferences
+          },
+          headers: {
+            Authorization: `Bearer ${supabase.auth.getSession()}`
+          }
         });
 
       if (analysisError) {
