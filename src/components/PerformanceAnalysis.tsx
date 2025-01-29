@@ -24,9 +24,10 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <Card>
+        <Card className="bg-black/30 backdrop-blur-sm border-white/10">
           <CardHeader>
-            <Skeleton className="h-6 w-3/4" />
+            <Skeleton className="h-12 w-12 rounded-full" />
+            <Skeleton className="h-6 w-3/4 mt-4" />
             <Skeleton className="h-4 w-1/2 mt-2" />
           </CardHeader>
           <CardContent>
@@ -39,7 +40,7 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i}>
+            <Card key={i} className="bg-black/30 backdrop-blur-sm border-white/10">
               <CardHeader>
                 <Skeleton className="h-6 w-1/2" />
                 <Skeleton className="h-4 w-full mt-2" />
@@ -69,12 +70,35 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
 
   console.log("Rendering analysis with score:", combinedScore);
 
+  // Get the selected coach from methodologicalAnalysis
+  const selectedCoach = analysis?.methodologicalAnalysis?.methodologies 
+    ? Object.keys(analysis.methodologicalAnalysis.methodologies)[0]
+    : null;
+
   return (
     <div className="space-y-6">
+      {selectedCoach && (
+        <Card className="bg-black/30 backdrop-blur-sm border-white/10">
+          <CardHeader className="flex md:flex-row gap-6 items-center">
+            <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 border-2 border-theater-gold">
+              <img 
+                src={methodologyPortraits[selectedCoach as keyof typeof methodologyPortraits]} 
+                alt={`${selectedCoach} portrait`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="text-center md:text-left">
+              <CardTitle className="text-white capitalize">{selectedCoach} Method</CardTitle>
+              <CardDescription className="text-white/60">Your Acting Coach</CardDescription>
+            </div>
+          </CardHeader>
+        </Card>
+      )}
+
       <Card className="bg-black/30 backdrop-blur-sm border-white/10">
         <CardHeader>
           <CardTitle className="text-white">Overall Performance Score</CardTitle>
-          <CardDescription className="text-white/60">Combined score based on visual performance and voice analysis</CardDescription>
+          <CardDescription className="text-white/60">Based on your selected preferences</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
@@ -84,96 +108,46 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="visual" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="visual" disabled={!analysis}>Visual Performance</TabsTrigger>
-          <TabsTrigger value="voice" disabled={!voiceAnalysis}>Voice Analysis</TabsTrigger>
-          <TabsTrigger value="methodologies" disabled={!analysis?.methodologicalAnalysis}>Acting Methodologies</TabsTrigger>
-        </TabsList>
+      {analysis?.methodologicalAnalysis?.synthesis && (
+        <Card className="bg-black/30 backdrop-blur-sm border-white/10">
+          <CardHeader>
+            <CardTitle className="text-white">Coach's Synthesis</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-white/60">{analysis.methodologicalAnalysis.synthesis}</p>
+          </CardContent>
+        </Card>
+      )}
 
-        <TabsContent value="visual">
-          {analysis && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Object.entries(analysis.categories).map(([category, data]) => (
-                <Card key={category} className="bg-black/30 backdrop-blur-sm border-white/10">
-                  <CardHeader>
-                    <CardTitle className="text-white">{formatCategoryName(category)}</CardTitle>
-                    <Progress value={data.score} className="mt-2" />
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-white/60">{data.feedback}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {analysis && Object.entries(analysis.categories).map(([category, data]) => (
+          <Card key={category} className="bg-black/30 backdrop-blur-sm border-white/10">
+            <CardHeader>
+              <CardTitle className="text-white">{formatCategoryName(category)}</CardTitle>
+              <Progress value={data.score} className="mt-2" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-white/60">{data.feedback}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-        <TabsContent value="voice">
-          {voiceAnalysis && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Object.entries(voiceAnalysis.categories).map(([category, data]) => (
-                <Card key={category} className="bg-black/30 backdrop-blur-sm border-white/10">
-                  <CardHeader>
-                    <CardTitle className="text-white">{formatCategoryName(category)}</CardTitle>
-                    <Progress value={data.score} className="mt-2" />
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-white/60">{data.feedback}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="methodologies">
-          {analysis?.methodologicalAnalysis && (
-            <div className="space-y-6">
-              {Object.entries(analysis.methodologicalAnalysis.methodologies).map(([method, data]) => (
-                <Card key={method} className="bg-black/30 backdrop-blur-sm border-white/10">
-                  <CardHeader className="flex md:flex-row gap-6 items-start">
-                    <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 border-2 border-theater-gold">
-                      <img 
-                        src={methodologyPortraits[method as keyof typeof methodologyPortraits]} 
-                        alt={`${method} portrait`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          console.error(`Error loading image for ${method}`);
-                          e.currentTarget.src = "/placeholder.svg";
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <CardTitle className="text-white capitalize">{method} Method</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-white/60">{data.analysis}</p>
-                    <div>
-                      <h4 className="text-white font-semibold mb-2">Recommendations:</h4>
-                      <ul className="list-disc pl-6 space-y-1">
-                        {data.recommendations.map((rec, index) => (
-                          <li key={index} className="text-white/60">{rec}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-
-              <Card className="bg-black/30 backdrop-blur-sm border-white/10">
-                <CardHeader>
-                  <CardTitle className="text-white">Synthesis</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-white/60">{analysis.methodologicalAnalysis.synthesis}</p>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+      {voiceAnalysis && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {Object.entries(voiceAnalysis.categories).map(([category, data]) => (
+            <Card key={category} className="bg-black/30 backdrop-blur-sm border-white/10">
+              <CardHeader>
+                <CardTitle className="text-white">{formatCategoryName(category)}</CardTitle>
+                <Progress value={data.score} className="mt-2" />
+              </CardHeader>
+              <CardContent>
+                <p className="text-white/60">{data.feedback}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <Card className="bg-black/30 backdrop-blur-sm border-white/10">
         <CardHeader>
