@@ -8,6 +8,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 const coaches = [
   {
@@ -44,6 +45,14 @@ const coaches = [
 
 const DebugPage = () => {
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
+  const [centerIndex, setCenterIndex] = useState(0);
+
+  const handleSelect = () => {
+    const coach = coaches[centerIndex];
+    setSelectedCoach(coach.name);
+    console.log(`Selected coach: ${coach.name}`);
+    // Future implementation: Navigate to next step
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple p-8">
@@ -60,6 +69,10 @@ const DebugPage = () => {
               align: "center",
               loop: true,
             }}
+            onSelect={(index) => {
+              setCenterIndex(index);
+              setSelectedCoach(coaches[index].name);
+            }}
           >
             <CarouselContent className="-ml-2 md:-ml-4">
               {coaches.map((coach, index) => (
@@ -71,17 +84,17 @@ const DebugPage = () => {
                     className="h-full relative group"
                   >
                     <Card 
-                      className={`relative h-full flex flex-col bg-black/30 backdrop-blur-sm rounded-lg p-6 border 
-                        ${selectedCoach === coach.name ? 'border-theater-gold shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'border-white/10'} 
-                        hover:border-theater-gold/50 transition-all duration-300
-                        group-hover:scale-105 group-hover:z-10`}
-                      onClick={() => setSelectedCoach(coach.name)}
+                      className={`relative h-full flex flex-col bg-black/30 backdrop-blur-sm rounded-lg p-6 border transition-all duration-300
+                        ${index === centerIndex 
+                          ? 'border-theater-gold shadow-[0_0_15px_rgba(255,215,0,0.3)] scale-105 z-10' 
+                          : 'border-white/10 blur-[2px] opacity-50'} 
+                        hover:border-theater-gold/50`}
                     >
                       <div className="relative aspect-square mb-4 overflow-hidden rounded-lg">
                         <img
                           src={coach.image}
                           alt={coach.name}
-                          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-cover transform transition-transform duration-300"
                         />
                       </div>
                       <h3 className="text-xl font-semibold text-white mb-2">{coach.name}</h3>
@@ -97,6 +110,15 @@ const DebugPage = () => {
             <CarouselPrevious className="flex absolute -left-4 md:-left-8 bg-theater-gold/20 text-theater-gold border-theater-gold/30 hover:bg-theater-gold/30" />
             <CarouselNext className="flex absolute -right-4 md:-right-8 bg-theater-gold/20 text-theater-gold border-theater-gold/30 hover:bg-theater-gold/30" />
           </Carousel>
+
+          <div className="flex justify-center mt-8">
+            <Button
+              onClick={handleSelect}
+              className="bg-theater-gold hover:bg-theater-gold/80 text-black font-semibold px-8 py-2 rounded-full transform transition-all duration-300 hover:scale-105"
+            >
+              Select this Acting Coach
+            </Button>
+          </div>
         </div>
       </div>
     </div>
