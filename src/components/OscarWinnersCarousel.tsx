@@ -13,44 +13,37 @@ import { OscarWinnerCard } from "./oscar-winners/OscarWinnerCard";
 
 export const OscarWinnersCarousel = () => {
   const { t } = useTranslation();
-  const plugin = Autoplay({ 
-    delay: 3000, 
-    stopOnInteraction: true,
-    rootNode: (emblaRoot) => emblaRoot.parentElement
-  });
   
   const [emblaRef] = useEmblaCarousel(
     { 
       loop: true,
       align: "center",
       slidesToScroll: 1,
-      duration: 1000,
+      duration: 800,
       skipSnaps: false,
-      dragFree: true
+      dragFree: false
     },
-    [plugin]
+    [Autoplay({ 
+      delay: 3000, 
+      stopOnInteraction: false,
+      playOnInit: true 
+    })]
   );
 
-  useEffect(() => {
-    return () => {
-      plugin.stop();
-    };
-  }, [plugin]);
-
   return (
-    <section className="py-20 bg-gradient-to-br from-black to-theater-purple overflow-hidden">
-      <div className="container mx-auto px-4">
+    <section className="w-full py-12 md:py-16 lg:py-20 bg-black">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-8 md:mb-12 lg:mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 md:mb-4">
             {t('oscarWinners.title')}
           </h2>
-          <p className="text-xl text-gray-300">
+          <p className="text-lg md:text-xl text-gray-300">
             {t('oscarWinners.subtitle')}
           </p>
         </motion.div>
@@ -58,18 +51,16 @@ export const OscarWinnersCarousel = () => {
         <Carousel
           ref={emblaRef}
           className="w-full"
-          opts={{
-            align: "center",
-            loop: true,
-          }}
         >
           <CarouselContent className="-ml-2 md:-ml-4">
             {oscarWinners.map((winner, index) => (
               <CarouselItem 
                 key={index} 
-                className="pl-2 md:pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+                className="pl-2 md:pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5 2xl:basis-1/6"
               >
-                <OscarWinnerCard {...winner} />
+                <div className="transition-transform duration-300 hover:scale-105">
+                  <OscarWinnerCard {...winner} />
+                </div>
               </CarouselItem>
             ))}
           </CarouselContent>
