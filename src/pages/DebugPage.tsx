@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -15,6 +15,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import VideoUploader from "@/components/VideoUploader";
 
 const coaches = [
   {
@@ -57,6 +58,7 @@ const DebugPage = () => {
   const [centerIndex, setCenterIndex] = useState(0);
   const [api, setApi] = useState<CarouselApi>();
   const [showPreferences, setShowPreferences] = useState(false);
+  const [showUploader, setShowUploader] = useState(false);
   const [preferences, setPreferences] = useState({
     emotionInVoice: false,
     voiceExpressiveness: false,
@@ -120,8 +122,8 @@ const DebugPage = () => {
         description: "Your coach and analysis preferences have been saved",
       });
       
-      // Navigate to video upload page or dashboard
-      navigate("/dashboard");
+      setShowUploader(true);
+      setShowPreferences(false);
     } catch (error) {
       console.error('Error saving preferences:', error);
       toast({
@@ -135,21 +137,23 @@ const DebugPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple p-8">
       <div className="max-w-7xl mx-auto space-y-12">
-        <div className="text-center space-y-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-white">Choose Your Acting Coach</h1>
-          <p className="text-lg text-gray-300">Select an iconic coach to analyze your performance</p>
-        </div>
+        {!showUploader ? (
+          <>
+            <div className="text-center space-y-4">
+              <h1 className="text-3xl md:text-4xl font-bold text-white">Choose Your Acting Coach</h1>
+              <p className="text-lg text-gray-300">Select an iconic coach to analyze your performance</p>
+            </div>
 
-        {!showPreferences ? (
-          <div className="relative px-4 md:px-12">
-            <Carousel 
-              className="w-full max-w-5xl mx-auto"
-              opts={{
-                align: "center",
-                loop: true,
-              }}
-              setApi={setApi}
-            >
+            {!showPreferences ? (
+              <div className="relative px-4 md:px-12">
+                <Carousel 
+                  className="w-full max-w-5xl mx-auto"
+                  opts={{
+                    align: "center",
+                    loop: true,
+                  }}
+                  setApi={setApi}
+                >
               <CarouselContent className="-ml-2 md:-ml-4">
                 {coaches.map((coach, index) => (
                   <CarouselItem key={coach.name} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
@@ -182,77 +186,82 @@ const DebugPage = () => {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious className="flex absolute -left-4 md:-left-8 bg-theater-gold text-black border-theater-gold hover:bg-theater-gold/80" />
-              <CarouselNext className="flex absolute -right-4 md:-right-8 bg-theater-gold text-black border-theater-gold hover:bg-theater-gold/80" />
-            </Carousel>
+                </Carousel>
 
-            <div className="flex justify-center mt-8">
-              <Button
-                onClick={handleSelect}
-                className="bg-theater-gold hover:bg-theater-gold/80 text-black font-semibold px-8 py-2 rounded-full transform transition-all duration-300 hover:scale-105"
+                <div className="flex justify-center mt-8">
+                  <Button
+                    onClick={handleSelect}
+                    className="bg-theater-gold hover:bg-theater-gold/80 text-black font-semibold px-8 py-2 rounded-full transform transition-all duration-300 hover:scale-105"
+                  >
+                    Select this Acting Coach
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-2xl mx-auto bg-black/30 p-8 rounded-lg border border-theater-gold"
               >
-                Select this Acting Coach
-              </Button>
-            </div>
-          </div>
+                <h2 className="text-2xl font-bold text-white mb-6">Analysis Preferences</h2>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white">Emotion in Voice</span>
+                    <Toggle 
+                      pressed={preferences.emotionInVoice}
+                      onPressedChange={() => handlePreferenceToggle('emotionInVoice')}
+                      className="bg-purple-700 data-[state=on]:bg-theater-gold"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white">Voice Expressiveness</span>
+                    <Toggle 
+                      pressed={preferences.voiceExpressiveness}
+                      onPressedChange={() => handlePreferenceToggle('voiceExpressiveness')}
+                      className="bg-blue-700 data-[state=on]:bg-theater-gold"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white">Physical Presence</span>
+                    <Toggle 
+                      pressed={preferences.physicalPresence}
+                      onPressedChange={() => handlePreferenceToggle('physicalPresence')}
+                      className="bg-red-700 data-[state=on]:bg-theater-gold"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white">Face Expressions</span>
+                    <Toggle 
+                      pressed={preferences.faceExpressions}
+                      onPressedChange={() => handlePreferenceToggle('faceExpressions')}
+                      className="bg-green-700 data-[state=on]:bg-theater-gold"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white">Clearness of Diction</span>
+                    <Toggle 
+                      pressed={preferences.clearnessOfDiction}
+                      onPressedChange={() => handlePreferenceToggle('clearnessOfDiction')}
+                      className="bg-yellow-700 data-[state=on]:bg-theater-gold"
+                    />
+                  </div>
+                </div>
+                <div className="mt-8 flex justify-center">
+                  <Button
+                    onClick={handleSavePreferences}
+                    className="bg-theater-gold hover:bg-theater-gold/80 text-black font-semibold px-8 py-2 rounded-full transform transition-all duration-300 hover:scale-105"
+                  >
+                    Save Preferences & Continue
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </>
         ) : (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-2xl mx-auto bg-black/30 p-8 rounded-lg border border-theater-gold"
-          >
-            <h2 className="text-2xl font-bold text-white mb-6">Analysis Preferences</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-white">Emotion in Voice</span>
-                <Toggle 
-                  pressed={preferences.emotionInVoice}
-                  onPressedChange={() => handlePreferenceToggle('emotionInVoice')}
-                  className="bg-purple-700 data-[state=on]:bg-theater-gold"
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-white">Voice Expressiveness</span>
-                <Toggle 
-                  pressed={preferences.voiceExpressiveness}
-                  onPressedChange={() => handlePreferenceToggle('voiceExpressiveness')}
-                  className="bg-blue-700 data-[state=on]:bg-theater-gold"
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-white">Physical Presence</span>
-                <Toggle 
-                  pressed={preferences.physicalPresence}
-                  onPressedChange={() => handlePreferenceToggle('physicalPresence')}
-                  className="bg-red-700 data-[state=on]:bg-theater-gold"
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-white">Face Expressions</span>
-                <Toggle 
-                  pressed={preferences.faceExpressions}
-                  onPressedChange={() => handlePreferenceToggle('faceExpressions')}
-                  className="bg-green-700 data-[state=on]:bg-theater-gold"
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-white">Clearness of Diction</span>
-                <Toggle 
-                  pressed={preferences.clearnessOfDiction}
-                  onPressedChange={() => handlePreferenceToggle('clearnessOfDiction')}
-                  className="bg-yellow-700 data-[state=on]:bg-theater-gold"
-                />
-              </div>
-            </div>
-            <div className="mt-8 flex justify-center">
-              <Button
-                onClick={handleSavePreferences}
-                className="bg-theater-gold hover:bg-theater-gold/80 text-black font-semibold px-8 py-2 rounded-full transform transition-all duration-300 hover:scale-105"
-              >
-                Save Preferences & Continue
-              </Button>
-            </div>
-          </motion.div>
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold text-white mb-8 text-center">Upload Your Performance</h2>
+            <VideoUploader />
+          </div>
         )}
       </div>
     </div>
