@@ -3,9 +3,11 @@ import { useTranslation } from "react-i18next";
 import useEmblaCarousel from 'embla-carousel-react'
 import Autoplay from 'embla-carousel-autoplay'
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const IconicCoachesSection = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 4000 })]);
 
   const coaches = [
@@ -44,7 +46,6 @@ export const IconicCoachesSection = () => {
   useEffect(() => {
     if (emblaApi) {
       console.log('Carousel initialized');
-      // Log the image paths to verify they're correct
       coaches.forEach(coach => {
         console.log(`Loading image for ${coach.name}:`, coach.image);
       });
@@ -55,6 +56,10 @@ export const IconicCoachesSection = () => {
     console.error(`Error loading image for ${name}. Image source:`, src);
   };
 
+  const handleCoachClick = () => {
+    navigate('/signup');
+  };
+
   return (
     <section className="py-20 bg-gradient-to-br from-theater-purple to-black overflow-hidden">
       <div className="container mx-auto px-4">
@@ -63,10 +68,20 @@ export const IconicCoachesSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-4xl font-bold text-white text-center mb-16"
+          className="text-4xl font-bold text-white text-center mb-4"
         >
           Get feedback and Learn from the most iconic perspectives in History
         </motion.h2>
+        
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="text-2xl text-theater-gold text-center mb-16"
+        >
+          Pick your favorite Acting Coach
+        </motion.p>
         
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex">
@@ -77,7 +92,8 @@ export const IconicCoachesSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: index * 0.2 }}
-                className="relative group flex-[0_0_100%] min-w-0 md:flex-[0_0_33.33%] px-4"
+                className="relative group flex-[0_0_100%] min-w-0 md:flex-[0_0_33.33%] px-4 cursor-pointer"
+                onClick={handleCoachClick}
               >
                 <div className="relative h-[500px] mb-6 overflow-hidden rounded-lg bg-theater-red shadow-xl">
                   <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-60 z-10" />
