@@ -74,8 +74,21 @@ const Carousel = memo(
     coaches: any[]
     isCarouselActive: boolean
   }) => {
-    const isScreenSizeSm = useMediaQuery("(max-width: 640px)")
-    const cylinderWidth = isScreenSizeSm ? 1100 : 1800
+    const isScreenXs = useMediaQuery("(max-width: 480px)")
+    const isScreenSm = useMediaQuery("(max-width: 640px)")
+    const isScreenMd = useMediaQuery("(max-width: 768px)")
+    const isScreenLg = useMediaQuery("(max-width: 1024px)")
+
+    // Adjust cylinder width based on screen size
+    const getCylinderWidth = () => {
+      if (isScreenXs) return 800
+      if (isScreenSm) return 1000
+      if (isScreenMd) return 1200
+      if (isScreenLg) return 1500
+      return 1800
+    }
+
+    const cylinderWidth = getCylinderWidth()
     const faceCount = coaches.length
     const faceWidth = cylinderWidth / faceCount
     const radius = cylinderWidth / (2 * Math.PI)
@@ -227,3 +240,5 @@ export function ThreeDCoachCarousel({ coaches }: { coaches: any[] }) {
     </motion.div>
   )
 }
+
+export { ThreeDCoachCarousel }
