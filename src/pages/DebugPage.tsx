@@ -1,7 +1,5 @@
 import { useState } from "react";
-import VideoUploader from "@/components/VideoUploader";
 import { Card } from "@/components/ui/card";
-import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import {
   Carousel,
   CarouselContent,
@@ -45,18 +43,7 @@ const coaches = [
 ];
 
 const DebugPage = () => {
-  const [analysis, setAnalysis] = useState<Analysis | null>(null);
-  const [voiceAnalysis, setVoiceAnalysis] = useState<VoiceAnalysis | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
-
-  const handleAnalysisComplete = (videoAnalysis: Analysis | null, audioAnalysis: VoiceAnalysis | null) => {
-    console.log("Debug: Received video analysis:", videoAnalysis);
-    console.log("Debug: Received voice analysis:", audioAnalysis);
-    setAnalysis(videoAnalysis);
-    setVoiceAnalysis(audioAnalysis);
-    setIsProcessing(false);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple p-8">
@@ -67,7 +54,13 @@ const DebugPage = () => {
         </div>
 
         <div className="relative px-4 md:px-12">
-          <Carousel className="w-full max-w-5xl mx-auto">
+          <Carousel 
+            className="w-full max-w-5xl mx-auto"
+            opts={{
+              align: "center",
+              loop: true,
+            }}
+          >
             <CarouselContent className="-ml-2 md:-ml-4">
               {coaches.map((coach, index) => (
                 <CarouselItem key={coach.name} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
@@ -75,12 +68,13 @@ const DebugPage = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="h-full"
+                    className="h-full relative group"
                   >
                     <Card 
-                      className={`relative group h-full flex flex-col bg-black/30 backdrop-blur-sm rounded-lg p-6 border 
-                        ${selectedCoach === coach.name ? 'border-theater-gold' : 'border-white/10'} 
-                        hover:border-theater-gold/50 transition-all duration-300`}
+                      className={`relative h-full flex flex-col bg-black/30 backdrop-blur-sm rounded-lg p-6 border 
+                        ${selectedCoach === coach.name ? 'border-theater-gold shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'border-white/10'} 
+                        hover:border-theater-gold/50 transition-all duration-300
+                        group-hover:scale-105 group-hover:z-10`}
                       onClick={() => setSelectedCoach(coach.name)}
                     >
                       <div className="relative aspect-square mb-4 overflow-hidden rounded-lg">
@@ -100,38 +94,10 @@ const DebugPage = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="hidden md:flex -left-12 bg-theater-gold/20 text-theater-gold border-theater-gold/30 hover:bg-theater-gold/30" />
-            <CarouselNext className="hidden md:flex -right-12 bg-theater-gold/20 text-theater-gold border-theater-gold/30 hover:bg-theater-gold/30" />
+            <CarouselPrevious className="flex absolute -left-4 md:-left-8 bg-theater-gold/20 text-theater-gold border-theater-gold/30 hover:bg-theater-gold/30" />
+            <CarouselNext className="flex absolute -right-4 md:-right-8 bg-theater-gold/20 text-theater-gold border-theater-gold/30 hover:bg-theater-gold/30" />
           </Carousel>
         </div>
-
-        <div className="mb-8">
-          <VideoUploader />
-        </div>
-
-        {isProcessing && (
-          <Card className="p-6 bg-black/30 backdrop-blur-sm border-white/10">
-            <p className="text-white">Processing video...</p>
-          </Card>
-        )}
-
-        {(analysis || voiceAnalysis) && (
-          <div className="space-y-6">
-            <Card className="p-6 bg-black/30 backdrop-blur-sm border-white/10">
-              <h2 className="text-xl font-bold text-white mb-4">Video Analysis Raw Data:</h2>
-              <pre className="text-white/80 overflow-auto max-h-[400px] p-4 bg-black/50 rounded">
-                {JSON.stringify(analysis, null, 2)}
-              </pre>
-            </Card>
-
-            <Card className="p-6 bg-black/30 backdrop-blur-sm border-white/10">
-              <h2 className="text-xl font-bold text-white mb-4">Voice Analysis Raw Data:</h2>
-              <pre className="text-white/80 overflow-auto max-h-[400px] p-4 bg-black/50 rounded">
-                {JSON.stringify(voiceAnalysis, null, 2)}
-              </pre>
-            </Card>
-          </div>
-        )}
       </div>
     </div>
   );
