@@ -23,6 +23,7 @@ export const Hero = () => {
           alt="AI Acting Coach Logo" 
           className="w-16 h-16 object-contain"
           loading="eager"
+          fetchpriority="high"
         />
       </div>
 
