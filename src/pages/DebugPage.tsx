@@ -75,6 +75,39 @@ const DebugPage = () => {
     });
   }, [api]);
 
+  useEffect(() => {
+    // Fetch existing preferences when component mounts
+    const fetchPreferences = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('user_coach_preferences')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          setSelectedCoach(data.selected_coach);
+          setPreferences({
+            emotionInVoice: data.emotion_in_voice,
+            voiceExpressiveness: data.voice_expressiveness,
+            physicalPresence: data.physical_presence,
+            faceExpressions: data.face_expressions,
+            clearnessOfDiction: data.clearness_of_diction,
+          });
+          setShowUploader(true);
+        }
+      } catch (error) {
+        console.error('Error fetching preferences:', error);
+      }
+    };
+
+    fetchPreferences();
+  }, [user]);
+
   const handleSelect = async () => {
     if (!user) {
       toast({
@@ -113,6 +146,8 @@ const DebugPage = () => {
           physical_presence: preferences.physicalPresence,
           face_expressions: preferences.faceExpressions,
           clearness_of_diction: preferences.clearnessOfDiction,
+        }, {
+          onConflict: 'user_id'
         });
 
       if (error) throw error;
@@ -132,6 +167,11 @@ const DebugPage = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleModifySettings = () => {
+    setShowUploader(false);
+    setShowPreferences(false);
   };
 
   return (
@@ -265,7 +305,16 @@ const DebugPage = () => {
           </>
         ) : (
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold text-white mb-8 text-center">Upload Your Performance</h2>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-bold text-white">Upload Your Performance</h2>
+              <Button
+                onClick={handleModifySettings}
+                variant="outline"
+                className="bg-theater-gold/10 hover:bg-theater-gold/20 text-theater-gold border-theater-gold"
+              >
+                Modify Coach & Preferences
+              </Button>
+            </div>
             <VideoUploader />
           </div>
         )}
