@@ -56,19 +56,17 @@ serve(async (req) => {
       console.log(`Analyzing frame at ${position}...`);
       
       const prompt = `You are ${preferences.selected_coach}, analyzing a frame from the ${position} of an acting performance video.
-      Focus specifically on these aspects that the actor wants feedback on:
-      ${preferences.emotion_in_voice ? '- Emotional expression in voice' : ''}
-      ${preferences.voice_expressiveness ? '- Voice expressiveness and variation' : ''}
+      Focus specifically on these visual aspects that the actor wants feedback on:
       ${preferences.physical_presence ? '- Physical presence and body language' : ''}
       ${preferences.face_expressions ? '- Facial expressions and emotional conveyance' : ''}
-      ${preferences.clearness_of_diction ? '- Clarity of diction and pronunciation' : ''}
+      
+      Note: This analysis is based only on visual data, without audio.
       
       Evaluate the performance and return ONLY a JSON object in this exact format:
       {
         "emotionalRange": { "score": <number 0-100>, "feedback": "<specific feedback in your teaching style>" },
         "physicalPresence": { "score": <number 0-100>, "feedback": "<specific feedback in your teaching style>" },
-        "characterEmbodiment": { "score": <number 0-100>, "feedback": "<specific feedback in your teaching style>" },
-        "voiceAndDelivery": { "score": <number 0-100>, "feedback": "<specific feedback in your teaching style>" }
+        "characterEmbodiment": { "score": <number 0-100>, "feedback": "<specific feedback in your teaching style>" }
       }`;
 
       try {
@@ -113,9 +111,8 @@ serve(async (req) => {
           return sum + (
             analysis.emotionalRange.score +
             analysis.physicalPresence.score +
-            analysis.characterEmbodiment.score +
-            analysis.voiceAndDelivery.score
-          ) / 4;
+            analysis.characterEmbodiment.score
+          ) / 3;
         }, 0) / frameAnalyses.length
       ),
       categories: {
@@ -136,18 +133,12 @@ serve(async (req) => {
             frameAnalyses.reduce((sum, a) => sum + a.characterEmbodiment.score, 0) / frameAnalyses.length
           ),
           feedback: frameAnalyses[1].characterEmbodiment.feedback
-        },
-        voiceAndDelivery: {
-          score: Math.round(
-            frameAnalyses.reduce((sum, a) => sum + a.voiceAndDelivery.score, 0) / frameAnalyses.length
-          ),
-          feedback: frameAnalyses[1].voiceAndDelivery.feedback
         }
       },
       methodologicalAnalysis: {
         methodologies: {
           [preferences.selected_coach.toLowerCase()]: {
-            analysis: `Analysis based on ${preferences.selected_coach}'s methodology and teaching style`,
+            analysis: `Analysis based on ${preferences.selected_coach}'s methodology and teaching style, focusing on visual aspects only.`,
             recommendations: [
               `Focus on ${frameAnalyses[1].emotionalRange.score < 80 ? 'improving emotional range' : 'maintaining strong emotional presence'}`,
               `Work on ${frameAnalyses[1].physicalPresence.score < 80 ? 'enhancing physical presence' : 'continuing excellent stage presence'}`,
@@ -155,7 +146,7 @@ serve(async (req) => {
             ]
           }
         },
-        synthesis: `Overall analysis through the lens of ${preferences.selected_coach}'s teaching methods`,
+        synthesis: `Overall visual analysis through the lens of ${preferences.selected_coach}'s teaching methods`,
         overallRecommendations: [
           `Focus on ${frameAnalyses[1].emotionalRange.score < 80 ? 'improving emotional range' : 'maintaining strong emotional presence'}`,
           `Work on ${frameAnalyses[1].physicalPresence.score < 80 ? 'enhancing physical presence' : 'continuing excellent stage presence'}`,
