@@ -39,6 +39,7 @@ export default function SignupPage() {
 
       if (signInError) throw signInError;
 
+      // Changed redirection from /debug to /dashboard
       navigate("/dashboard");
     } catch (error: any) {
       toast({
