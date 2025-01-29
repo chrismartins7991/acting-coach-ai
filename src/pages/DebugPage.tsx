@@ -69,9 +69,10 @@ const DebugPage = () => {
               align: "center",
               loop: true,
             }}
-            onSelect={(index) => {
-              setCenterIndex(index);
-              setSelectedCoach(coaches[index].name);
+            onSelect={(api) => {
+              const selectedIndex = api.selectedScrollSnap();
+              setCenterIndex(selectedIndex);
+              setSelectedCoach(coaches[selectedIndex].name);
             }}
           >
             <CarouselContent className="-ml-2 md:-ml-4">
