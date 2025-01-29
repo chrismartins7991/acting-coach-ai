@@ -14,11 +14,11 @@ export const OscarWinnerCard = ({ image, name, fallbackImage }: OscarWinnerCardP
       viewport={{ once: true }}
       className="relative group"
     >
-      <div className="relative h-[400px] overflow-hidden rounded-lg">
+      <div className="relative h-[400px] overflow-hidden rounded-lg bg-white">
         <img
           src={image}
           alt={name}
-          className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+          className="w-full h-full object-cover brightness-100 transform group-hover:scale-110 transition-transform duration-500"
           onError={(e) => {
             console.error(`Error loading image: ${image}`);
             e.currentTarget.src = fallbackImage;
