@@ -151,21 +151,35 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
 
       <Card className="bg-black/30 backdrop-blur-sm border-white/10">
         <CardHeader>
-          <CardTitle className="text-white">Recommendations</CardTitle>
-          <CardDescription className="text-white/60">Areas for improvement and next steps</CardDescription>
+          <CardTitle className="text-white">Recommendations & Exercises</CardTitle>
+          <CardDescription className="text-white/60">Areas for improvement and specific exercises from your coach</CardDescription>
         </CardHeader>
-        <CardContent>
-          <ul className="list-disc pl-6 space-y-2">
-            {analysis?.recommendations?.map((recommendation, index) => (
-              <li key={`visual-${index}`} className="text-white/60">{recommendation}</li>
-            ))}
-            {voiceAnalysis?.recommendations?.map((recommendation, index) => (
-              <li key={`voice-${index}`} className="text-white/60">{recommendation}</li>
-            ))}
-            {analysis?.methodologicalAnalysis?.overallRecommendations?.map((recommendation, index) => (
-              <li key={`method-${index}`} className="text-white/60">{recommendation}</li>
-            ))}
-          </ul>
+        <CardContent className="space-y-6">
+          <div>
+            <h4 className="text-lg font-semibold text-white mb-2">General Recommendations</h4>
+            <ul className="list-disc pl-6 space-y-2">
+              {analysis?.recommendations?.map((recommendation, index) => (
+                <li key={`visual-${index}`} className="text-white/60">{recommendation}</li>
+              ))}
+              {voiceAnalysis?.recommendations?.map((recommendation, index) => (
+                <li key={`voice-${index}`} className="text-white/60">{recommendation}</li>
+              ))}
+              {analysis?.methodologicalAnalysis?.overallRecommendations?.map((recommendation, index) => (
+                <li key={`method-${index}`} className="text-white/60">{recommendation}</li>
+              ))}
+            </ul>
+          </div>
+          
+          {analysis?.methodologicalAnalysis?.methodologies[selectedCoach || '']?.exercises && (
+            <div>
+              <h4 className="text-lg font-semibold text-white mb-2">Recommended Exercises</h4>
+              <ul className="list-disc pl-6 space-y-2">
+                {analysis.methodologicalAnalysis.methodologies[selectedCoach || ''].exercises.map((exercise, index) => (
+                  <li key={`exercise-${index}`} className="text-white/60">{exercise}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

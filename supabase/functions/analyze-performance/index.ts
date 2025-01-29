@@ -5,9 +5,35 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Max-Age': '86400',
 }
+
+const methodSpecificExercises = {
+  strasberg: [
+    "Sensory Memory Exercise: Recall a specific emotional memory and recreate the physical sensations",
+    "Animal Exercise: Embody an animal's movements to explore physical expression",
+    "Private Moment Exercise: Practice being completely uninhibited in private",
+  ],
+  stanislavski: [
+    "Given Circumstances: Write detailed backstory for your character",
+    "Magic If Exercise: Ask yourself 'What if I were in this situation?'",
+    "Physical Action Exercise: Break down your scene into specific actions",
+  ],
+  meisner: [
+    "Repetition Exercise: Practice the famous repetition technique with a partner",
+    "Independent Activity: Perform a challenging task while delivering lines",
+    "Emotional Preparation: Use personal experiences to prepare for scenes",
+  ],
+  chekhov: [
+    "Psychological Gesture: Create a gesture that embodies your character's core desire",
+    "Atmosphere Exercise: Practice being affected by different imaginary atmospheres",
+    "Imaginary Body Exercise: Transform your physicality to match your character",
+  ],
+  brecht: [
+    "Gestus Exercise: Develop social gestures that reveal class and status",
+    "Alienation Exercise: Practice stepping out of character to comment on actions",
+    "Contradiction Exercise: Show opposing elements in your character",
+  ]
+};
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -143,7 +169,8 @@ serve(async (req) => {
               `Focus on ${frameAnalyses[1].emotionalRange.score < 80 ? 'improving emotional range' : 'maintaining strong emotional presence'}`,
               `Work on ${frameAnalyses[1].physicalPresence.score < 80 ? 'enhancing physical presence' : 'continuing excellent stage presence'}`,
               `Consider ${frameAnalyses[1].characterEmbodiment.score < 80 ? 'deepening character embodiment' : 'sharing your character development techniques'}`
-            ]
+            ],
+            exercises: methodSpecificExercises[preferences.selected_coach.toLowerCase()] || []
           }
         },
         synthesis: `Overall visual analysis through the lens of ${preferences.selected_coach}'s teaching methods`,
