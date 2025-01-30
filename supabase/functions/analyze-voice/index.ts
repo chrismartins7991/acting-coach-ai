@@ -21,18 +21,21 @@ serve(async (req) => {
     });
 
     if (!audioSegments || !Array.isArray(audioSegments)) {
+      console.error("Invalid audio segments received:", audioSegments);
       throw new Error('Invalid or missing audio segments');
     }
 
     const deepgramApiKey = Deno.env.get("DEEPGRAM_API_KEY");
     if (!deepgramApiKey) {
-      console.error("Deepgram API key not found in environment variables");
+      console.error("Deepgram API key not found");
       throw new Error('Deepgram API key not configured');
     }
 
+    console.log("Processing audio segments with Deepgram...");
+
     // Process each audio segment with Deepgram
     const deepgramPromises = audioSegments.map(async (segment, index) => {
-      console.log(`Processing audio segment ${index + 1}/${audioSegments.length}`);
+      console.log(`Processing segment ${index + 1}/${audioSegments.length}`);
       
       try {
         const response = await fetch("https://api.deepgram.com/v1/listen", {
@@ -73,7 +76,7 @@ serve(async (req) => {
       }
     });
 
-    console.log("Processing audio segments with Deepgram...");
+    console.log("Waiting for all Deepgram analyses to complete...");
     const segmentAnalyses = await Promise.all(deepgramPromises);
     console.log("All Deepgram analyses completed");
 
@@ -126,7 +129,7 @@ serve(async (req) => {
     }
 
     const analysis = JSON.parse(jsonMatch[0]);
-    console.log("Voice analysis complete:", analysis);
+    console.log("Voice analysis complete");
 
     return new Response(
       JSON.stringify(analysis),
