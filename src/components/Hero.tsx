@@ -19,11 +19,11 @@ export const Hero = () => {
       <div className="absolute inset-0 w-full h-full bg-black/50" />
       
       {/* Logo - positioned with margin to prevent overlap */}
-      <div className={`absolute z-20 ${isMobile ? 'top-16 left-1/2 -translate-x-1/2' : 'top-4 left-4'}`}>
+      <div className={`absolute z-20 ${isMobile ? 'top-32 left-1/2 -translate-x-1/2' : 'top-4 left-4'}`}>
         <img 
           src="/AI Acting Coach Logo-nobackground.png" 
           alt="AI Acting Coach Logo" 
-          className={`object-contain ${isMobile ? 'w-56 h-56' : 'w-16 h-16'}`}
+          className={`object-contain ${isMobile ? 'w-[90vw] max-w-[500px] h-auto' : 'w-16 h-16'}`}
           loading="eager"
           fetchPriority="high"
         />
