@@ -24,47 +24,56 @@ serve(async (req) => {
       throw new Error('Invalid or missing audio segments');
     }
 
-    // Initialize Gemini for final analysis
-    const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const deepgramApiKey = Deno.env.get("DEEPGRAM_API_KEY");
+    if (!deepgramApiKey) {
+      throw new Error('Deepgram API key not configured');
+    }
 
     // Process each audio segment with Deepgram
-    const deepgramPromises = audioSegments.map(async (segment) => {
-      const response = await fetch("https://api.deepgram.com/v1/listen", {
-        method: "POST",
-        headers: {
-          Authorization: `Token ${Deno.env.get("DEEPGRAM_API_KEY")}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          buffer: segment.audioData,
-          mimetype: 'audio/webm',
-          model: "nova-2",
-          language: "en",
-          detect_language: true,
-          punctuate: true,
-          diarize: true,
-          filler_words: true,
-          utterances: true,
-          sentiment: true
-        }),
-      });
+    const deepgramPromises = audioSegments.map(async (segment, index) => {
+      console.log(`Processing audio segment ${index + 1}/${audioSegments.length}`);
+      
+      try {
+        const response = await fetch("https://api.deepgram.com/v1/listen", {
+          method: "POST",
+          headers: {
+            Authorization: `Token ${deepgramApiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            buffer: segment.audioData,
+            mimetype: 'audio/webm',
+            model: "nova-2",
+            language: "en",
+            detect_language: true,
+            punctuate: true,
+            diarize: true,
+            filler_words: true,
+            utterances: true,
+            sentiment: true
+          }),
+        });
 
-      if (!response.ok) {
-        const error = await response.text();
-        console.error("Deepgram API error:", error);
-        throw new Error(`Deepgram API error: ${error}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Deepgram API error for segment ${index}:`, errorText);
+          throw new Error(`Deepgram API error: ${errorText}`);
+        }
+
+        const result = await response.json();
+        return {
+          timestamp: segment.startTime,
+          analysis: result
+        };
+      } catch (error) {
+        console.error(`Error processing segment ${index}:`, error);
+        throw error;
       }
-
-      const result = await response.json();
-      return {
-        timestamp: segment.startTime,
-        analysis: result
-      };
     });
 
     console.log("Processing audio segments with Deepgram...");
     const segmentAnalyses = await Promise.all(deepgramPromises);
+    console.log("All Deepgram analyses completed");
 
     // Aggregate Deepgram results
     const aggregatedResults = {
@@ -76,6 +85,9 @@ serve(async (req) => {
     };
 
     console.log("Analyzing voice performance with Gemini...");
+    const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
     const analysisPrompt = `
       As ${coachPreferences?.selected_coach || 'an expert acting coach'}, analyze this voice performance:
 
@@ -93,9 +105,10 @@ serve(async (req) => {
       {
         "overallScore": <number 0-100>,
         "categories": {
-          "emotionalRange": { "score": <number 0-100>, "feedback": "<specific feedback>" },
-          "voiceControl": { "score": <number 0-100>, "feedback": "<specific feedback>" },
-          "clarity": { "score": <number 0-100>, "feedback": "<specific feedback>" }
+          "voiceClarity": { "score": <number 0-100>, "feedback": "<specific feedback>" },
+          "emotionalExpression": { "score": <number 0-100>, "feedback": "<specific feedback>" },
+          "paceAndTiming": { "score": <number 0-100>, "feedback": "<specific feedback>" },
+          "volumeControl": { "score": <number 0-100>, "feedback": "<specific feedback>" }
         },
         "recommendations": ["<specific recommendation>", "<specific recommendation>", "<specific recommendation>"]
       }`;
@@ -121,7 +134,11 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error in analyze-voice function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        timestamp: new Date().toISOString(),
+        details: error.stack
+      }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
