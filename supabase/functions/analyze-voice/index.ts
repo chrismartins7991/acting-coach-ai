@@ -26,6 +26,7 @@ serve(async (req) => {
 
     const deepgramApiKey = Deno.env.get("DEEPGRAM_API_KEY");
     if (!deepgramApiKey) {
+      console.error("Deepgram API key not found in environment variables");
       throw new Error('Deepgram API key not configured');
     }
 
@@ -61,6 +62,7 @@ serve(async (req) => {
         }
 
         const result = await response.json();
+        console.log(`Successfully processed segment ${index + 1}`);
         return {
           timestamp: segment.startTime,
           analysis: result
