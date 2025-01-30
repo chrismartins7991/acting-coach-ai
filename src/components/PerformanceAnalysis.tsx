@@ -120,7 +120,7 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {analysis && Object.entries(analysis.categories).map(([category, data]) => (
+        {analysis?.categories && Object.entries(analysis.categories).map(([category, data]) => (
           <Card key={category} className="bg-black/30 backdrop-blur-sm border-white/10">
             <CardHeader>
               <CardTitle className="text-white">{formatCategoryName(category)}</CardTitle>
@@ -133,7 +133,7 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
         ))}
       </div>
 
-      {voiceAnalysis && (
+      {voiceAnalysis?.categories && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {Object.entries(voiceAnalysis.categories).map(([category, data]) => (
             <Card key={category} className="bg-black/30 backdrop-blur-sm border-white/10">
@@ -170,11 +170,11 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
             </ul>
           </div>
           
-          {analysis?.methodologicalAnalysis?.methodologies[selectedCoach || '']?.exercises && (
+          {selectedCoach && analysis?.methodologicalAnalysis?.methodologies[selectedCoach]?.exercises && (
             <div>
               <h4 className="text-lg font-semibold text-white mb-2">Recommended Exercises</h4>
               <ul className="list-disc pl-6 space-y-2">
-                {analysis.methodologicalAnalysis.methodologies[selectedCoach || ''].exercises.map((exercise, index) => (
+                {analysis.methodologicalAnalysis.methodologies[selectedCoach].exercises.map((exercise, index) => (
                   <li key={`exercise-${index}`} className="text-white/60">{exercise}</li>
                 ))}
               </ul>
