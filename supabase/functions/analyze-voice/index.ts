@@ -8,36 +8,40 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { audioSegments, userId, coachPreferences } = await req.json();
-    console.log("Received audio analysis request:", { 
+    console.log("Received request:", { 
       segmentsCount: audioSegments?.length,
       userId,
-      hasPreferences: !!coachPreferences
+      hasPreferences: !!coachPreferences,
+      firstSegmentSample: audioSegments?.[0]?.audioData?.substring(0, 100)
     });
 
     if (!audioSegments || !Array.isArray(audioSegments)) {
-      console.error("Invalid audio segments received:", audioSegments);
       throw new Error('Invalid or missing audio segments');
     }
 
     const deepgramApiKey = Deno.env.get("DEEPGRAM_API_KEY");
     if (!deepgramApiKey) {
-      console.error("Deepgram API key not found");
       throw new Error('Deepgram API key not configured');
     }
 
-    console.log("Processing audio segments with Deepgram...");
+    console.log("Starting Deepgram analysis...");
 
     // Process each audio segment with Deepgram
     const deepgramPromises = audioSegments.map(async (segment, index) => {
-      console.log(`Processing segment ${index + 1}/${audioSegments.length}`);
-      
       try {
+        console.log(`Processing segment ${index + 1}/${audioSegments.length}`);
+        
+        if (!segment.audioData) {
+          throw new Error(`Missing audio data for segment ${index + 1}`);
+        }
+
         const response = await fetch("https://api.deepgram.com/v1/listen", {
           method: "POST",
           headers: {
@@ -60,8 +64,12 @@ serve(async (req) => {
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error(`Deepgram API error for segment ${index}:`, errorText);
-          throw new Error(`Deepgram API error: ${errorText}`);
+          console.error(`Deepgram API error for segment ${index}:`, {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorText
+          });
+          throw new Error(`Deepgram API error (${response.status}): ${errorText}`);
         }
 
         const result = await response.json();
@@ -89,7 +97,7 @@ serve(async (req) => {
       fillerWords: segmentAnalyses.reduce((acc, sa) => acc + (sa.analysis.results?.channels[0]?.alternatives[0]?.filler_words?.length || 0), 0)
     };
 
-    console.log("Analyzing voice performance with Gemini...");
+    console.log("Starting Gemini analysis...");
     const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -122,7 +130,6 @@ serve(async (req) => {
     const response = await result.response;
     const analysisText = response.text();
     
-    console.log("Parsing Gemini analysis...");
     const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error('No valid JSON found in Gemini response');
@@ -137,7 +144,12 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error("Error in analyze-voice function:", error);
+    console.error("Error in analyze-voice function:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+
     return new Response(
       JSON.stringify({ 
         error: error.message,
