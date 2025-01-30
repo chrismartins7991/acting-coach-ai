@@ -23,7 +23,7 @@ export const Hero = () => {
         <img 
           src="/AI Acting Coach Logo-nobackground.png" 
           alt="AI Acting Coach Logo" 
-          className="w-16 h-16 object-contain"
+          className={`object-contain ${isMobile ? 'w-24 h-24' : 'w-16 h-16'}`}
           loading="eager"
           fetchPriority="high"
         />
