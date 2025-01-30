@@ -36,10 +36,9 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
       const frames = await extractFramesFromVideo(file);
       console.log(`Extracted ${frames.length} frames from video`);
 
-      // Extract audio segments
-      const frameTimestamps = frames.map(frame => frame.timestamp);
-      const audioSegments = await extractAudioFromVideo(file, frameTimestamps);
-      console.log(`Extracted ${audioSegments.length} audio segments`);
+      // Extract audio
+      const audioData = await extractAudioFromVideo(file);
+      console.log("Audio extraction completed");
 
       // Upload to storage
       setProcessingStep('Uploading video...');
@@ -100,7 +99,7 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
         // Voice analysis
         supabase.functions.invoke('analyze-voice', {
           body: { 
-            audioSegments,
+            audioData,
             userId,
             coachPreferences: preferences
           },

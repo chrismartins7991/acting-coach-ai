@@ -1,19 +1,10 @@
-export interface TimestampedAudio {
-  audioData: string;
-  startTime: number;
-  endTime: number;
-}
-
-export const extractAudioFromVideo = async (
-  videoFile: File, 
-  frameTimestamps: number[]
-): Promise<TimestampedAudio[]> => {
+export const extractAudioFromVideo = async (file: File): Promise<string> => {
   try {
-    console.log("Starting synchronized audio extraction...");
+    console.log("Starting audio extraction...");
     
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     const video = document.createElement('video');
-    video.src = URL.createObjectURL(videoFile);
+    video.src = URL.createObjectURL(file);
     
     await new Promise((resolve) => {
       video.onloadedmetadata = resolve;
@@ -23,66 +14,46 @@ export const extractAudioFromVideo = async (
     const source = audioContext.createMediaElementSource(video);
     source.connect(destination);
     
-    const audioSegments: TimestampedAudio[] = [];
-    
-    // Create a MediaRecorder for each segment between frame timestamps
-    const processSegment = async (startTime: number, endTime: number) => {
-      return new Promise<TimestampedAudio>((resolve, reject) => {
-        const mediaRecorder = new MediaRecorder(destination.stream, {
-          mimeType: 'audio/webm'
-        });
-        const chunks: BlobPart[] = [];
-        
-        mediaRecorder.ondataavailable = (e) => {
-          if (e.data.size > 0) {
-            chunks.push(e.data);
-          }
-        };
-        
-        mediaRecorder.onstop = async () => {
-          try {
-            const audioBlob = new Blob(chunks, { type: 'audio/webm' });
-            const base64Audio = await blobToBase64(audioBlob);
-            resolve({
-              audioData: base64Audio,
-              startTime,
-              endTime
-            });
-          } catch (error) {
-            reject(error);
-          }
-        };
-        
-        video.currentTime = startTime;
-        mediaRecorder.start();
-        
-        setTimeout(() => {
-          mediaRecorder.stop();
-        }, (endTime - startTime) * 1000);
-        
-        video.play();
+    return new Promise((resolve, reject) => {
+      const mediaRecorder = new MediaRecorder(destination.stream, {
+        mimeType: 'audio/webm'
       });
-    };
-    
-    // Process audio segments between frame timestamps
-    const audioPromises = [];
-    for (let i = 0; i < frameTimestamps.length - 1; i++) {
-      audioPromises.push(
-        processSegment(frameTimestamps[i], frameTimestamps[i + 1])
-      );
-    }
-    
-    const segments = await Promise.all(audioPromises);
-    
-    video.remove();
-    await audioContext.close();
-    
-    console.log(`Extracted ${segments.length} synchronized audio segments`);
-    return segments;
+      
+      const chunks: BlobPart[] = [];
+      
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+        }
+      };
+      
+      mediaRecorder.onstop = async () => {
+        try {
+          const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+          const base64Audio = await blobToBase64(audioBlob);
+          console.log("Audio extraction completed successfully");
+          resolve(base64Audio);
+        } catch (error) {
+          console.error("Error in audio extraction:", error);
+          reject(error);
+        }
+      };
+      
+      video.currentTime = 0;
+      mediaRecorder.start();
+      
+      video.play().catch(reject);
+      
+      // Record for the duration of the video
+      setTimeout(() => {
+        mediaRecorder.stop();
+        video.pause();
+      }, video.duration * 1000);
+    });
     
   } catch (error) {
     console.error("Error in audio extraction:", error);
-    throw new Error(`Failed to extract audio: ${error.message}`);
+    throw error;
   }
 };
 

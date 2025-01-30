@@ -16,16 +16,16 @@ serve(async (req) => {
   try {
     console.log("Starting analyze-voice function");
     
-    const { audioSegments, userId, coachPreferences } = await req.json();
+    const { audioData, userId, coachPreferences } = await req.json();
     console.log("Received request:", { 
-      segmentsCount: audioSegments?.length,
+      hasAudioData: !!audioData,
       userId,
       hasPreferences: !!coachPreferences
     });
 
-    if (!audioSegments || !Array.isArray(audioSegments)) {
-      console.error("Invalid audio segments received");
-      throw new Error('Invalid or missing audio segments');
+    if (!audioData) {
+      console.error("Invalid audio data received");
+      throw new Error('Invalid or missing audio data');
     }
 
     const deepgramApiKey = Deno.env.get("DEEPGRAM_API_KEY");
@@ -35,83 +35,61 @@ serve(async (req) => {
     }
     console.log("Deepgram API key found");
 
-    // Process each audio segment with Deepgram
-    console.log(`Starting to process ${audioSegments.length} segments with Deepgram`);
-    const deepgramPromises = audioSegments.map(async (segment, index) => {
-      try {
-        console.log(`Processing segment ${index + 1}/${audioSegments.length}`);
-        
-        if (!segment.audioData) {
-          console.error(`Missing audio data for segment ${index + 1}`);
-          throw new Error(`Missing audio data for segment ${index + 1}`);
-        }
-
-        const response = await fetch("https://api.deepgram.com/v1/listen", {
-          method: "POST",
-          headers: {
-            Authorization: `Token ${deepgramApiKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            buffer: segment.audioData,
-            mimetype: 'audio/webm',
-            model: "nova-2",
-            language: "en",
-            detect_language: true,
-            punctuate: true,
-            diarize: true,
-            filler_words: true,
-            utterances: true,
-            sentiment: true
-          }),
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`Deepgram API error for segment ${index}:`, {
-            status: response.status,
-            statusText: response.statusText,
-            error: errorText
-          });
-          throw new Error(`Deepgram API error (${response.status}): ${errorText}`);
-        }
-
-        const result = await response.json();
-        console.log(`Successfully processed segment ${index + 1}`);
-        return {
-          timestamp: segment.startTime,
-          analysis: result
-        };
-      } catch (error) {
-        console.error(`Error processing segment ${index}:`, error);
-        throw error;
-      }
+    // Process audio with Deepgram
+    console.log("Starting Deepgram analysis...");
+    const response = await fetch("https://api.deepgram.com/v1/listen", {
+      method: "POST",
+      headers: {
+        Authorization: `Token ${deepgramApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        buffer: audioData,
+        mimetype: 'audio/webm',
+        model: "nova-2",
+        language: "en",
+        detect_language: true,
+        punctuate: true,
+        diarize: true,
+        utterances: true,
+        sentiment: true,
+        keywords: true,
+        summarize: true,
+        detect_topics: true,
+        paragraphs: true
+      }),
     });
 
-    console.log("Waiting for all Deepgram analyses to complete...");
-    const segmentAnalyses = await Promise.all(deepgramPromises);
-    console.log("All Deepgram analyses completed");
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Deepgram API error:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText
+      });
+      throw new Error(`Deepgram API error (${response.status}): ${errorText}`);
+    }
 
-    // Aggregate Deepgram results
-    const aggregatedResults = {
-      transcript: segmentAnalyses.map(sa => sa.analysis.results?.channels[0]?.alternatives[0]?.transcript || '').join(' '),
-      confidence: segmentAnalyses.reduce((acc, sa) => acc + (sa.analysis.results?.channels[0]?.alternatives[0]?.confidence || 0), 0) / segmentAnalyses.length,
-      words: segmentAnalyses.flatMap(sa => sa.analysis.results?.channels[0]?.alternatives[0]?.words || []),
-      sentiment: segmentAnalyses.map(sa => sa.analysis.results?.channels[0]?.alternatives[0]?.sentiment || {}),
-      fillerWords: segmentAnalyses.reduce((acc, sa) => acc + (sa.analysis.results?.channels[0]?.alternatives[0]?.filler_words?.length || 0), 0)
-    };
+    const result = await response.json();
+    console.log("Deepgram analysis completed successfully");
 
+    // Initialize Gemini for additional analysis
     console.log("Starting Gemini analysis...");
     const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
+    const transcript = result.results?.channels[0]?.alternatives[0]?.transcript || '';
+    const words = result.results?.channels[0]?.alternatives[0]?.words || [];
+    const paragraphs = result.results?.channels[0]?.alternatives[0]?.paragraphs?.paragraphs || [];
+    const sentiment = result.results?.channels[0]?.alternatives[0]?.sentiment || {};
+
     const analysisPrompt = `
       As ${coachPreferences?.selected_coach || 'an expert acting coach'}, analyze this voice performance:
 
-      Transcript: "${aggregatedResults.transcript}"
-      Overall Confidence: ${aggregatedResults.confidence}
-      Filler Words Count: ${aggregatedResults.fillerWords}
-      Sentiment Analysis: ${JSON.stringify(aggregatedResults.sentiment)}
+      Transcript: "${transcript}"
+      Paragraphs Structure: ${JSON.stringify(paragraphs)}
+      Word Timing: ${JSON.stringify(words.slice(0, 5))}... (${words.length} words total)
+      Sentiment Analysis: ${JSON.stringify(sentiment)}
 
       Focus on:
       ${coachPreferences?.emotion_in_voice ? '- Emotional authenticity in voice' : ''}
@@ -130,9 +108,9 @@ serve(async (req) => {
         "recommendations": ["<specific recommendation>", "<specific recommendation>", "<specific recommendation>"]
       }`;
 
-    const result = await model.generateContent([analysisPrompt]);
-    const response = await result.response;
-    const analysisText = response.text();
+    const result2 = await model.generateContent([analysisPrompt]);
+    const response2 = await result2.response;
+    const analysisText = response2.text();
     
     const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
@@ -142,8 +120,19 @@ serve(async (req) => {
     const analysis = JSON.parse(jsonMatch[0]);
     console.log("Voice analysis complete");
 
+    // Add word timing data to the analysis
+    const enrichedAnalysis = {
+      ...analysis,
+      wordTimings: words.map(word => ({
+        word: word.word,
+        start: word.start,
+        end: word.end,
+        confidence: word.confidence
+      }))
+    };
+
     return new Response(
-      JSON.stringify(analysis),
+      JSON.stringify(enrichedAnalysis),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
