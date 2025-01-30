@@ -14,31 +14,35 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Starting analyze-voice function");
+    
     const { audioSegments, userId, coachPreferences } = await req.json();
     console.log("Received request:", { 
       segmentsCount: audioSegments?.length,
       userId,
-      hasPreferences: !!coachPreferences,
-      firstSegmentSample: audioSegments?.[0]?.audioData?.substring(0, 100)
+      hasPreferences: !!coachPreferences
     });
 
     if (!audioSegments || !Array.isArray(audioSegments)) {
+      console.error("Invalid audio segments received");
       throw new Error('Invalid or missing audio segments');
     }
 
     const deepgramApiKey = Deno.env.get("DEEPGRAM_API_KEY");
     if (!deepgramApiKey) {
+      console.error("Deepgram API key not found");
       throw new Error('Deepgram API key not configured');
     }
-
-    console.log("Starting Deepgram analysis...");
+    console.log("Deepgram API key found");
 
     // Process each audio segment with Deepgram
+    console.log(`Starting to process ${audioSegments.length} segments with Deepgram`);
     const deepgramPromises = audioSegments.map(async (segment, index) => {
       try {
         console.log(`Processing segment ${index + 1}/${audioSegments.length}`);
         
         if (!segment.audioData) {
+          console.error(`Missing audio data for segment ${index + 1}`);
           throw new Error(`Missing audio data for segment ${index + 1}`);
         }
 
