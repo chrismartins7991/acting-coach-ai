@@ -18,12 +18,12 @@ export const Hero = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-theater-purple via-black to-theater-red">
       <div className="absolute inset-0 w-full h-full bg-black/50" />
       
-      {/* Logo - positioned differently for mobile/desktop */}
-      <div className={`absolute z-20 ${isMobile ? 'top-[15vh] left-1/2 -translate-x-1/2' : 'top-4 left-4'}`}>
+      {/* Logo - positioned with margin to prevent overlap */}
+      <div className={`absolute z-20 ${isMobile ? 'top-8 left-1/2 -translate-x-1/2' : 'top-4 left-4'}`}>
         <img 
           src="/AI Acting Coach Logo-nobackground.png" 
           alt="AI Acting Coach Logo" 
-          className={`object-contain ${isMobile ? 'w-72 h-72' : 'w-16 h-16'}`}
+          className={`object-contain ${isMobile ? 'w-56 h-56' : 'w-16 h-16'}`}
           loading="eager"
           fetchPriority="high"
         />
@@ -40,18 +40,18 @@ export const Hero = () => {
         </Button>
       </div>
       
-      <div className={`container mx-auto px-4 relative z-10 ${isMobile ? 'mt-32' : ''}`}>
+      <div className={`container mx-auto px-4 relative z-10 ${isMobile ? 'mt-64' : ''}`}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="text-center max-w-4xl mx-auto"
         >
-          <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-tight">
+          <h1 className="text-5xl md:text-8xl font-bold text-white mb-4 tracking-tight">
             Your AI Acting Coach
           </h1>
           
-          <p className="text-xl md:text-2xl text-gray-200 mb-12 leading-relaxed max-w-3xl mx-auto">
+          <p className="text-lg md:text-2xl text-gray-200 mb-8 leading-relaxed max-w-3xl mx-auto">
             Master your craft with personalized feedback based on Stanislavski, Brecht, Lee Strasberg and Chekhov methods.
           </p>
 
@@ -71,7 +71,7 @@ export const Hero = () => {
               <Button
                 onClick={handleGetStarted}
                 size="lg"
-                className="bg-[#FFD700] hover:bg-[#FFD700]/90 text-black font-semibold text-lg px-8 py-6 relative z-10 transition-all duration-300 hover:scale-105"
+                className="bg-[#FFD700] hover:bg-[#FFD700]/90 text-black font-semibold text-base px-6 py-5 relative z-10 transition-all duration-300 hover:scale-105"
               >
                 Analyse my Performance
               </Button>
@@ -89,7 +89,7 @@ export const Hero = () => {
             )}
           </div>
 
-          <p className="mt-6 text-sm text-gray-400">
+          <p className="mt-4 text-sm text-gray-400">
             This app was made by actors, for actors • Cancel anytime
           </p>
         </motion.div>
