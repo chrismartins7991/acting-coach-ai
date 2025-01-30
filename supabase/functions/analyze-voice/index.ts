@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import "https://deno.land/x/xhr@0.1.0/mod.ts"
-import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.1.3"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,14 +16,14 @@ serve(async (req) => {
     console.log("Starting analyze-voice function");
     
     const { audioData, userId, coachPreferences } = await req.json();
-    console.log("Received request:", { 
+    console.log("Received request data:", { 
       hasAudioData: !!audioData,
       userId,
       hasPreferences: !!coachPreferences
     });
 
     if (!audioData) {
-      console.error("Invalid audio data received");
+      console.error("No audio data received");
       throw new Error('Invalid or missing audio data');
     }
 
@@ -35,29 +34,20 @@ serve(async (req) => {
     }
     console.log("Deepgram API key found");
 
+    // Convert base64 to binary
+    console.log("Converting audio data...");
+    const binaryData = Uint8Array.from(atob(audioData), c => c.charCodeAt(0));
+    console.log("Audio data converted, size:", binaryData.length);
+
     // Process audio with Deepgram
     console.log("Starting Deepgram analysis...");
     const response = await fetch("https://api.deepgram.com/v1/listen", {
       method: "POST",
       headers: {
         Authorization: `Token ${deepgramApiKey}`,
-        "Content-Type": "application/json",
+        "Content-Type": "audio/webm",
       },
-      body: JSON.stringify({
-        buffer: audioData,
-        mimetype: 'audio/webm',
-        model: "nova-2",
-        language: "en",
-        detect_language: true,
-        punctuate: true,
-        diarize: true,
-        utterances: true,
-        sentiment: true,
-        keywords: true,
-        summarize: true,
-        detect_topics: true,
-        paragraphs: true
-      }),
+      body: binaryData,
     });
 
     if (!response.ok) {
@@ -75,9 +65,6 @@ serve(async (req) => {
 
     // Initialize Gemini for additional analysis
     console.log("Starting Gemini analysis...");
-    const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
     const transcript = result.results?.channels[0]?.alternatives[0]?.transcript || '';
     const words = result.results?.channels[0]?.alternatives[0]?.words || [];
     const paragraphs = result.results?.channels[0]?.alternatives[0]?.paragraphs?.paragraphs || [];
@@ -87,7 +74,6 @@ serve(async (req) => {
       As ${coachPreferences?.selected_coach || 'an expert acting coach'}, analyze this voice performance:
 
       Transcript: "${transcript}"
-      Paragraphs Structure: ${JSON.stringify(paragraphs)}
       Word Timing: ${JSON.stringify(words.slice(0, 5))}... (${words.length} words total)
       Sentiment Analysis: ${JSON.stringify(sentiment)}
 
@@ -108,28 +94,20 @@ serve(async (req) => {
         "recommendations": ["<specific recommendation>", "<specific recommendation>", "<specific recommendation>"]
       }`;
 
-    const result2 = await model.generateContent([analysisPrompt]);
-    const response2 = await result2.response;
-    const analysisText = response2.text();
-    
-    const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error('No valid JSON found in Gemini response');
-    }
-
-    const analysis = JSON.parse(jsonMatch[0]);
-    console.log("Voice analysis complete");
-
     // Add word timing data to the analysis
     const enrichedAnalysis = {
-      ...analysis,
+      transcript,
       wordTimings: words.map(word => ({
         word: word.word,
         start: word.start,
         end: word.end,
         confidence: word.confidence
-      }))
+      })),
+      sentiment,
+      paragraphs
     };
+
+    console.log("Voice analysis complete");
 
     return new Response(
       JSON.stringify(enrichedAnalysis),
