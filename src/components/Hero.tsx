@@ -90,7 +90,7 @@ export const Hero = () => {
           </div>
 
           <p className="mt-4 text-sm text-gray-400">
-            This app was made by actors, for actors • Cancel anytime
+            Made by actors, for actors • Cancel anytime
           </p>
         </motion.div>
       </div>
