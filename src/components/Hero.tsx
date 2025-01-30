@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { SparklesCore } from "./ui/sparkles";
 import { useTranslation } from "react-i18next";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const Hero = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
 
   const handleGetStarted = () => {
     navigate('/signup');
@@ -16,8 +18,8 @@ export const Hero = () => {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-theater-purple via-black to-theater-red">
       <div className="absolute inset-0 w-full h-full bg-black/50" />
       
-      {/* Logo */}
-      <div className="absolute top-4 left-4 z-20">
+      {/* Logo - positioned differently for mobile/desktop */}
+      <div className={`absolute z-20 ${isMobile ? 'top-12 left-1/2 -translate-x-1/2' : 'top-4 left-4'}`}>
         <img 
           src="/AI Acting Coach Logo-nobackground.png" 
           alt="AI Acting Coach Logo" 
@@ -75,13 +77,16 @@ export const Hero = () => {
               </Button>
             </div>
 
-            <Button
-              onClick={handleGetStarted}
-              variant="link"
-              className="text-[#6B1525] hover:text-theater-gold text-lg font-medium"
-            >
-              Start the Trial
-            </Button>
+            {/* "Start the Trial" button - hidden on mobile */}
+            {!isMobile && (
+              <Button
+                onClick={handleGetStarted}
+                variant="link"
+                className="text-[#6B1525] hover:text-theater-gold text-lg font-medium"
+              >
+                Start the Trial
+              </Button>
+            )}
           </div>
 
           <p className="mt-6 text-sm text-gray-400">
