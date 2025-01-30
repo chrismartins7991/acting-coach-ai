@@ -2,7 +2,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface PerformanceAnalysisProps {
   analysis: Analysis | null;
@@ -64,16 +63,16 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
     return name.replace(/([A-Z])/g, ' $1').trim();
   };
 
+  // Get the selected coach from methodologicalAnalysis
+  const selectedCoach = analysis?.methodologicalAnalysis?.methodologies 
+    ? Object.keys(analysis.methodologicalAnalysis.methodologies)[0]
+    : null;
+
   const combinedScore = analysis && voiceAnalysis 
     ? Math.round((analysis.overallScore + voiceAnalysis.overallScore) / 2)
     : analysis?.overallScore || voiceAnalysis?.overallScore || 0;
 
   console.log("Rendering analysis with score:", combinedScore);
-
-  // Get the selected coach from methodologicalAnalysis
-  const selectedCoach = analysis?.methodologicalAnalysis?.methodologies 
-    ? Object.keys(analysis.methodologicalAnalysis.methodologies)[0]
-    : null;
 
   return (
     <div className="space-y-6">
@@ -119,19 +118,21 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
         </Card>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {analysis?.categories && Object.entries(analysis.categories).map(([category, data]) => (
-          <Card key={category} className="bg-black/30 backdrop-blur-sm border-white/10">
-            <CardHeader>
-              <CardTitle className="text-white">{formatCategoryName(category)}</CardTitle>
-              <Progress value={data.score} className="mt-2" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-white/60">{data.feedback}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {analysis?.categories && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {Object.entries(analysis.categories).map(([category, data]) => (
+            <Card key={category} className="bg-black/30 backdrop-blur-sm border-white/10">
+              <CardHeader>
+                <CardTitle className="text-white">{formatCategoryName(category)}</CardTitle>
+                <Progress value={data.score} className="mt-2" />
+              </CardHeader>
+              <CardContent>
+                <p className="text-white/60">{data.feedback}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {voiceAnalysis?.categories && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
