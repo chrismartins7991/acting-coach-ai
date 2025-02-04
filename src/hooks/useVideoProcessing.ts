@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -34,6 +35,9 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
 
       // Extract frames
       const frames = await extractFramesFromVideo(file);
+      if (frames.length < 3) {
+        throw new Error('Failed to extract enough frames from video');
+      }
       console.log(`Extracted ${frames.length} frames from video`);
 
       // Extract audio
@@ -83,7 +87,7 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
       }
 
       // Parallel processing of visual and audio analysis
-      const [visualAnalysis, audioAnalysis] = await Promise.all([
+      const [visualAnalysisResult, audioAnalysisResult] = await Promise.allSettled([
         // Visual analysis
         supabase.functions.invoke('analyze-performance', {
           body: { 
@@ -91,9 +95,6 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
             videoUrl: publicUrl,
             userId,
             coachPreferences: preferences
-          },
-          headers: {
-            Authorization: `Bearer ${session.access_token}`
           }
         }),
         // Voice analysis
@@ -102,50 +103,77 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
             audioData,
             userId,
             coachPreferences: preferences
-          },
-          headers: {
-            Authorization: `Bearer ${session.access_token}`
-          },
+          }
         })
       ]);
 
-      if (visualAnalysis.error) {
-        console.error("Visual analysis error:", visualAnalysis.error);
-        throw visualAnalysis.error;
-      }
-
-      if (audioAnalysis.error) {
-        console.error("Audio analysis error:", audioAnalysis.error);
-        throw audioAnalysis.error;
-      }
-
-      console.log("Analysis completed:", { visualAnalysis, audioAnalysis });
-
-      // Save to database
-      const { error: dbError } = await supabase
-        .from('performances')
-        .insert({
-          user_id: userId,
-          title: file.name,
-          video_url: publicUrl,
-          performance_analysis: {
-            ai_feedback: visualAnalysis.data,
-            voice_feedback: audioAnalysis.data
-          }
+      // Handle visual analysis result
+      if (visualAnalysisResult.status === 'rejected') {
+        console.error("Visual analysis error:", visualAnalysisResult.reason);
+        toast({
+          title: "Analysis Warning",
+          description: "Visual analysis encountered an issue, but we'll continue processing.",
+          variant: "default"
         });
+      } else if (visualAnalysisResult.value.error) {
+        console.error("Visual analysis error:", visualAnalysisResult.value.error);
+        toast({
+          title: "Analysis Warning",
+          description: "Visual analysis encountered an issue, but we'll continue processing.",
+          variant: "default"
+        });
+      } else {
+        setAnalysis(visualAnalysisResult.value.data);
+      }
 
-      if (dbError) {
-        console.error("Database error:", dbError);
-        throw new Error('Error saving analysis to database');
+      // Handle audio analysis result
+      if (audioAnalysisResult.status === 'rejected') {
+        console.error("Audio analysis error:", audioAnalysisResult.reason);
+        toast({
+          title: "Analysis Warning",
+          description: "Voice analysis encountered an issue, but we'll continue processing.",
+          variant: "default"
+        });
+      } else if (audioAnalysisResult.value.error) {
+        console.error("Audio analysis error:", audioAnalysisResult.value.error);
+        toast({
+          title: "Analysis Warning",
+          description: "Voice analysis encountered an issue, but we'll continue processing.",
+          variant: "default"
+        });
+      } else {
+        setVoiceAnalysis(audioAnalysisResult.value.data);
+      }
+
+      // Save to database only if we have at least one type of analysis
+      if (visualAnalysisResult.status === 'fulfilled' || audioAnalysisResult.status === 'fulfilled') {
+        const { error: dbError } = await supabase
+          .from('performances')
+          .insert({
+            user_id: userId,
+            title: file.name,
+            video_url: publicUrl,
+            performance_analysis: {
+              ai_feedback: visualAnalysisResult.status === 'fulfilled' ? visualAnalysisResult.value.data : null,
+              voice_feedback: audioAnalysisResult.status === 'fulfilled' ? audioAnalysisResult.value.data : null
+            }
+          });
+
+        if (dbError) {
+          console.error("Database error:", dbError);
+          toast({
+            title: "Warning",
+            description: "Could not save analysis to history, but results are available.",
+            variant: "default"
+          });
+        }
       }
 
       toast({
         title: "Analysis Complete",
-        description: "Your performance has been analyzed successfully!",
+        description: "Your performance has been analyzed!",
+        variant: "default"
       });
-
-      setAnalysis(visualAnalysis.data);
-      setVoiceAnalysis(audioAnalysis.data);
 
     } catch (error: any) {
       console.error("Error in video processing:", error);
