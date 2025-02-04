@@ -39,11 +39,11 @@ export default function SignupPage() {
 
       toast({
         title: "Account created successfully!",
-        description: "Please select your preferred acting coach.",
+        description: "Please select your preferred acting coach to continue.",
       });
       
-      // Redirect to the onboarding page after successful signup
-      navigate("/dashboard/onboarding");
+      // Redirect to the debug page which contains the onboarding flow
+      navigate("/debug");
     } catch (error: any) {
       console.error("Sign up error:", error);
       setError("An unexpected error occurred. Please try again.");
