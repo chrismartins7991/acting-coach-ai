@@ -22,20 +22,18 @@ export default function SignupPage() {
     setError(null);
     
     try {
-      console.log("Attempting to sign up with email:", email);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            email: email,
+          }
+        }
       });
 
-      console.log("Sign up response:", { data, error });
-
       if (error) {
-        if (error.message.includes("already registered")) {
-          setError("This email is already registered. Please sign in instead.");
-        } else {
-          setError(error.message);
-        }
+        setError(error.message);
         return;
       }
 
@@ -44,7 +42,6 @@ export default function SignupPage() {
         description: "Your account has been created. Please sign in.",
       });
       
-      // Redirect to login page
       navigate("/login");
     } catch (error: any) {
       console.error("Sign up error:", error);
