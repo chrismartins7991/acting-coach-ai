@@ -92,13 +92,18 @@ export const PaymentWall = ({ onComplete }: PaymentWallProps) => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {plans.map((plan) => (
-              <Card key={plan.id} className="bg-black/50 border-theater-gold/50 hover:border-theater-gold transition-all">
+              <Card key={plan.id} className={`bg-black/50 border-theater-gold/50 hover:border-theater-gold transition-all ${
+                plan.name === 'Actor Monthly' ? 'border-theater-gold shadow-lg shadow-theater-gold/20' : ''
+              }`}>
                 <CardHeader>
                   <CardTitle className="text-white">{plan.name}</CardTitle>
                   <CardDescription className="text-gray-300">
-                    €{plan.price.toFixed(2)}
-                    {plan.stripe_price_id === 'price_1QomppGW0eRF7KXG97pARyLc' && (
-                      <span className="block text-theater-gold">Trial Offer!</span>
+                    €{plan.price.toFixed(2)}/month
+                    {plan.name === 'Actor Monthly' && (
+                      <div className="mt-1">
+                        <span className="line-through text-gray-400">€12.90</span>
+                        <span className="ml-2 text-theater-gold">40% OFF!</span>
+                      </div>
                     )}
                   </CardDescription>
                 </CardHeader>
@@ -107,7 +112,11 @@ export const PaymentWall = ({ onComplete }: PaymentWallProps) => {
                   <Button
                     onClick={() => handleSubscribe(plan.stripe_price_id)}
                     disabled={loading}
-                    className="w-full bg-theater-gold hover:bg-theater-gold/80 text-black"
+                    className={`w-full ${
+                      plan.name === 'Actor Monthly'
+                        ? 'bg-theater-gold hover:bg-theater-gold/80 text-black'
+                        : 'bg-white/10 hover:bg-white/20 text-white'
+                    }`}
                   >
                     {loading ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
