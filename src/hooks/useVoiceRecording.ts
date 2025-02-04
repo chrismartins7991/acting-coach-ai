@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useVoiceRecording = (onMessageProcessed: (text: string) => Promise<void>) => {
   const [isRecording, setIsRecording] = useState(false);

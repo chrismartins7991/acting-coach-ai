@@ -1,8 +1,9 @@
+```typescript
 import { Link } from "react-router-dom";
 import { Menu, LogOut } from "lucide-react";
 import { menuItems } from "./menuItems";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,3 +66,4 @@ export const MobileMenu = () => {
     </DropdownMenu>
   );
 };
+```

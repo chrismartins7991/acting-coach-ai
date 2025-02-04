@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Menu, LogOut, Settings2 } from "lucide-react";
 import { menuItems } from "./menuItems";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
 export const DesktopMenu = () => {

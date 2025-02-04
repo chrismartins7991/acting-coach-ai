@@ -1,3 +1,4 @@
+```typescript
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import {
@@ -12,7 +13,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import VideoUploader from "@/components/VideoUploader";
@@ -324,3 +325,4 @@ const DebugPage = () => {
 };
 
 export default DebugPage;
+```

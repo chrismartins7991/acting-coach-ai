@@ -1,5 +1,6 @@
+```typescript
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
@@ -68,3 +69,4 @@ export const ChatHistory = ({ onSelectConversation, currentConversationId }: Cha
     </ScrollArea>
   );
 };
+```

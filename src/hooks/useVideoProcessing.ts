@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import { extractFramesFromVideo } from '@/utils/videoAnalysis/frameExtractor';
@@ -105,7 +105,7 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
           },
           headers: {
             Authorization: `Bearer ${session.access_token}`
-          }
+          },
         })
       ]);
 
