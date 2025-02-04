@@ -21,6 +21,16 @@ interface Performance {
   voice_feedback: VoiceAnalysis;
 }
 
+interface PerformanceData {
+  id: string;
+  title: string;
+  created_at: string;
+  performance_analysis: Array<{
+    ai_feedback: any;
+    voice_feedback: any;
+  }>;
+}
+
 const History = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -47,13 +57,13 @@ const History = () => {
         if (error) throw error;
 
         // Transform the data to match the Performance interface
-        const transformedData: Performance[] = (data || []).map(perf => ({
+        const transformedData: Performance[] = (data as PerformanceData[]).map(perf => ({
           id: perf.id,
           title: perf.title,
           created_at: perf.created_at,
           ai_feedback: perf.performance_analysis?.[0]?.ai_feedback as Analysis,
           voice_feedback: perf.performance_analysis?.[0]?.voice_feedback as VoiceAnalysis
-        }));
+        })).filter(perf => perf.ai_feedback && perf.voice_feedback); // Filter out performances without analysis
 
         setPerformances(transformedData);
       } catch (error: any) {
