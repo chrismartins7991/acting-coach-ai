@@ -1,4 +1,4 @@
-```typescript
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -43,9 +43,7 @@ export const useVideoUpload = () => {
 
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
-        .getPublicUrl(filePath, {
-          download: false,
-        });
+        .getPublicUrl(filePath);
 
       return { publicUrl, filePath };
     } catch (error) {
@@ -57,7 +55,6 @@ export const useVideoUpload = () => {
   return {
     uploadVideoToStorage,
     uploadProgress,
-    setUploadProgress,
+    setUploadProgress
   };
 };
-```

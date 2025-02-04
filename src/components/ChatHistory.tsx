@@ -1,4 +1,4 @@
-```typescript
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
@@ -69,4 +69,3 @@ export const ChatHistory = ({ onSelectConversation, currentConversationId }: Cha
     </ScrollArea>
   );
 };
-```
