@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,6 +13,7 @@ interface PerformanceAnalysisProps {
 export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: PerformanceAnalysisProps) => {
   console.log("PerformanceAnalysis received:", { analysis, voiceAnalysis, isLoading });
 
+  // Define the mapping of coach avatars
   const methodologyPortraits = {
     strasberg: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/strasberg-portrait.jpg",
     chekhov: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/chekhov-portrait.jpg",
