@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import {
@@ -325,4 +324,3 @@ const DebugPage = () => {
 };
 
 export default DebugPage;
-```
