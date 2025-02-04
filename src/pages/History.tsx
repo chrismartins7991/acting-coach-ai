@@ -32,21 +32,30 @@ const History = () => {
     const fetchPerformances = async () => {
       try {
         const { data, error } = await supabase
-          .from("performances")
+          .from('performances')
           .select(`
             id,
             title,
             created_at,
-            ai_feedback,
-            voice_feedback
+            performance_analysis (
+              ai_feedback,
+              voice_feedback
+            )
           `)
           .order("created_at", { ascending: false });
 
         if (error) throw error;
 
-        // Type assertion to ensure data matches Performance interface
-        const typedData = (data || []) as Performance[];
-        setPerformances(typedData);
+        // Transform the data to match the Performance interface
+        const transformedData: Performance[] = (data || []).map(perf => ({
+          id: perf.id,
+          title: perf.title,
+          created_at: perf.created_at,
+          ai_feedback: perf.performance_analysis?.[0]?.ai_feedback as Analysis,
+          voice_feedback: perf.performance_analysis?.[0]?.voice_feedback as VoiceAnalysis
+        }));
+
+        setPerformances(transformedData);
       } catch (error: any) {
         console.error("Error fetching performances:", error);
         toast({

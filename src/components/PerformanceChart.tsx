@@ -35,8 +35,7 @@ export const PerformanceChart = () => {
         console.log("Fetching performance data...");
         const { data: performanceData, error: performanceError } = await supabase
           .from('performance_analysis')
-          .select<'performance_analysis', PerformanceAnalysis>('created_at, overall_score')
-          .eq('user_id', user.id)
+          .select('created_at, overall_score')
           .order('created_at', { ascending: true });
 
         if (performanceError) {
@@ -50,8 +49,8 @@ export const PerformanceChart = () => {
         }
 
         const formattedData = (performanceData || [])
-          .filter(p => p.overall_score !== null)
-          .map(p => ({
+          .filter((p: any) => p.overall_score !== null)
+          .map((p: any) => ({
             date: format(new Date(p.created_at), 'MMM d'),
             score: p.overall_score
           }));
