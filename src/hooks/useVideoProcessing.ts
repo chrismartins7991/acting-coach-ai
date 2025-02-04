@@ -120,8 +120,6 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
       }
 
       console.log("Analysis completed:", { visualAnalysis, audioAnalysis });
-      setAnalysis(visualAnalysis.data);
-      setVoiceAnalysis(audioAnalysis.data);
 
       // Save to database
       const { error: dbError } = await supabase
@@ -130,8 +128,10 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
           user_id: userId,
           title: file.name,
           video_url: publicUrl,
-          ai_feedback: visualAnalysis.data,
-          voice_feedback: audioAnalysis.data
+          performance_analysis: {
+            ai_feedback: visualAnalysis.data,
+            voice_feedback: audioAnalysis.data
+          }
         });
 
       if (dbError) {
@@ -143,6 +143,9 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
         title: "Analysis Complete",
         description: "Your performance has been analyzed successfully!",
       });
+
+      setAnalysis(visualAnalysis.data);
+      setVoiceAnalysis(audioAnalysis.data);
 
     } catch (error: any) {
       console.error("Error in video processing:", error);

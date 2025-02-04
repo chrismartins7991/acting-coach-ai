@@ -105,6 +105,7 @@ export type Database = {
           created_at: string
           id: string
           is_trial: boolean | null
+          performance_analysis: Json | null
           status: Database["public"]["Enums"]["performance_status"]
           title: string
           user_id: string
@@ -114,6 +115,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_trial?: boolean | null
+          performance_analysis?: Json | null
           status?: Database["public"]["Enums"]["performance_status"]
           title: string
           user_id: string
@@ -123,6 +125,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_trial?: boolean | null
+          performance_analysis?: Json | null
           status?: Database["public"]["Enums"]["performance_status"]
           title?: string
           user_id?: string

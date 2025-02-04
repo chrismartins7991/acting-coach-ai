@@ -8,7 +8,11 @@ import { PaymentWall } from "./PaymentWall";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useState } from "react";
 
-const VideoUploader = () => {
+interface VideoUploaderProps {
+  onAnalysisComplete?: () => void;
+}
+
+const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
   const { user } = useAuth();
   const { canUploadPerformance } = useSubscription();
   const [showPaymentWall, setShowPaymentWall] = useState(false);
@@ -30,7 +34,12 @@ const VideoUploader = () => {
       return;
     }
 
-    await processVideo(file);
+    try {
+      await processVideo(file);
+      onAnalysisComplete?.();
+    } catch (error) {
+      console.error("Error processing video:", error);
+    }
   };
 
   return (

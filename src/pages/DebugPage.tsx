@@ -1,4 +1,4 @@
-
+```tsx
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import {
@@ -17,6 +17,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import VideoUploader from "@/components/VideoUploader";
+import { useSubscription } from "@/hooks/useSubscription";
+import { PaymentWall } from "@/components/PaymentWall";
 
 const coaches = [
   {
@@ -59,12 +61,13 @@ const coaches = [
 const DebugPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const { canUploadPerformance } = useSubscription();
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
   const [centerIndex, setCenterIndex] = useState(0);
   const [api, setApi] = useState<CarouselApi>();
   const [showPreferences, setShowPreferences] = useState(false);
   const [showUploader, setShowUploader] = useState(false);
+  const [showPaymentWall, setShowPaymentWall] = useState(false);
   const [preferences, setPreferences] = useState({
     emotionInVoice: false,
     voiceExpressiveness: false,
@@ -113,6 +116,8 @@ const DebugPage = () => {
 
     fetchPreferences();
   }, [user]);
+
+  const navigate = useNavigate();
 
   const handleSelect = async () => {
     if (!user) {
@@ -178,6 +183,12 @@ const DebugPage = () => {
   const handleModifySettings = () => {
     setShowUploader(false);
     setShowPreferences(false);
+  };
+
+  const handleVideoAnalysisComplete = () => {
+    if (!canUploadPerformance()) {
+      setShowPaymentWall(true);
+    }
   };
 
   return (
@@ -321,7 +332,11 @@ const DebugPage = () => {
                 Modify Coach & Preferences
               </Button>
             </div>
-            <VideoUploader />
+            {showPaymentWall ? (
+              <PaymentWall onComplete={() => setShowPaymentWall(false)} />
+            ) : (
+              <VideoUploader onAnalysisComplete={handleVideoAnalysisComplete} />
+            )}
           </div>
         )}
       </div>
@@ -330,3 +345,4 @@ const DebugPage = () => {
 };
 
 export default DebugPage;
+```
