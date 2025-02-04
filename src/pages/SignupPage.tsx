@@ -26,9 +26,6 @@ export default function SignupPage() {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`
-        }
       });
 
       console.log("Sign up response:", { data, error });
@@ -44,10 +41,10 @@ export default function SignupPage() {
 
       toast({
         title: "Account created successfully!",
-        description: "Please check your email to verify your account.",
+        description: "Your account has been created. Please sign in.",
       });
       
-      // Redirect to login page instead of auto-signing in
+      // Redirect to login page
       navigate("/login");
     } catch (error: any) {
       console.error("Sign up error:", error);
