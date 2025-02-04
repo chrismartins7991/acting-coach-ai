@@ -33,6 +33,17 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
       setProcessingStep('Extracting frames and audio...');
       console.log("Starting video processing...");
 
+      // Get user's coach preferences
+      const { data: preferences, error: preferencesError } = await supabase
+        .from('user_coach_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (preferencesError) {
+        throw new Error('Error fetching user preferences: ' + preferencesError.message);
+      }
+
       // Extract frames
       const frames = await extractFramesFromVideo(file);
       if (frames.length < 3) {
@@ -66,35 +77,27 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
         .from('videos')
         .getPublicUrl(filePath);
 
-      // Get user's coach preferences
-      const { data: preferences, error: preferencesError } = await supabase
-        .from('user_coach_preferences')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-
-      if (preferencesError) {
-        throw new Error('Error fetching user preferences: ' + preferencesError.message);
-      }
-
       setProcessingStep('Analyzing performance...');
       console.log("Starting performance and voice analysis...");
 
-      // Get session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('No active session found');
-      }
-
       // Parallel processing of visual and audio analysis
       const [visualAnalysisResult, audioAnalysisResult] = await Promise.allSettled([
-        // Visual analysis
+        // Visual analysis with preferences
         supabase.functions.invoke('analyze-performance', {
           body: { 
             frames: frames.map(frame => frame.frameData),
             videoUrl: publicUrl,
             userId,
-            coachPreferences: preferences
+            coachPreferences: {
+              selectedCoach: preferences.selected_coach,
+              focusAreas: {
+                emotionInVoice: preferences.emotion_in_voice,
+                voiceExpressiveness: preferences.voice_expressiveness,
+                physicalPresence: preferences.physical_presence,
+                faceExpressions: preferences.face_expressions,
+                clearnessOfDiction: preferences.clearness_of_diction,
+              }
+            }
           }
         }),
         // Voice analysis
@@ -153,6 +156,7 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
             user_id: userId,
             title: file.name,
             video_url: publicUrl,
+            selected_coach: preferences.selected_coach,
             performance_analysis: {
               ai_feedback: visualAnalysisResult.status === 'fulfilled' ? visualAnalysisResult.value.data : null,
               voice_feedback: audioAnalysisResult.status === 'fulfilled' ? audioAnalysisResult.value.data : null
@@ -199,3 +203,4 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
     voiceAnalysis,
   };
 };
+

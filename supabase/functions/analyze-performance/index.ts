@@ -8,36 +8,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const methodSpecificExercises = {
-  strasberg: [
-    "Sensory Memory Exercise: Recall a specific emotional memory and recreate the physical sensations",
-    "Animal Exercise: Embody an animal's movements to explore physical expression",
-    "Private Moment Exercise: Practice being completely uninhibited in private",
-  ],
-  stanislavski: [
-    "Given Circumstances: Write detailed backstory for your character",
-    "Magic If Exercise: Ask yourself 'What if I were in this situation?'",
-    "Physical Action Exercise: Break down your scene into specific actions",
-  ],
-  meisner: [
-    "Repetition Exercise: Practice the famous repetition technique with a partner",
-    "Independent Activity: Perform a challenging task while delivering lines",
-    "Emotional Preparation: Use personal experiences to prepare for scenes",
-  ],
-  chekhov: [
-    "Psychological Gesture: Create a gesture that embodies your character's core desire",
-    "Atmosphere Exercise: Practice being affected by different imaginary atmospheres",
-    "Imaginary Body Exercise: Transform your physicality to match your character",
-  ],
-  brecht: [
-    "Gestus Exercise: Develop social gestures that reveal class and status",
-    "Alienation Exercise: Practice stepping out of character to comment on actions",
-    "Contradiction Exercise: Show opposing elements in your character",
-  ]
-};
-
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -48,7 +19,8 @@ serve(async (req) => {
       hasVideoUrl: !!requestData.videoUrl,
       hasFrames: !!requestData.frames,
       framesCount: requestData.frames?.length,
-      hasCoachPreferences: !!requestData.coachPreferences
+      hasCoachPreferences: !!requestData.coachPreferences,
+      coachPreferences: requestData.coachPreferences
     });
 
     if (!requestData.frames || !Array.isArray(requestData.frames)) {
@@ -66,28 +38,29 @@ serve(async (req) => {
 
     console.log("Analyzing frames with Gemini Vision...");
     
-    // Take a smaller sample of frames for analysis (e.g., beginning, middle, and end)
+    // Take a smaller sample of frames for analysis
     const frameIndices = [0, Math.floor(requestData.frames.length / 2), requestData.frames.length - 1];
     const selectedFrames = frameIndices.map(i => requestData.frames[i]);
     
-    // Analyze frames in parallel with coach-specific context
+    // Analyze frames in parallel
     const framePromises = selectedFrames.map(async (frame: string, index: number) => {
       const position = ['beginning', 'middle', 'end'][index];
       console.log(`Analyzing frame at ${position}...`);
       
-      try {
-        const prompt = `You are an acting coach analyzing a frame from the ${position} of an acting performance.
-        Focus on these visual aspects:
-        ${preferences.physical_presence ? '- Physical presence and body language' : ''}
-        ${preferences.face_expressions ? '- Facial expressions and emotional conveyance' : ''}
-        
-        Evaluate the performance and return a JSON object in this format:
-        {
-          "emotionalRange": { "score": <number 0-100>, "feedback": "<specific feedback>" },
-          "physicalPresence": { "score": <number 0-100>, "feedback": "<specific feedback>" },
-          "characterEmbodiment": { "score": <number 0-100>, "feedback": "<specific feedback>" }
-        }`;
+      const prompt = `You are an acting coach using the ${preferences.selectedCoach} method analyzing a frame from a performance.
+      Focus on these aspects:
+      - Physical presence and body language
+      - Facial expressions and emotional conveyance
+      - Character embodiment and methodology alignment
+      
+      Return a strict JSON object with this format:
+      {
+        "emotionalRange": { "score": <number 0-100>, "feedback": "<specific feedback>" },
+        "physicalPresence": { "score": <number 0-100>, "feedback": "<specific feedback>" },
+        "characterEmbodiment": { "score": <number 0-100>, "feedback": "<specific feedback>" }
+      }`;
 
+      try {
         const base64Data = frame.includes('base64,') ? frame.split('base64,')[1] : frame;
 
         const result = await model.generateContent([
@@ -111,17 +84,45 @@ serve(async (req) => {
         return JSON.parse(jsonMatch[0]);
       } catch (error) {
         console.error(`Error analyzing frame ${index}:`, error);
-        // Return default scores if analysis fails
         return {
-          emotionalRange: { score: 70, feedback: "Unable to analyze emotional range in this frame." },
-          physicalPresence: { score: 70, feedback: "Unable to analyze physical presence in this frame." },
-          characterEmbodiment: { score: 70, feedback: "Unable to analyze character embodiment in this frame." }
+          emotionalRange: { score: 70, feedback: `Unable to analyze emotional range in frame ${position}.` },
+          physicalPresence: { score: 70, feedback: `Unable to analyze physical presence in frame ${position}.` },
+          characterEmbodiment: { score: 70, feedback: `Unable to analyze character embodiment in frame ${position}.` }
         };
       }
     });
 
     const frameAnalyses = await Promise.all(framePromises);
     console.log("Frame analyses completed:", frameAnalyses);
+
+    // Coach-specific exercises based on method
+    const methodSpecificExercises = {
+      strasberg: [
+        "Sensory Memory Exercise: Recall a specific emotional memory",
+        "Animal Exercise: Embody an animal's movements",
+        "Private Moment Exercise: Practice being uninhibited"
+      ],
+      stanislavski: [
+        "Given Circumstances: Write detailed backstory",
+        "Magic If Exercise: Explore character motivation",
+        "Physical Action Exercise: Break down scene actions"
+      ],
+      meisner: [
+        "Repetition Exercise: Practice with a partner",
+        "Independent Activity: Perform while delivering lines",
+        "Emotional Preparation: Use personal experiences"
+      ],
+      chekhov: [
+        "Psychological Gesture: Create character's core gesture",
+        "Atmosphere Exercise: Work with imaginary atmospheres",
+        "Imaginary Body Exercise: Transform physicality"
+      ],
+      brecht: [
+        "Gestus Exercise: Develop social gestures",
+        "Alienation Exercise: Step out of character",
+        "Contradiction Exercise: Show opposing elements"
+      ]
+    };
 
     // Aggregate analyses
     const aggregatedAnalysis = {
@@ -158,13 +159,8 @@ serve(async (req) => {
       methodologicalAnalysis: {
         methodologies: {
           [preferences.selectedCoach.toLowerCase()]: {
-            analysis: `Analysis based on ${preferences.selectedCoach}'s methodology.`,
+            analysis: `Analysis based on ${preferences.selectedCoach}'s methodology, focusing on emotional authenticity and physical presence.`,
             exercises: methodSpecificExercises[preferences.selectedCoach.toLowerCase()] || [],
-            recommendations: [
-              `Focus on ${frameAnalyses[1]?.emotionalRange.score < 80 ? 'improving emotional range' : 'maintaining strong emotional presence'}`,
-              `Work on ${frameAnalyses[1]?.physicalPresence.score < 80 ? 'enhancing physical presence' : 'continuing excellent stage presence'}`,
-              `Consider ${frameAnalyses[1]?.characterEmbodiment.score < 80 ? 'deepening character embodiment' : 'sharing your character development techniques'}`
-            ]
           }
         },
         synthesis: `Performance analyzed through ${preferences.selectedCoach}'s methodology, focusing on emotional authenticity and physical presence.`,
@@ -173,10 +169,15 @@ serve(async (req) => {
           `Work on ${frameAnalyses[1]?.physicalPresence.score < 80 ? 'physical presence' : 'advanced movement techniques'}`,
           `Develop ${frameAnalyses[1]?.characterEmbodiment.score < 80 ? 'character work' : 'character subtleties'}`
         ]
-      }
+      },
+      recommendations: [
+        `Focus on ${frameAnalyses[1]?.emotionalRange.score < 80 ? 'emotional depth' : 'maintaining emotional authenticity'}`,
+        `Work on ${frameAnalyses[1]?.physicalPresence.score < 80 ? 'physical presence' : 'advanced movement techniques'}`,
+        `Develop ${frameAnalyses[1]?.characterEmbodiment.score < 80 ? 'character work' : 'character subtleties'}`
+      ]
     };
 
-    console.log("Sending analysis response");
+    console.log("Sending aggregated analysis:", aggregatedAnalysis);
 
     return new Response(
       JSON.stringify(aggregatedAnalysis),
@@ -206,3 +207,4 @@ serve(async (req) => {
     );
   }
 });
+
