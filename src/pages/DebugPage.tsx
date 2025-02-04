@@ -146,7 +146,7 @@ const DebugPage = () => {
         .from('user_coach_preferences')
         .upsert({
           user_id: user.id,
-          selected_coach: selectedCoach,
+          selected_coach: selectedCoach as "stanislavski" | "strasberg" | "brecht" | "chekhov" | "meisner",
           emotion_in_voice: preferences.emotionInVoice,
           voice_expressiveness: preferences.voiceExpressiveness,
           physical_presence: preferences.physicalPresence,

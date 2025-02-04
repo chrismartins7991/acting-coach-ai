@@ -1,4 +1,3 @@
-```typescript
 import { Link } from "react-router-dom";
 import { Menu, LogOut } from "lucide-react";
 import { menuItems } from "./menuItems";
@@ -66,4 +65,3 @@ export const MobileMenu = () => {
     </DropdownMenu>
   );
 };
-```

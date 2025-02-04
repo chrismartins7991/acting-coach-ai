@@ -1,4 +1,3 @@
-```typescript
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -136,4 +135,3 @@ const History = () => {
 };
 
 export default History;
-```

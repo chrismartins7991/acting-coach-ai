@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -28,8 +29,8 @@ export const PerformanceChart = () => {
       try {
         console.log("Fetching performance data...");
         const { data: performanceData, error: performanceError } = await supabase
-          .from('performances')
-          .select('created_at, ai_feedback')
+          .from('performance_analysis')
+          .select('created_at, overall_score, ai_feedback')
           .eq('user_id', user.id)
           .order('created_at', { ascending: true });
 
@@ -44,24 +45,24 @@ export const PerformanceChart = () => {
         }
 
         const formattedData = performanceData
-          .filter(p => p.ai_feedback && p.ai_feedback.overallScore)
+          ?.filter(p => p.overall_score !== null)
           .map(p => ({
             date: format(new Date(p.created_at), 'MMM d'),
-            score: p.ai_feedback.overallScore
-          }));
+            score: p.overall_score
+          })) || [];
 
         setPerformances(formattedData);
         console.log("Performance data:", formattedData);
 
-        // Fetch total points using maybeSingle()
-        const { data: pointsData, error: pointsError } = await supabase
-          .from('user_points')
-          .select('total_points')
+        // Fetch total points from user_usage
+        const { data: usageData, error: usageError } = await supabase
+          .from('user_usage')
+          .select('performance_count')
           .eq('user_id', user.id)
-          .maybeSingle();
+          .single();
 
-        if (pointsError) {
-          console.error("Error fetching points:", pointsError);
+        if (usageError) {
+          console.error("Error fetching usage:", usageError);
           toast({
             title: "Error",
             description: "Failed to load points data",
@@ -70,8 +71,8 @@ export const PerformanceChart = () => {
           return;
         }
 
-        setTotalPoints(pointsData?.total_points || 0);
-        console.log("Total points:", pointsData?.total_points || 0);
+        setTotalPoints(usageData?.performance_count || 0);
+        console.log("Performance count:", usageData?.performance_count || 0);
       } catch (error) {
         console.error("Unexpected error:", error);
         toast({
