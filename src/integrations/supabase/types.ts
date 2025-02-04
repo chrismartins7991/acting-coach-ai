@@ -9,7 +9,179 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      performance_analysis: {
+        Row: {
+          ai_feedback: Json | null
+          created_at: string
+          id: string
+          overall_score: number | null
+          performance_id: string
+          voice_feedback: Json | null
+        }
+        Insert: {
+          ai_feedback?: Json | null
+          created_at?: string
+          id?: string
+          overall_score?: number | null
+          performance_id: string
+          voice_feedback?: Json | null
+        }
+        Update: {
+          ai_feedback?: Json | null
+          created_at?: string
+          id?: string
+          overall_score?: number | null
+          performance_id?: string
+          voice_feedback?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_analysis_performance_id_fkey"
+            columns: ["performance_id"]
+            isOneToOne: false
+            referencedRelation: "performances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      performances: {
+        Row: {
+          created_at: string
+          id: string
+          is_trial: boolean | null
+          status: Database["public"]["Enums"]["performance_status"]
+          title: string
+          user_id: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_trial?: boolean | null
+          status?: Database["public"]["Enums"]["performance_status"]
+          title: string
+          user_id: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_trial?: boolean | null
+          status?: Database["public"]["Enums"]["performance_status"]
+          title?: string
+          user_id?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_coach_preferences: {
+        Row: {
+          clearness_of_diction: boolean | null
+          created_at: string
+          emotion_in_voice: boolean | null
+          face_expressions: boolean | null
+          id: string
+          physical_presence: boolean | null
+          selected_coach: Database["public"]["Enums"]["coach_type"]
+          updated_at: string
+          user_id: string
+          voice_expressiveness: boolean | null
+        }
+        Insert: {
+          clearness_of_diction?: boolean | null
+          created_at?: string
+          emotion_in_voice?: boolean | null
+          face_expressions?: boolean | null
+          id?: string
+          physical_presence?: boolean | null
+          selected_coach: Database["public"]["Enums"]["coach_type"]
+          updated_at?: string
+          user_id: string
+          voice_expressiveness?: boolean | null
+        }
+        Update: {
+          clearness_of_diction?: boolean | null
+          created_at?: string
+          emotion_in_voice?: boolean | null
+          face_expressions?: boolean | null
+          id?: string
+          physical_presence?: boolean | null
+          selected_coach?: Database["public"]["Enums"]["coach_type"]
+          updated_at?: string
+          user_id?: string
+          voice_expressiveness?: boolean | null
+        }
+        Relationships: []
+      }
+      user_usage: {
+        Row: {
+          created_at: string
+          id: string
+          is_subscribed: boolean | null
+          performance_count: number | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_expiry: string | null
+          subscription_tier:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_subscribed?: boolean | null
+          performance_count?: number | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_expiry?: string | null
+          subscription_tier?:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_subscribed?: boolean | null
+          performance_count?: number | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_expiry?: string | null
+          subscription_tier?:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +190,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      coach_type:
+        | "strasberg"
+        | "stanislavski"
+        | "meisner"
+        | "chekhov"
+        | "brecht"
+      performance_status: "processing" | "completed" | "error"
+      subscription_tier: "free" | "trial" | "pro" | "actor" | "lifetime"
     }
     CompositeTypes: {
       [_ in never]: never
