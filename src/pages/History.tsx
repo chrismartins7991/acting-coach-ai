@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,12 +33,20 @@ const History = () => {
       try {
         const { data, error } = await supabase
           .from("performances")
-          .select("*")
+          .select(`
+            id,
+            title,
+            created_at,
+            ai_feedback,
+            voice_feedback
+          `)
           .order("created_at", { ascending: false });
 
         if (error) throw error;
 
-        setPerformances(data || []);
+        // Type assertion to ensure data matches Performance interface
+        const typedData = (data || []) as Performance[];
+        setPerformances(typedData);
       } catch (error: any) {
         console.error("Error fetching performances:", error);
         toast({
