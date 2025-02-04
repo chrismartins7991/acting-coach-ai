@@ -42,8 +42,8 @@ export default function SignupPage() {
         description: "Please select your preferred acting coach to continue.",
       });
       
-      // Redirect to the debug page which contains the onboarding flow
-      navigate("/debug");
+      // Redirect to the upload page which contains the onboarding flow
+      navigate("/upload");
     } catch (error: any) {
       console.error("Sign up error:", error);
       setError("An unexpected error occurred. Please try again.");
