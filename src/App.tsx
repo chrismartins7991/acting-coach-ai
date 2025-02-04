@@ -1,3 +1,4 @@
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
@@ -6,7 +7,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
 import ChatPage from "./pages/ChatPage";
-import DebugPage from "./pages/DebugPage";
+import UploadPage from "./pages/UploadPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 
@@ -61,10 +62,10 @@ const App = () => {
               }
             />
             <Route
-              path="/debug"
+              path="/upload"
               element={
                 <ProtectedRoute>
-                  <DebugPage />
+                  <UploadPage />
                 </ProtectedRoute>
               }
             />
@@ -77,3 +78,4 @@ const App = () => {
 };
 
 export default App;
+
