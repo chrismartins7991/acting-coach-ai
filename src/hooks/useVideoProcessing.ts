@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import { extractFramesFromVideo } from '@/utils/videoAnalysis/frameExtractor';
 import { extractAudioFromVideo } from '@/utils/videoAnalysis/audioExtractor';
+import { useSubscription } from '@/hooks/useSubscription';
 
 export interface VideoProcessingHook {
   processVideo: (file: File) => Promise<void>;
@@ -13,6 +14,8 @@ export interface VideoProcessingHook {
   uploadProgress: number;
   analysis: Analysis | null;
   voiceAnalysis: VoiceAnalysis | null;
+  shouldShowPaymentWall: boolean;
+  setShouldShowPaymentWall: (show: boolean) => void;
 }
 
 export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
@@ -21,7 +24,9 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [voiceAnalysis, setVoiceAnalysis] = useState<VoiceAnalysis | null>(null);
+  const [shouldShowPaymentWall, setShouldShowPaymentWall] = useState(false);
   const { toast } = useToast();
+  const { subscriptionTier } = useSubscription();
 
   const processVideo = async (file: File) => {
     try {
@@ -76,6 +81,13 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
         .getPublicUrl(filePath);
+
+      // Check subscription tier before proceeding with analysis
+      if (subscriptionTier === 'free') {
+        setShouldShowPaymentWall(true);
+        setIsProcessing(false);
+        return;
+      }
 
       setProcessingStep('Analyzing performance...');
       console.log("Starting performance and voice analysis...");
@@ -201,6 +213,8 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
     uploadProgress,
     analysis,
     voiceAnalysis,
+    shouldShowPaymentWall,
+    setShouldShowPaymentWall
   };
 };
 

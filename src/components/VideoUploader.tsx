@@ -15,7 +15,6 @@ interface VideoUploaderProps {
 const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
   const { user } = useAuth();
   const { canUploadPerformance } = useSubscription();
-  const [showPaymentWall, setShowPaymentWall] = useState(false);
   const {
     processVideo,
     isProcessing,
@@ -23,6 +22,8 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
     uploadProgress,
     analysis,
     voiceAnalysis,
+    shouldShowPaymentWall,
+    setShouldShowPaymentWall
   } = useVideoProcessing(user?.id);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,7 +31,7 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
     if (!file) return;
 
     if (!canUploadPerformance()) {
-      setShowPaymentWall(true);
+      setShouldShowPaymentWall(true);
       return;
     }
 
@@ -74,9 +75,16 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
         </label>
       </div>
 
-      {showPaymentWall && <PaymentWall onComplete={() => setShowPaymentWall(false)} />}
+      {shouldShowPaymentWall && (
+        <PaymentWall onComplete={() => {
+          setShouldShowPaymentWall(false);
+          if (analysis || voiceAnalysis) {
+            onAnalysisComplete?.();
+          }
+        }} />
+      )}
 
-      {(analysis || voiceAnalysis) && (
+      {!shouldShowPaymentWall && (analysis || voiceAnalysis) && (
         <PerformanceAnalysis 
           analysis={analysis} 
           voiceAnalysis={voiceAnalysis}
@@ -88,3 +96,4 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
 };
 
 export default VideoUploader;
+
