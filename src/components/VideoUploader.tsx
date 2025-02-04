@@ -1,11 +1,17 @@
+
 import { Upload } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { UploadProgress } from "./video/UploadProgress";
 import { PerformanceAnalysis } from "./PerformanceAnalysis";
 import { useVideoProcessing } from "@/hooks/useVideoProcessing";
+import { PaymentWall } from "./PaymentWall";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useState } from "react";
 
 const VideoUploader = () => {
   const { user } = useAuth();
+  const { canUploadPerformance } = useSubscription();
+  const [showPaymentWall, setShowPaymentWall] = useState(false);
   const {
     processVideo,
     isProcessing,
@@ -18,6 +24,12 @@ const VideoUploader = () => {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (!canUploadPerformance()) {
+      setShowPaymentWall(true);
+      return;
+    }
+
     await processVideo(file);
   };
 
@@ -52,6 +64,8 @@ const VideoUploader = () => {
           </div>
         </label>
       </div>
+
+      {showPaymentWall && <PaymentWall onComplete={() => setShowPaymentWall(false)} />}
 
       {(analysis || voiceAnalysis) && (
         <PerformanceAnalysis 
