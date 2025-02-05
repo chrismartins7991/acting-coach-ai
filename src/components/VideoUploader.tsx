@@ -1,3 +1,4 @@
+
 import { Upload } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { UploadProgress } from "./video/UploadProgress";
@@ -8,8 +9,6 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { useEffect } from "react";
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useToast } from "./ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { Json } from "@/integrations/supabase/types";
 
 interface VideoUploaderProps {
   onAnalysisComplete?: () => void;
@@ -32,47 +31,12 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
     setShouldShowPaymentWall
   } = useVideoProcessing(user?.id);
 
-  // Store analysis results when available
-  useEffect(() => {
-    const storeResults = async () => {
-      if (user?.id && (analysis || voiceAnalysis)) {
-        try {
-          console.log("Storing analysis results:", { analysis, voiceAnalysis });
-          const { error } = await supabase
-            .from('performance_results')
-            .insert({
-              user_id: user.id,
-              analysis: analysis as unknown as Json,
-              voice_analysis: voiceAnalysis as unknown as Json
-            });
-
-          if (error) {
-            console.error("Error storing results:", error);
-            throw error;
-          }
-
-          console.log("Results stored successfully");
-        } catch (error) {
-          console.error("Error storing results:", error);
-          toast({
-            title: "Error",
-            description: "Failed to save your performance results. Please try again.",
-            variant: "destructive",
-          });
-        }
-      }
-    };
-
-    storeResults();
-  }, [user?.id, analysis, voiceAnalysis, toast]);
-
   // Handle successful payment return
   useEffect(() => {
     const success = searchParams.get('success');
     if (success === 'true') {
       setShouldShowPaymentWall(false);
       
-      // Show success message based on subscription tier
       const tierMessages = {
         pro: "Your Pro subscription has been activated. You now have access to advanced analysis features.",
         annual: "Your Lifetime Access has been activated. You now have unlimited access to all features.",

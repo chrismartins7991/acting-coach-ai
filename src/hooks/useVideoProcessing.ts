@@ -36,7 +36,7 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
 
       setIsProcessing(true);
       setProcessingStep('Fetching user preferences...');
-      console.log("Starting video processing...");
+      console.log("Starting video processing for user:", userId);
 
       // Fetch user's coach preferences
       const { data: preferences, error: preferencesError } = await supabase
@@ -47,32 +47,42 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
 
       if (preferencesError) {
         console.error("Error fetching preferences:", preferencesError);
-        throw new Error('Failed to fetch user preferences. Please complete the onboarding process first.');
+        if (preferencesError.code === 'PGRST116') {
+          throw new Error('Please complete the coach selection process first.');
+        }
+        throw new Error('Failed to fetch user preferences. Please try again.');
       }
 
       if (!preferences) {
         throw new Error('Please complete the coach selection process first.');
       }
 
+      console.log("Retrieved coach preferences:", preferences);
+
       setProcessingStep('Extracting frames and audio...');
+      console.log("Starting frame extraction...");
 
       // Extract frames and audio
       const frames = await extractFramesFromVideo(file);
       if (frames.length < 3) {
-        throw new Error('Failed to extract enough frames from video');
+        throw new Error('Failed to extract enough frames from video. Please try a different video.');
       }
-      console.log(`Extracted ${frames.length} frames from video`);
+      console.log(`Successfully extracted ${frames.length} frames from video`);
 
       // Upload video to storage
       const fileExt = file.name.split('.').pop();
       const filePath = `${userId}/${crypto.randomUUID()}.${fileExt}`;
 
       setProcessingStep('Uploading video...');
+      console.log("Starting video upload...");
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('videos')
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          upsert: false
+        });
 
       if (uploadError) {
+        console.error("Video upload error:", uploadError);
         throw new Error('Error uploading video: ' + uploadError.message);
       }
 
@@ -80,8 +90,11 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
         .from('videos')
         .getPublicUrl(filePath);
 
+      console.log("Video uploaded successfully, public URL:", publicUrl);
+
       // Check subscription tier
       if (subscriptionTier === 'free') {
+        console.log("Free tier user, showing payment wall");
         setShouldShowPaymentWall(true);
         setIsProcessing(false);
         return;
@@ -114,19 +127,19 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
         throw analysisError;
       }
 
-      console.log("Analysis completed:", analysisData);
+      console.log("Analysis completed successfully:", analysisData);
       setAnalysis(analysisData);
 
-      // Store results
-      if (userId && (analysisData || voiceAnalysis)) {
+      // Store results in performance_results
+      if (userId && analysisData) {
         try {
           console.log("Storing analysis results");
           const { error: resultsError } = await supabase
             .from('performance_results')
             .insert({
               user_id: userId,
-              analysis: analysisData as any,
-              voice_analysis: voiceAnalysis as any
+              analysis: analysisData,
+              voice_analysis: voiceAnalysis
             });
 
           if (resultsError) {
@@ -171,4 +184,3 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
     setShouldShowPaymentWall
   };
 };
-
