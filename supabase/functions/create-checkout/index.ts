@@ -55,7 +55,7 @@ serve(async (req) => {
 
     console.log('Found user email:', user.email);
 
-    // Create or retrieve Stripe customer
+    // Get current user usage data
     const { data: usages, error: usageError } = await supabaseClient
       .from('user_usage')
       .select('stripe_customer_id')
@@ -67,28 +67,47 @@ serve(async (req) => {
       throw new Error('Error fetching user usage');
     }
 
-    let customerId = usages?.stripe_customer_id
+    let customerId = usages?.stripe_customer_id;
+    let customer;
 
+    // Try to retrieve or create customer
+    if (customerId) {
+      try {
+        // Attempt to retrieve existing customer
+        customer = await stripe.customers.retrieve(customerId);
+        console.log('Retrieved existing customer:', customerId);
+      } catch (error) {
+        if (error.code === 'resource_missing' && error.param === 'customer') {
+          console.log('Customer exists in different mode, creating new test customer');
+          customerId = null; // Reset customer ID to create new one
+        } else {
+          throw error; // Re-throw if it's a different error
+        }
+      }
+    }
+
+    // Create new customer if needed
     if (!customerId) {
       console.log('Creating new Stripe customer for user:', userId);
-      const customer = await stripe.customers.create({
+      customer = await stripe.customers.create({
         email: user.email,
         metadata: {
           supabase_user_id: userId,
         },
-      })
-      customerId = customer.id
+      });
+      customerId = customer.id;
 
       // Update user_usage with the new customer ID
       const { error: updateError } = await supabaseClient
         .from('user_usage')
         .update({ stripe_customer_id: customerId })
-        .eq('user_id', userId)
+        .eq('user_id', userId);
 
       if (updateError) {
         console.error('Update error:', updateError);
         throw new Error('Error updating user usage with customer ID');
       }
+      console.log('Updated user_usage with new customer ID:', customerId);
     }
 
     // Verify price ID exists
@@ -118,7 +137,7 @@ serve(async (req) => {
           user_id: userId,
         },
         allow_promotion_codes: true,
-      })
+      });
 
       console.log('Checkout session created successfully:', session.id);
       
