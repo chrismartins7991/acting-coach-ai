@@ -3,6 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { extractFramesFromVideo } from "./frameExtractor";
 import { useToast } from "@/components/ui/use-toast";
+import { Json } from "@/integrations/supabase/types";
 
 export const useVideoUpload = (userId: string, onAnalysisComplete: (analysis: any) => void) => {
   const [isUploading, setIsUploading] = useState(false);
@@ -65,7 +66,7 @@ export const useVideoUpload = (userId: string, onAnalysisComplete: (analysis: an
 
       console.log("Starting AI analysis with preferences...");
 
-      // Call the analyze-performance edge function with frames and preferences
+      // Call analyze-performance edge function with frames and preferences
       const { data: analysis, error: analysisError } = await supabase.functions
         .invoke('analyze-performance', {
           body: { 
@@ -86,7 +87,7 @@ export const useVideoUpload = (userId: string, onAnalysisComplete: (analysis: an
 
       if (analysisError) {
         console.error("Analysis error:", analysisError);
-        throw new Error('Analysis failed: ' + (analysisError.message || 'Please try again.'));
+        throw analysisError;
       }
 
       if (!analysis) {
