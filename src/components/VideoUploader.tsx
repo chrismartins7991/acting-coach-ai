@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useToast } from "./ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
 
 interface VideoUploaderProps {
   onAnalysisComplete?: () => void;
@@ -39,11 +40,11 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
         try {
           const { error } = await supabase
             .from('performance_results')
-            .insert([{
+            .insert({
               user_id: user.id,
-              analysis,
-              voice_analysis: voiceAnalysis
-            }]);
+              analysis: analysis as Json,
+              voice_analysis: voiceAnalysis as Json
+            });
 
           if (error) throw error;
         } catch (error) {

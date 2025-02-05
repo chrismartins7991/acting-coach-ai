@@ -33,9 +33,15 @@ const LastResults = () => {
         if (error) throw error;
 
         if (data) {
-          // Type cast the JSON data to our expected types
-          setAnalysis(data.analysis as Analysis);
-          setVoiceAnalysis(data.voice_analysis as VoiceAnalysis);
+          // Parse and validate the analysis data
+          if (data.analysis && typeof data.analysis === 'object' && 'overallScore' in data.analysis) {
+            setAnalysis(data.analysis as unknown as Analysis);
+          }
+          
+          // Parse and validate the voice analysis data
+          if (data.voice_analysis && typeof data.voice_analysis === 'object' && 'overallScore' in data.voice_analysis) {
+            setVoiceAnalysis(data.voice_analysis as unknown as VoiceAnalysis);
+          }
         }
 
         // Show success message if redirected from payment
