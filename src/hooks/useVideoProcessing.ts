@@ -6,6 +6,7 @@ import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import { extractFramesFromVideo } from '@/utils/videoAnalysis/frameExtractor';
 import { extractAudioFromVideo } from '@/utils/videoAnalysis/audioExtractor';
 import { useSubscription } from '@/hooks/useSubscription';
+import { Json } from '@/integrations/supabase/types';
 
 export interface VideoProcessingHook {
   processVideo: (file: File) => Promise<void>;
@@ -138,8 +139,8 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
             .from('performance_results')
             .insert({
               user_id: userId,
-              analysis: analysisData,
-              voice_analysis: voiceAnalysis
+              analysis: analysisData as Json,
+              voice_analysis: voiceAnalysis as Json
             });
 
           if (resultsError) {
