@@ -142,10 +142,11 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
 
           console.log("Results stored successfully");
           
-          // Only show payment wall for free tier users after analysis is complete
+          // Only show payment wall for free tier users after analysis is complete and saved
           if (subscriptionTier === 'free') {
-            console.log("Free tier user, showing payment wall after analysis");
-            setShouldShowPaymentWall(true);
+            setTimeout(() => {
+              setShouldShowPaymentWall(true);
+            }, 1000); // Add a small delay to ensure UI updates
           }
         } catch (error) {
           console.error("Error storing results:", error);

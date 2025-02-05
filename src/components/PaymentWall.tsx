@@ -1,16 +1,18 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { Dialog, DialogContent } from "./ui/dialog";
 import { useToast } from "./ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PlanCard } from "./pricing/PlanCard";
 import { plans } from "@/data/plans";
 
 interface PaymentWallProps {
+  isOpen: boolean;
+  onClose: () => void;
   onComplete?: () => void;
 }
 
-export const PaymentWall = ({ onComplete }: PaymentWallProps) => {
+export const PaymentWall = ({ isOpen, onClose, onComplete }: PaymentWallProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -73,15 +75,15 @@ export const PaymentWall = ({ onComplete }: PaymentWallProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-6xl bg-black/80 border-theater-gold">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl md:text-3xl text-white">Unlock Your Performance Analysis</CardTitle>
-          <CardDescription className="text-lg text-gray-300">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-6xl bg-black/80 border-theater-gold">
+        <div className="text-center space-y-6">
+          <h2 className="text-2xl md:text-3xl text-white font-bold">
+            Unlock Your Performance Analysis
+          </h2>
+          <p className="text-lg text-gray-300">
             Choose a plan to view your detailed acting analysis and feedback
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {plans.map((plan) => (
               <PlanCard
@@ -92,8 +94,8 @@ export const PaymentWall = ({ onComplete }: PaymentWallProps) => {
               />
             ))}
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };

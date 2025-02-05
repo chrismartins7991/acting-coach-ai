@@ -113,15 +113,6 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
         </label>
       </div>
 
-      {showPaymentWall && (
-        <PaymentWall onComplete={() => {
-          setShouldShowPaymentWall(false);
-          if (analysis || voiceAnalysis) {
-            navigate('/last-results');
-          }
-        }} />
-      )}
-
       {(!showPaymentWall && (analysis || voiceAnalysis)) && (
         <PerformanceAnalysis 
           analysis={analysis} 
@@ -129,6 +120,17 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
           isLoading={isProcessing}
         />
       )}
+
+      <PaymentWall 
+        isOpen={showPaymentWall}
+        onClose={() => setShouldShowPaymentWall(false)}
+        onComplete={() => {
+          setShouldShowPaymentWall(false);
+          if (analysis || voiceAnalysis) {
+            navigate('/last-results');
+          }
+        }}
+      />
     </div>
   );
 };
