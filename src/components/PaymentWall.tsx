@@ -8,11 +8,10 @@ import { plans } from "@/data/plans";
 
 interface PaymentWallProps {
   isOpen: boolean;
-  onClose: () => void;
   onComplete?: () => void;
 }
 
-export const PaymentWall = ({ isOpen }: PaymentWallProps) => {
+export const PaymentWall = ({ isOpen, onComplete }: PaymentWallProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -99,4 +98,3 @@ export const PaymentWall = ({ isOpen }: PaymentWallProps) => {
     </Dialog>
   );
 };
-
