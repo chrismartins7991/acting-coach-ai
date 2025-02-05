@@ -33,8 +33,9 @@ const LastResults = () => {
         if (error) throw error;
 
         if (data) {
-          setAnalysis(data.analysis);
-          setVoiceAnalysis(data.voice_analysis);
+          // Type cast the JSON data to our expected types
+          setAnalysis(data.analysis as Analysis);
+          setVoiceAnalysis(data.voice_analysis as VoiceAnalysis);
         }
 
         // Show success message if redirected from payment

@@ -39,11 +39,11 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
         try {
           const { error } = await supabase
             .from('performance_results')
-            .insert({
+            .insert([{
               user_id: user.id,
               analysis,
               voice_analysis: voiceAnalysis
-            });
+            }]);
 
           if (error) throw error;
         } catch (error) {
