@@ -38,11 +38,12 @@ const UploadPage = () => {
                 Modify Coach & Preferences
               </Button>
             </div>
-            {showPaymentWall ? (
-              <PaymentWall onComplete={() => setShowPaymentWall(false)} />
-            ) : (
-              <VideoUploader onAnalysisComplete={handleVideoAnalysisComplete} />
-            )}
+            <PaymentWall 
+              isOpen={showPaymentWall}
+              onClose={() => setShowPaymentWall(false)}
+              onComplete={() => setShowPaymentWall(false)}
+            />
+            <VideoUploader onAnalysisComplete={handleVideoAnalysisComplete} />
           </div>
         )}
       </div>

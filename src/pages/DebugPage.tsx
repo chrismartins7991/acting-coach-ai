@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import {
@@ -85,7 +84,6 @@ const DebugPage = () => {
   }, [api]);
 
   useEffect(() => {
-    // Fetch existing preferences when component mounts
     const fetchPreferences = async () => {
       if (!user) return;
       
@@ -332,11 +330,12 @@ const DebugPage = () => {
                 Modify Coach & Preferences
               </Button>
             </div>
-            {showPaymentWall ? (
-              <PaymentWall onComplete={() => setShowPaymentWall(false)} />
-            ) : (
-              <VideoUploader onAnalysisComplete={handleVideoAnalysisComplete} />
-            )}
+            <PaymentWall 
+              isOpen={showPaymentWall} 
+              onClose={() => setShowPaymentWall(false)}
+              onComplete={() => setShowPaymentWall(false)} 
+            />
+            <VideoUploader onAnalysisComplete={handleVideoAnalysisComplete} />
           </div>
         )}
       </div>
