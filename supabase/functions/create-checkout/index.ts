@@ -15,28 +15,40 @@ serve(async (req) => {
   }
 
   try {
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
+    const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
+    if (!stripeKey) {
+      console.error('Missing STRIPE_SECRET_KEY');
+      throw new Error('Stripe configuration error');
+    }
+
+    const stripe = new Stripe(stripeKey, {
       apiVersion: '2023-10-16',
     })
 
     // Create Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Missing Supabase configuration');
+      throw new Error('Supabase configuration error');
+    }
+
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
     const { priceId, userId, returnUrl } = await req.json()
     
+    console.log("Received checkout request:", { priceId, userId, returnUrl });
+    
     if (!priceId || !userId || !returnUrl) {
-      throw new Error('Missing required parameters')
+      throw new Error('Missing required parameters');
     }
-
-    console.log("Creating checkout session with:", { priceId, userId, returnUrl })
 
     // Get user's email
     const { data: { user }, error: userError } = await supabaseClient.auth.admin.getUserById(userId)
     if (userError || !user?.email) {
-      throw new Error('User not found or missing email')
+      console.error('User error:', userError);
+      throw new Error('User not found or missing email');
     }
 
     // Create or retrieve Stripe customer
@@ -47,12 +59,14 @@ serve(async (req) => {
       .single()
 
     if (usageError) {
-      throw new Error('Error fetching user usage')
+      console.error('Usage error:', usageError);
+      throw new Error('Error fetching user usage');
     }
 
     let customerId = usages?.stripe_customer_id
 
     if (!customerId) {
+      console.log('Creating new Stripe customer for user:', userId);
       const customer = await stripe.customers.create({
         email: user.email,
         metadata: {
@@ -68,31 +82,44 @@ serve(async (req) => {
         .eq('user_id', userId)
 
       if (updateError) {
-        throw new Error('Error updating user usage with customer ID')
+        console.error('Update error:', updateError);
+        throw new Error('Error updating user usage with customer ID');
       }
     }
 
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      line_items: [{
-        price: priceId,
-        quantity: 1,
-      }],
-      mode: priceId === 'price_1QomrhGW0eRF7KXGL1h0XbPR' ? 'payment' : 'subscription',
-      success_url: `${returnUrl}?success=true`,
-      cancel_url: `${returnUrl}?success=false`,
-      metadata: {
-        user_id: userId,
-      },
-      allow_promotion_codes: true,
-    })
+    // Determine if this is a one-time payment or subscription
+    // Lifetime access is one-time payment, others are subscriptions
+    const mode = priceId === 'price_1QomrhGW0eRF7KXGL1h0XbPR' ? 'payment' : 'subscription';
+    console.log('Creating checkout session with mode:', mode);
 
-    return new Response(JSON.stringify({ url: session.url }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    })
+    try {
+      const session = await stripe.checkout.sessions.create({
+        customer: customerId,
+        line_items: [{
+          price: priceId,
+          quantity: 1,
+        }],
+        mode: mode,
+        success_url: `${returnUrl}?success=true`,
+        cancel_url: `${returnUrl}?success=false`,
+        metadata: {
+          user_id: userId,
+        },
+        allow_promotion_codes: true,
+      })
+
+      console.log('Checkout session created successfully:', session.id);
+      
+      return new Response(JSON.stringify({ url: session.url }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      })
+    } catch (stripeError) {
+      console.error('Stripe checkout error:', stripeError);
+      throw stripeError;
+    }
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error:', error);
     return new Response(
       JSON.stringify({
         error: error instanceof Error ? error.message : 'Unknown error occurred',
