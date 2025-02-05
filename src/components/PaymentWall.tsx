@@ -21,7 +21,7 @@ const plans = [
     stripe_price_id: 'price_1QomppGW0eRF7KXG97pARyLc',
     features: [
       { name: 'AI Performance Analysis', included: true },
-      { name: '1 Scene Analysis per Month', included: true },
+      { name: '1 Scene Analysis', included: true },
       { name: 'Basic Emotion Accuracy Score', included: true },
       { name: 'Basic Body Language Analysis', included: true },
       { name: 'AI Professor Pick (Strasberg, Chekhov, etc)', included: false },
@@ -125,7 +125,7 @@ export const PaymentWall = ({ onComplete }: PaymentWallProps) => {
 
       if (error) throw error;
 
-      if (data.url) {
+      if (data?.url) {
         window.location.href = data.url;
       }
     } catch (error) {

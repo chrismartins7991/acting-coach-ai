@@ -273,6 +273,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      handle_subscription_updated: {
+        Args: {
+          user_id: string
+          customer: string
+          subscription_id: string
+          price_id: string
+        }
+        Returns: undefined
+      }
       increment_performance_count: {
         Args: {
           user_id: string
