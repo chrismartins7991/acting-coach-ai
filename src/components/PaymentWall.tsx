@@ -34,21 +34,32 @@ export const PaymentWall = ({ onComplete }: PaymentWallProps) => {
         body: {
           priceId,
           userId: user.id,
-          returnUrl: window.location.href,
+          returnUrl: window.location.origin + window.location.pathname,
         },
       });
 
       if (error) {
         console.error('Checkout error:', error);
-        throw error;
+        toast({
+          title: "Error",
+          description: "Failed to start checkout process. Please try again.",
+          variant: "destructive",
+        });
+        return;
       }
 
-      if (data?.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      } else {
-        throw new Error('No checkout URL returned');
+      if (!data?.url) {
+        console.error('No checkout URL returned');
+        toast({
+          title: "Error",
+          description: "Failed to create checkout session. Please try again.",
+          variant: "destructive",
+        });
+        return;
       }
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
     } catch (error) {
       console.error('Error creating checkout session:', error);
       toast({

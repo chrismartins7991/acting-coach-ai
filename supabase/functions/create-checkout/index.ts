@@ -53,14 +53,25 @@ serve(async (req) => {
 
     console.log('Found user email:', user.email);
 
-    // Create a new Stripe customer for test mode
-    console.log('Creating new test mode Stripe customer for user:', userId);
+    // Create a new Stripe customer
+    console.log('Creating new Stripe customer for user:', userId);
     const customer = await stripe.customers.create({
       email: user.email,
       metadata: {
         supabase_user_id: userId,
       },
     });
+
+    // Update user_usage with the new customer ID
+    const { error: updateError } = await supabaseClient
+      .from('user_usage')
+      .update({ stripe_customer_id: customer.id })
+      .eq('user_id', userId);
+
+    if (updateError) {
+      console.error('Update error:', updateError);
+      throw new Error('Error updating user usage with customer ID');
+    }
 
     // Verify price ID exists
     try {
@@ -71,14 +82,20 @@ serve(async (req) => {
       throw new Error(`Invalid price ID: ${priceId}`);
     }
 
-    console.log('Creating checkout session...');
+    // Determine payment mode based on the plan
+    const mode = priceId === 'price_1QomrhGW0eRF7KXGL1h0XbPR' || priceId === 'price_1QomppGW0eRF7KXG97pARyLc' 
+      ? 'payment' 
+      : 'subscription';
+
+    console.log('Creating checkout session with mode:', mode);
+
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
       line_items: [{
         price: priceId,
         quantity: 1,
       }],
-      mode: 'payment',
+      mode,
       success_url: `${returnUrl}?success=true`,
       cancel_url: `${returnUrl}?success=false`,
       metadata: {
