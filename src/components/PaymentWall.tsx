@@ -34,7 +34,7 @@ export const PaymentWall = ({ onComplete }: PaymentWallProps) => {
         body: {
           priceId,
           userId: user.id,
-          returnUrl: window.location.origin + window.location.pathname,
+          returnUrl: window.location.href,
         },
       });
 
@@ -52,7 +52,7 @@ export const PaymentWall = ({ onComplete }: PaymentWallProps) => {
       console.error('Error creating checkout session:', error);
       toast({
         title: "Error",
-        description: "Failed to start checkout process. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to start checkout process. Please try again.",
         variant: "destructive",
       });
     } finally {

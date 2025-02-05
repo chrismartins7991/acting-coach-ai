@@ -21,6 +21,8 @@ serve(async (req) => {
       throw new Error('Stripe configuration error');
     }
 
+    console.log('Using Stripe key starting with:', stripeKey.substring(0, 8));
+
     const stripe = new Stripe(stripeKey, {
       apiVersion: '2023-10-16',
     })
@@ -38,7 +40,7 @@ serve(async (req) => {
 
     const { priceId, userId, returnUrl } = await req.json()
     
-    console.log("Received checkout request:", { priceId, userId, returnUrl });
+    console.log("Processing checkout request:", { priceId, userId, returnUrl });
     
     if (!priceId || !userId || !returnUrl) {
       throw new Error('Missing required parameters');
@@ -50,6 +52,8 @@ serve(async (req) => {
       console.error('User error:', userError);
       throw new Error('User not found or missing email');
     }
+
+    console.log('Found user email:', user.email);
 
     // Create or retrieve Stripe customer
     const { data: usages, error: usageError } = await supabaseClient
@@ -87,8 +91,16 @@ serve(async (req) => {
       }
     }
 
+    // Verify price ID exists
+    try {
+      const price = await stripe.prices.retrieve(priceId);
+      console.log('Price found:', price.id);
+    } catch (error) {
+      console.error('Price verification error:', error);
+      throw new Error(`Invalid price ID: ${priceId}`);
+    }
+
     // Determine if this is a one-time payment or subscription
-    // Lifetime access is one-time payment, others are subscriptions
     const mode = priceId === 'price_1QomrhGW0eRF7KXGL1h0XbPR' ? 'payment' : 'subscription';
     console.log('Creating checkout session with mode:', mode);
 
@@ -116,7 +128,10 @@ serve(async (req) => {
       })
     } catch (stripeError) {
       console.error('Stripe checkout error:', stripeError);
-      throw stripeError;
+      return new Response(JSON.stringify({ error: stripeError.message }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400,
+      })
     }
   } catch (error) {
     console.error('Error:', error);
