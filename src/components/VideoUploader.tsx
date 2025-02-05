@@ -123,7 +123,6 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
 
       <PaymentWall 
         isOpen={showPaymentWall}
-        onClose={() => setShouldShowPaymentWall(false)}
         onComplete={() => {
           setShouldShowPaymentWall(false);
           if (analysis || voiceAnalysis) {
