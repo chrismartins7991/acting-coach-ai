@@ -31,6 +31,8 @@ serve(async (req) => {
       throw new Error('Missing required parameters')
     }
 
+    console.log("Creating checkout session with:", { priceId, userId, returnUrl })
+
     // Get user's email
     const { data: { user }, error: userError } = await supabaseClient.auth.admin.getUserById(userId)
     if (userError || !user) {
@@ -48,7 +50,7 @@ serve(async (req) => {
       throw new Error('Error fetching user usage')
     }
 
-    let customerId = usage.stripe_customer_id
+    let customerId = usage?.stripe_customer_id
 
     if (!customerId) {
       const customer = await stripe.customers.create({
@@ -58,6 +60,12 @@ serve(async (req) => {
         },
       })
       customerId = customer.id
+
+      // Update user_usage with the new customer ID
+      await supabaseClient
+        .from('user_usage')
+        .update({ stripe_customer_id: customerId })
+        .eq('user_id', userId)
     }
 
     // Create checkout session
@@ -73,7 +81,10 @@ serve(async (req) => {
       metadata: {
         user_id: userId,
       },
+      allow_promotion_codes: true,
     })
+
+    console.log("Checkout session created:", session.id)
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

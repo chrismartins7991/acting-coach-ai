@@ -28,18 +28,25 @@ export const PaymentWall = ({ onComplete }: PaymentWallProps) => {
         return;
       }
 
+      console.log("Creating checkout for:", { priceId, userId: user.id });
+
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
           priceId,
           userId: user.id,
-          returnUrl: window.location.href,
+          returnUrl: window.location.origin + window.location.pathname,
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Checkout error:', error);
+        throw error;
+      }
 
       if (data?.url) {
         window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL returned');
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);
