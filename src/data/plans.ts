@@ -23,7 +23,7 @@ export const plans: Plan[] = [
     description: 'Perfect for trying out AI acting analysis',
     price: 1,
     period: 'trial',
-    stripe_price_id: 'price_1QomppGW0eRF7KXG97pARyLc',
+    stripe_price_id: 'price_1OxX4tGW0eRF7KXGeWbaSQsn',
     features: [
       { name: 'AI Performance Analysis', included: true },
       { name: '1 Scene Analysis', included: true },
@@ -43,7 +43,7 @@ export const plans: Plan[] = [
     description: 'Enhanced access to AI coaching features',
     price: 7.99,
     period: 'month',
-    stripe_price_id: 'price_1QomqJGW0eRF7KXGemopTK8r',
+    stripe_price_id: 'price_1OxX5AGW0eRF7KXGmHZKEcXj',
     features: [
       { name: 'AI Performance Analysis', included: true },
       { name: '10 Scene Analyses per Month', included: true },
@@ -64,7 +64,7 @@ export const plans: Plan[] = [
     price: 9.22,
     originalPrice: 12.90,
     period: 'month',
-    stripe_price_id: 'price_1QomrGGW0eRF7KXGKkYlyt0m',
+    stripe_price_id: 'price_1OxX5SGW0eRF7KXGqLVgzuK3',
     features: [
       { name: 'AI Performance Analysis', included: true },
       { name: 'Unlimited Scene Analyses', included: true },
@@ -85,7 +85,7 @@ export const plans: Plan[] = [
     description: 'All Actor plan features forever',
     price: 199,
     period: 'one-time',
-    stripe_price_id: 'price_1QomrhGW0eRF7KXGL1h0XbPR',
+    stripe_price_id: 'price_1OxX5kGW0eRF7KXGXvEFGxUY',
     features: [
       { name: 'AI Performance Analysis', included: true },
       { name: 'Unlimited Scene Analyses', included: true },
