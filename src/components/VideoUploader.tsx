@@ -16,7 +16,7 @@ interface VideoUploaderProps {
 
 const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
   const { user } = useAuth();
-  const { canUploadPerformance } = useSubscription();
+  const { canUploadPerformance, subscriptionTier } = useSubscription();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const {
@@ -35,13 +35,26 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
     const success = searchParams.get('success');
     if (success === 'true') {
       setShouldShowPaymentWall(false);
+      
+      // Show success message based on subscription tier
+      const tierMessages = {
+        pro: "Your Pro subscription has been activated. You now have access to advanced analysis features.",
+        annual: "Your Lifetime Access has been activated. You now have unlimited access to all features.",
+        free: "Your trial access has been activated."
+      };
+
       toast({
         title: "Payment successful",
-        description: "Your subscription has been activated. You can now view your analysis.",
+        description: tierMessages[subscriptionTier] || "Your subscription has been activated. You can now view your analysis.",
         variant: "default",
       });
+
+      // If we have analysis results, show them immediately
+      if (analysis || voiceAnalysis) {
+        onAnalysisComplete?.();
+      }
     }
-  }, [searchParams, setShouldShowPaymentWall, toast]);
+  }, [searchParams, setShouldShowPaymentWall, toast, subscriptionTier, analysis, voiceAnalysis, onAnalysisComplete]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -57,8 +70,16 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
       onAnalysisComplete?.();
     } catch (error) {
       console.error("Error processing video:", error);
+      toast({
+        title: "Error",
+        description: "There was an error processing your video. Please try again.",
+        variant: "destructive",
+      });
     }
   };
+
+  // If payment was successful and we have analysis, don't show payment wall
+  const showPaymentWall = shouldShowPaymentWall && searchParams.get('success') !== 'true';
 
   return (
     <div className="space-y-8">
@@ -85,14 +106,18 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
               <>
                 <Upload className="w-12 h-12 text-white mb-4 mx-auto" />
                 <h3 className="text-xl font-semibold text-white mb-2">Upload Video</h3>
-                <p className="text-white/80">Upload a video file (max 50MB) for analysis</p>
+                <p className="text-white/80">
+                  {subscriptionTier === 'free' 
+                    ? "Upload a video file (max 50MB) for trial analysis" 
+                    : "Upload a video file (max 50MB) for professional analysis"}
+                </p>
               </>
             )}
           </div>
         </label>
       </div>
 
-      {shouldShowPaymentWall && (
+      {showPaymentWall && (
         <PaymentWall onComplete={() => {
           setShouldShowPaymentWall(false);
           if (analysis || voiceAnalysis) {
@@ -101,7 +126,7 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
         }} />
       )}
 
-      {!shouldShowPaymentWall && (analysis || voiceAnalysis) && (
+      {(!showPaymentWall && (analysis || voiceAnalysis)) && (
         <PerformanceAnalysis 
           analysis={analysis} 
           voiceAnalysis={voiceAnalysis}
