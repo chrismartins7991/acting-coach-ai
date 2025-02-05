@@ -1,3 +1,4 @@
+
 import { Loader2 } from "lucide-react";
 import { Progress } from "../ui/progress";
 
@@ -14,7 +15,9 @@ export const UploadProgress = ({ processingStep, uploadProgress }: UploadProgres
       {uploadProgress > 0 && (
         <div className="w-full max-w-xs mx-auto space-y-2">
           <Progress value={uploadProgress} />
-          <p className="text-sm text-white/60">{uploadProgress}% uploaded</p>
+          <p className="text-sm text-white/60 text-center">
+            {uploadProgress === 100 ? 'Processing...' : `${uploadProgress}% uploaded`}
+          </p>
         </div>
       )}
     </div>

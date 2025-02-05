@@ -1,6 +1,8 @@
+
 import { useVideoUpload } from "@/utils/videoAnalysis/useVideoUpload";
 import { UploadButton } from "./video/UploadButton";
 import { useToast } from "./ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface VideoUploadProps {
   onAnalysisComplete: (analysis: any) => void;
@@ -9,7 +11,11 @@ interface VideoUploadProps {
 
 export const VideoUpload = ({ onAnalysisComplete, isAnalyzing }: VideoUploadProps) => {
   const { toast } = useToast();
-  const { handleFileUpload, isUploading, retryCount } = useVideoUpload("demo-user", onAnalysisComplete);
+  const { user } = useAuth();
+  const { handleFileUpload, isUploading, retryCount } = useVideoUpload(
+    user?.id || "demo-user",
+    onAnalysisComplete
+  );
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -24,12 +30,20 @@ export const VideoUpload = ({ onAnalysisComplete, isAnalyzing }: VideoUploadProp
       return;
     }
 
-    handleFileUpload(file);
+    try {
+      await handleFileUpload(file);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to process video",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <UploadButton
-      isDisabled={isUploading || isAnalyzing}
+      isDisabled={isUploading || isAnalyzing || !user}
       isProcessing={isUploading || isAnalyzing}
       retryCount={retryCount}
       onFileSelect={handleFileSelect}
