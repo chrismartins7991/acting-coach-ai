@@ -139,8 +139,8 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
             .from('performance_results')
             .insert({
               user_id: userId,
-              analysis: analysisData as Json,
-              voice_analysis: voiceAnalysis as Json
+              analysis: analysisData as unknown as Json,
+              voice_analysis: voiceAnalysis ? (voiceAnalysis as unknown as Json) : null
             });
 
           if (resultsError) {
