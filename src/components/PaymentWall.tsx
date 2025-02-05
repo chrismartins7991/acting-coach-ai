@@ -34,7 +34,7 @@ export const PaymentWall = ({ onComplete }: PaymentWallProps) => {
         body: {
           priceId,
           userId: user.id,
-          returnUrl: window.location.origin + window.location.pathname,
+          returnUrl: `${window.location.origin}/last-results`,
         },
       });
 

@@ -100,6 +100,30 @@ export type Database = {
           },
         ]
       }
+      performance_results: {
+        Row: {
+          analysis: Json | null
+          created_at: string
+          id: string
+          user_id: string
+          voice_analysis: Json | null
+        }
+        Insert: {
+          analysis?: Json | null
+          created_at?: string
+          id?: string
+          user_id: string
+          voice_analysis?: Json | null
+        }
+        Update: {
+          analysis?: Json | null
+          created_at?: string
+          id?: string
+          user_id?: string
+          voice_analysis?: Json | null
+        }
+        Relationships: []
+      }
       performances: {
         Row: {
           created_at: string

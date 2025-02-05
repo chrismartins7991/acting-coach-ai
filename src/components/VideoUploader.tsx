@@ -7,8 +7,9 @@ import { useVideoProcessing } from "@/hooks/useVideoProcessing";
 import { PaymentWall } from "./PaymentWall";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useEffect } from "react";
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useToast } from "./ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface VideoUploaderProps {
   onAnalysisComplete?: () => void;
@@ -18,6 +19,7 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
   const { user } = useAuth();
   const { canUploadPerformance, subscriptionTier } = useSubscription();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const {
     processVideo,
@@ -29,6 +31,29 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
     shouldShowPaymentWall,
     setShouldShowPaymentWall
   } = useVideoProcessing(user?.id);
+
+  // Store analysis results when available
+  useEffect(() => {
+    const storeResults = async () => {
+      if (user?.id && (analysis || voiceAnalysis)) {
+        try {
+          const { error } = await supabase
+            .from('performance_results')
+            .insert({
+              user_id: user.id,
+              analysis,
+              voice_analysis: voiceAnalysis
+            });
+
+          if (error) throw error;
+        } catch (error) {
+          console.error("Error storing results:", error);
+        }
+      }
+    };
+
+    storeResults();
+  }, [user?.id, analysis, voiceAnalysis]);
 
   // Handle successful payment return
   useEffect(() => {
@@ -49,12 +74,12 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
         variant: "default",
       });
 
-      // If we have analysis results, show them immediately
+      // Navigate to LastResults page if we have analysis
       if (analysis || voiceAnalysis) {
-        onAnalysisComplete?.();
+        navigate('/last-results?success=true');
       }
     }
-  }, [searchParams, setShouldShowPaymentWall, toast, subscriptionTier, analysis, voiceAnalysis, onAnalysisComplete]);
+  }, [searchParams, setShouldShowPaymentWall, toast, subscriptionTier, analysis, voiceAnalysis, navigate]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -121,7 +146,7 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
         <PaymentWall onComplete={() => {
           setShouldShowPaymentWall(false);
           if (analysis || voiceAnalysis) {
-            onAnalysisComplete?.();
+            navigate('/last-results');
           }
         }} />
       )}
