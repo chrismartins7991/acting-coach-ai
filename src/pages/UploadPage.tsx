@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import VideoUploader from "@/components/VideoUploader";
@@ -40,7 +39,6 @@ const UploadPage = () => {
             </div>
             <PaymentWall 
               isOpen={showPaymentWall}
-              onClose={() => setShowPaymentWall(false)}
               onComplete={() => setShowPaymentWall(false)}
             />
             <VideoUploader onAnalysisComplete={handleVideoAnalysisComplete} />
@@ -52,4 +50,3 @@ const UploadPage = () => {
 };
 
 export default UploadPage;
-

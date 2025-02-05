@@ -332,7 +332,6 @@ const DebugPage = () => {
             </div>
             <PaymentWall 
               isOpen={showPaymentWall} 
-              onClose={() => setShowPaymentWall(false)}
               onComplete={() => setShowPaymentWall(false)} 
             />
             <VideoUploader onAnalysisComplete={handleVideoAnalysisComplete} />

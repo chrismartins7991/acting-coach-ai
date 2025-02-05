@@ -12,7 +12,7 @@ interface PaymentWallProps {
   onComplete?: () => void;
 }
 
-export const PaymentWall = ({ isOpen, onClose, onComplete }: PaymentWallProps) => {
+export const PaymentWall = ({ isOpen }: PaymentWallProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -75,8 +75,8 @@ export const PaymentWall = ({ isOpen, onClose, onComplete }: PaymentWallProps) =
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-6xl bg-black/80 border-theater-gold">
+    <Dialog open={isOpen} onOpenChange={() => {}}>
+      <DialogContent className="sm:max-w-6xl bg-black/80 border-theater-gold" onPointerDownOutside={(e) => e.preventDefault()}>
         <div className="text-center space-y-6">
           <h2 className="text-2xl md:text-3xl text-white font-bold">
             Unlock Your Performance Analysis
@@ -99,3 +99,4 @@ export const PaymentWall = ({ isOpen, onClose, onComplete }: PaymentWallProps) =
     </Dialog>
   );
 };
+
