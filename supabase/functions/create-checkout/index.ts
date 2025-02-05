@@ -78,7 +78,7 @@ serve(async (req) => {
         price: priceId,
         quantity: 1,
       }],
-      mode: priceId === 'price_1OxX5kGW0eRF7KXGXvEFGxUY' ? 'payment' : 'subscription',
+      mode: priceId === 'price_1QomrhGW0eRF7KXGL1h0XbPR' ? 'payment' : 'subscription',
       success_url: `${returnUrl}?success=true`,
       cancel_url: `${returnUrl}?success=false`,
       metadata: {
