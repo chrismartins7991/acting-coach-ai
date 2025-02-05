@@ -6,7 +6,9 @@ import { PerformanceAnalysis } from "./PerformanceAnalysis";
 import { useVideoProcessing } from "@/hooks/useVideoProcessing";
 import { PaymentWall } from "./PaymentWall";
 import { useSubscription } from "@/hooks/useSubscription";
-import { useState } from "react";
+import { useEffect } from "react";
+import { useSearchParams } from 'react-router-dom';
+import { useToast } from "./ui/use-toast";
 
 interface VideoUploaderProps {
   onAnalysisComplete?: () => void;
@@ -15,6 +17,8 @@ interface VideoUploaderProps {
 const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
   const { user } = useAuth();
   const { canUploadPerformance } = useSubscription();
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
   const {
     processVideo,
     isProcessing,
@@ -25,6 +29,19 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
     shouldShowPaymentWall,
     setShouldShowPaymentWall
   } = useVideoProcessing(user?.id);
+
+  // Handle successful payment return
+  useEffect(() => {
+    const success = searchParams.get('success');
+    if (success === 'true') {
+      setShouldShowPaymentWall(false);
+      toast({
+        title: "Payment successful",
+        description: "Your subscription has been activated. You can now view your analysis.",
+        variant: "default",
+      });
+    }
+  }, [searchParams, setShouldShowPaymentWall, toast]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -96,4 +113,3 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
 };
 
 export default VideoUploader;
-

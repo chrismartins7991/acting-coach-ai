@@ -34,9 +34,11 @@ serve(async (req) => {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object
+        console.log('Processing successful checkout:', session.id)
 
         // For one-time payments, update subscription info immediately
         if (session.mode === 'payment') {
+          console.log('Processing one-time payment')
           const { error } = await supabaseClient.rpc('handle_subscription_updated', {
             user_id: session.metadata.user_id,
             customer: session.customer,
@@ -45,10 +47,13 @@ serve(async (req) => {
           })
 
           if (error) {
+            console.error('Error updating subscription:', error)
             throw error
           }
+          console.log('Successfully processed one-time payment')
         } else {
-          // For subscriptions, Stripe sends additional webhooks we'll handle
+          // For subscriptions, retrieve and process the subscription details
+          console.log('Processing subscription payment')
           const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
           const { error } = await supabaseClient.rpc('handle_subscription_updated', {
             user_id: session.metadata.user_id,
@@ -58,12 +63,16 @@ serve(async (req) => {
           })
 
           if (error) {
+            console.error('Error updating subscription:', error)
             throw error
           }
+          console.log('Successfully processed subscription payment')
         }
         break
       }
       // Add other webhook events as needed
+      default:
+        console.log(`Unhandled event type: ${event.type}`)
     }
 
     return new Response(JSON.stringify({ received: true }))
