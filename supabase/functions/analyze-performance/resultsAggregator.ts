@@ -1,102 +1,48 @@
-import { AnalysisResult, FrameAnalysis } from "./types.ts";
 
-export function aggregateAnalyses(frameAnalyses: FrameAnalysis[]): AnalysisResult {
-  console.log("Aggregating analyses from OpenAI...");
-  
-  const feedbackByCategory = {
-    delivery: [] as number[],
-    presence: [] as number[],
-    emotionalRange: [] as number[]
+import { AnalysisResult, CoachPreferences } from "./types.ts";
+import { generateRecommendations, methodSpecificExercises } from "./methodologyUtils.ts";
+
+export function aggregateResults(
+  frameAnalyses: any[],
+  preferences: CoachPreferences
+): AnalysisResult {
+  const avgScores = {
+    emotionalRange: Math.round(frameAnalyses.reduce((sum, a) => sum + a.emotionalRange.score, 0) / frameAnalyses.length),
+    physicalPresence: Math.round(frameAnalyses.reduce((sum, a) => sum + a.physicalPresence.score, 0) / frameAnalyses.length),
+    characterEmbodiment: Math.round(frameAnalyses.reduce((sum, a) => sum + a.characterEmbodiment.score, 0) / frameAnalyses.length)
   };
-  
-  frameAnalyses.forEach(analysis => {
-    const content = analysis.choices[0].message.content;
-    
-    const presenceScore = Number(content.match(/presence.*?(\d+)/i)?.[1] || 70);
-    const emotionalScore = Number(content.match(/emotional.*?(\d+)/i)?.[1] || 70);
-    const deliveryScore = Number(content.match(/delivery.*?(\d+)/i)?.[1] || 70);
-    
-    feedbackByCategory.presence.push(presenceScore);
-    feedbackByCategory.emotionalRange.push(emotionalScore);
-    feedbackByCategory.delivery.push(deliveryScore);
-  });
-  
-  const getAverageScore = (scores: number[]) => 
-    Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-  
-  const presenceScore = getAverageScore(feedbackByCategory.presence);
-  const emotionalScore = getAverageScore(feedbackByCategory.emotionalRange);
-  const deliveryScore = getAverageScore(feedbackByCategory.delivery);
-  
-  const openAIFeedback = frameAnalyses.map(analysis => analysis.choices[0].message.content);
-  
+
+  const selectedCoach = preferences.selectedCoach.toLowerCase();
+
   return {
     timestamp: new Date().toISOString(),
-    overallScore: Math.round((presenceScore + emotionalScore + deliveryScore) / 3),
+    overallScore: Math.round(
+      (avgScores.emotionalRange + avgScores.physicalPresence + avgScores.characterEmbodiment) / 3
+    ),
     categories: {
-      delivery: {
-        score: deliveryScore,
-        feedback: generateFeedback(openAIFeedback, 'delivery')
-      },
-      presence: {
-        score: presenceScore,
-        feedback: generateFeedback(openAIFeedback, 'presence')
-      },
       emotionalRange: {
-        score: emotionalScore,
-        feedback: generateFeedback(openAIFeedback, 'emotional')
+        score: avgScores.emotionalRange,
+        feedback: frameAnalyses[1]?.emotionalRange.feedback || "No feedback available."
+      },
+      physicalPresence: {
+        score: avgScores.physicalPresence,
+        feedback: frameAnalyses[1]?.physicalPresence.feedback || "No feedback available."
+      },
+      characterEmbodiment: {
+        score: avgScores.characterEmbodiment,
+        feedback: frameAnalyses[1]?.characterEmbodiment.feedback || "No feedback available."
       }
     },
-    recommendations: generateRecommendations(deliveryScore, presenceScore, emotionalScore, openAIFeedback)
+    methodologicalAnalysis: {
+      methodologies: {
+        [selectedCoach]: {
+          analysis: `Analysis based on ${preferences.selectedCoach}'s methodology, focusing on emotional expression, physical presence, and character embodiment.`,
+          exercises: methodSpecificExercises[selectedCoach] || []
+        }
+      },
+      synthesis: `Performance analyzed through ${preferences.selectedCoach}'s methodology, with particular attention to emotional range and physical presence.`,
+      overallRecommendations: generateRecommendations(frameAnalyses, selectedCoach)
+    },
+    recommendations: generateRecommendations(frameAnalyses, selectedCoach)
   };
-}
-
-function generateFeedback(openAIFeedback: string[], category: string): string {
-  const pattern = category === 'delivery' 
-    ? /(?:delivery|voice|speech).*?([^.]+)/i
-    : category === 'presence'
-    ? /(?:presence|posture|movement).*?([^.]+)/i
-    : /(?:emotional|expression|feeling).*?([^.]+)/i;
-
-  return openAIFeedback
-    .map(feedback => feedback.match(pattern)?.[1] || '')
-    .filter(Boolean)
-    .join('\n');
-}
-
-function generateRecommendations(
-  deliveryScore: number,
-  presenceScore: number,
-  emotionalScore: number,
-  openAIFeedback: string[]
-): string[] {
-  const recommendations = [];
-  
-  if (deliveryScore < 80) {
-    recommendations.push("Practice vocal exercises focusing on clarity and projection");
-  }
-  if (presenceScore < 80) {
-    recommendations.push("Work on maintaining consistent stage positioning and camera engagement");
-  }
-  if (emotionalScore < 80) {
-    recommendations.push("Explore emotional range exercises to develop more varied expressions");
-  }
-  
-  const aiRecommendations = openAIFeedback
-    .join(' ')
-    .match(/should|could|recommend|try|practice|focus on|work on/gi);
-    
-  if (aiRecommendations && aiRecommendations.length > 0) {
-    recommendations.push(...aiRecommendations.slice(0, 2));
-  }
-  
-  if (recommendations.length === 0) {
-    recommendations.push(
-      "Continue developing your unique style while maintaining current strengths",
-      "Consider experimenting with more challenging performance pieces",
-      "Share your techniques with other performers"
-    );
-  }
-  
-  return recommendations.slice(0, 3);
 }
