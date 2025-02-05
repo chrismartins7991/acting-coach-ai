@@ -16,7 +16,7 @@ interface VideoUploaderProps {
 
 const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
   const { user } = useAuth();
-  const { canUploadPerformance, subscriptionTier } = useSubscription();
+  const { subscriptionTier } = useSubscription();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -60,11 +60,6 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
-    if (!canUploadPerformance()) {
-      setShouldShowPaymentWall(true);
-      return;
-    }
 
     try {
       await processVideo(file);

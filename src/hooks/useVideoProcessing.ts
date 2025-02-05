@@ -93,14 +93,6 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
 
       console.log("Video uploaded successfully, public URL:", publicUrl);
 
-      // Check subscription tier
-      if (subscriptionTier === 'free') {
-        console.log("Free tier user, showing payment wall");
-        setShouldShowPaymentWall(true);
-        setIsProcessing(false);
-        return;
-      }
-
       setProcessingStep('Analyzing performance...');
       console.log("Starting performance analysis with preferences:", preferences);
 
@@ -149,6 +141,12 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
           }
 
           console.log("Results stored successfully");
+          
+          // Only show payment wall for free tier users after analysis is complete
+          if (subscriptionTier === 'free') {
+            console.log("Free tier user, showing payment wall after analysis");
+            setShouldShowPaymentWall(true);
+          }
         } catch (error) {
           console.error("Error storing results:", error);
           toast({
