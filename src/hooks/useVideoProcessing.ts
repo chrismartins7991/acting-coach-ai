@@ -35,10 +35,10 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
       }
 
       setIsProcessing(true);
-      setProcessingStep('Extracting frames and audio...');
+      setProcessingStep('Fetching user preferences...');
       console.log("Starting video processing...");
 
-      // Get user's coach preferences
+      // Fetch user's coach preferences
       const { data: preferences, error: preferencesError } = await supabase
         .from('user_coach_preferences')
         .select('*')
@@ -46,43 +46,41 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
         .single();
 
       if (preferencesError) {
-        throw new Error('Error fetching user preferences: ' + preferencesError.message);
+        console.error("Error fetching preferences:", preferencesError);
+        throw new Error('Failed to fetch user preferences. Please complete the onboarding process first.');
       }
 
-      // Extract frames
+      if (!preferences) {
+        throw new Error('Please complete the coach selection process first.');
+      }
+
+      setProcessingStep('Extracting frames and audio...');
+
+      // Extract frames and audio
       const frames = await extractFramesFromVideo(file);
       if (frames.length < 3) {
         throw new Error('Failed to extract enough frames from video');
       }
       console.log(`Extracted ${frames.length} frames from video`);
 
-      // Extract audio
-      const audioData = await extractAudioFromVideo(file);
-      console.log("Audio extraction completed");
-
-      // Upload to storage
-      setProcessingStep('Uploading video...');
-      const timestamp = new Date().getTime();
+      // Upload video to storage
       const fileExt = file.name.split('.').pop();
-      const filePath = `${userId}/${timestamp}.${fileExt}`;
+      const filePath = `${userId}/${crypto.randomUUID()}.${fileExt}`;
 
+      setProcessingStep('Uploading video...');
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('videos')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+        .upload(filePath, file);
 
       if (uploadError) {
         throw new Error('Error uploading video: ' + uploadError.message);
       }
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('videos')
         .getPublicUrl(filePath);
 
-      // Check subscription tier before proceeding with analysis
+      // Check subscription tier
       if (subscriptionTier === 'free') {
         setShouldShowPaymentWall(true);
         setIsProcessing(false);
@@ -90,16 +88,14 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
       }
 
       setProcessingStep('Analyzing performance...');
-      console.log("Starting performance and voice analysis...");
+      console.log("Starting performance analysis with preferences:", preferences);
 
-      // Parallel processing of visual and audio analysis
-      const [visualAnalysisResult, audioAnalysisResult] = await Promise.allSettled([
-        // Visual analysis with preferences
-        supabase.functions.invoke('analyze-performance', {
+      // Call analyze-performance with coach preferences
+      const { data: analysisData, error: analysisError } = await supabase.functions
+        .invoke('analyze-performance', {
           body: { 
-            frames: frames.map(frame => frame.frameData),
             videoUrl: publicUrl,
-            userId,
+            frames,
             coachPreferences: {
               selectedCoach: preferences.selected_coach,
               focusAreas: {
@@ -111,91 +107,49 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
               }
             }
           }
-        }),
-        // Voice analysis
-        supabase.functions.invoke('analyze-voice', {
-          body: { 
-            audioData,
-            userId,
-            coachPreferences: preferences
+        });
+
+      if (analysisError) {
+        console.error("Analysis error:", analysisError);
+        throw analysisError;
+      }
+
+      console.log("Analysis completed:", analysisData);
+      setAnalysis(analysisData);
+
+      // Store results
+      if (userId && (analysisData || voiceAnalysis)) {
+        try {
+          console.log("Storing analysis results");
+          const { error: resultsError } = await supabase
+            .from('performance_results')
+            .insert({
+              user_id: userId,
+              analysis: analysisData as any,
+              voice_analysis: voiceAnalysis as any
+            });
+
+          if (resultsError) {
+            console.error("Error storing results:", resultsError);
+            throw resultsError;
           }
-        })
-      ]);
 
-      // Handle visual analysis result
-      if (visualAnalysisResult.status === 'rejected') {
-        console.error("Visual analysis error:", visualAnalysisResult.reason);
-        toast({
-          title: "Analysis Warning",
-          description: "Visual analysis encountered an issue, but we'll continue processing.",
-          variant: "default"
-        });
-      } else if (visualAnalysisResult.value.error) {
-        console.error("Visual analysis error:", visualAnalysisResult.value.error);
-        toast({
-          title: "Analysis Warning",
-          description: "Visual analysis encountered an issue, but we'll continue processing.",
-          variant: "default"
-        });
-      } else {
-        setAnalysis(visualAnalysisResult.value.data);
-      }
-
-      // Handle audio analysis result
-      if (audioAnalysisResult.status === 'rejected') {
-        console.error("Audio analysis error:", audioAnalysisResult.reason);
-        toast({
-          title: "Analysis Warning",
-          description: "Voice analysis encountered an issue, but we'll continue processing.",
-          variant: "default"
-        });
-      } else if (audioAnalysisResult.value.error) {
-        console.error("Audio analysis error:", audioAnalysisResult.value.error);
-        toast({
-          title: "Analysis Warning",
-          description: "Voice analysis encountered an issue, but we'll continue processing.",
-          variant: "default"
-        });
-      } else {
-        setVoiceAnalysis(audioAnalysisResult.value.data);
-      }
-
-      // Save to database only if we have at least one type of analysis
-      if (visualAnalysisResult.status === 'fulfilled' || audioAnalysisResult.status === 'fulfilled') {
-        const { error: dbError } = await supabase
-          .from('performances')
-          .insert({
-            user_id: userId,
-            title: file.name,
-            video_url: publicUrl,
-            selected_coach: preferences.selected_coach,
-            performance_analysis: {
-              ai_feedback: visualAnalysisResult.status === 'fulfilled' ? visualAnalysisResult.value.data : null,
-              voice_feedback: audioAnalysisResult.status === 'fulfilled' ? audioAnalysisResult.value.data : null
-            }
-          });
-
-        if (dbError) {
-          console.error("Database error:", dbError);
+          console.log("Results stored successfully");
+        } catch (error) {
+          console.error("Error storing results:", error);
           toast({
             title: "Warning",
-            description: "Could not save analysis to history, but results are available.",
-            variant: "default"
+            description: "Your analysis is ready but couldn't be saved for later viewing.",
+            variant: "destructive",
           });
         }
       }
 
-      toast({
-        title: "Analysis Complete",
-        description: "Your performance has been analyzed!",
-        variant: "default"
-      });
-
     } catch (error: any) {
-      console.error("Error in video processing:", error);
+      console.error("Error processing video:", error);
       toast({
         title: "Error",
-        description: error.message || "Failed to process video",
+        description: error.message || "Failed to process video. Please try again.",
         variant: "destructive",
       });
       throw error;

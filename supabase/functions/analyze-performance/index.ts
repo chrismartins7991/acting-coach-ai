@@ -42,22 +42,35 @@ serve(async (req) => {
     const frameIndices = [0, Math.floor(requestData.frames.length / 2), requestData.frames.length - 1];
     const selectedFrames = frameIndices.map(i => requestData.frames[i]);
     
+    // Create prompt based on user preferences
+    const focusPrompt = Object.entries(preferences.focusAreas)
+      .filter(([_, enabled]) => enabled)
+      .map(([area]) => {
+        switch(area) {
+          case 'emotionInVoice': return 'emotional expression in voice';
+          case 'voiceExpressiveness': return 'voice dynamics and range';
+          case 'physicalPresence': return 'physical presence and body language';
+          case 'faceExpressions': return 'facial expressions and emotional conveyance';
+          case 'clearnessOfDiction': return 'clarity of speech and diction';
+          default: return '';
+        }
+      })
+      .filter(area => area)
+      .join(', ');
+    
     // Analyze frames in parallel
     const framePromises = selectedFrames.map(async (frame: string, index: number) => {
       const position = ['beginning', 'middle', 'end'][index];
       console.log(`Analyzing frame at ${position}...`);
       
       const prompt = `You are an acting coach using the ${preferences.selectedCoach} method analyzing a frame from a performance.
-      Focus on these aspects:
-      - Physical presence and body language
-      - Facial expressions and emotional conveyance
-      - Character embodiment and methodology alignment
+      Focus specifically on these aspects: ${focusPrompt}.
       
       Return a strict JSON object with this format:
       {
-        "emotionalRange": { "score": <number 0-100>, "feedback": "<specific feedback>" },
-        "physicalPresence": { "score": <number 0-100>, "feedback": "<specific feedback>" },
-        "characterEmbodiment": { "score": <number 0-100>, "feedback": "<specific feedback>" }
+        "emotionalRange": { "score": <number 0-100>, "feedback": "<specific feedback based on ${preferences.selectedCoach} method>" },
+        "physicalPresence": { "score": <number 0-100>, "feedback": "<specific feedback based on ${preferences.selectedCoach} method>" },
+        "characterEmbodiment": { "score": <number 0-100>, "feedback": "<specific feedback based on ${preferences.selectedCoach} method>" }
       }`;
 
       try {
@@ -95,7 +108,7 @@ serve(async (req) => {
     const frameAnalyses = await Promise.all(framePromises);
     console.log("Frame analyses completed:", frameAnalyses);
 
-    // Coach-specific exercises based on method
+    // Coach-specific exercises based on method and preferences
     const methodSpecificExercises = {
       strasberg: [
         "Sensory Memory Exercise: Recall a specific emotional memory",
@@ -124,7 +137,7 @@ serve(async (req) => {
       ]
     };
 
-    // Aggregate analyses
+    // Aggregate analyses with focus on selected preferences
     const aggregatedAnalysis = {
       timestamp: new Date().toISOString(),
       overallScore: Math.round(
@@ -159,11 +172,11 @@ serve(async (req) => {
       methodologicalAnalysis: {
         methodologies: {
           [preferences.selectedCoach.toLowerCase()]: {
-            analysis: `Analysis based on ${preferences.selectedCoach}'s methodology, focusing on emotional authenticity and physical presence.`,
+            analysis: `Analysis based on ${preferences.selectedCoach}'s methodology, focusing on ${focusPrompt}.`,
             exercises: methodSpecificExercises[preferences.selectedCoach.toLowerCase()] || [],
           }
         },
-        synthesis: `Performance analyzed through ${preferences.selectedCoach}'s methodology, focusing on emotional authenticity and physical presence.`,
+        synthesis: `Performance analyzed through ${preferences.selectedCoach}'s methodology, focusing on ${focusPrompt}.`,
         overallRecommendations: [
           `Focus on ${frameAnalyses[1]?.emotionalRange.score < 80 ? 'emotional depth' : 'maintaining emotional authenticity'}`,
           `Work on ${frameAnalyses[1]?.physicalPresence.score < 80 ? 'physical presence' : 'advanced movement techniques'}`,

@@ -8,7 +8,7 @@ import { PerformanceAnalysis } from "@/components/PerformanceAnalysis";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 const LastResults = () => {
   const { user } = useAuth();
@@ -18,21 +18,43 @@ const LastResults = () => {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [voiceAnalysis, setVoiceAnalysis] = useState<VoiceAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchLastResults = async () => {
       try {
-        console.log("Fetching last results for user:", user?.id);
+        if (!user?.id) {
+          throw new Error('User not authenticated');
+        }
+
+        console.log("Fetching last results for user:", user.id);
+        const { data: preferences, error: preferencesError } = await supabase
+          .from('user_coach_preferences')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (preferencesError) {
+          console.error("Error fetching preferences:", preferencesError);
+          if (preferencesError.code === 'PGRST116') {
+            throw new Error('Please complete the coach selection process first.');
+          }
+          throw preferencesError;
+        }
+
         const { data, error } = await supabase
           .from('performance_results')
           .select('*')
-          .eq('user_id', user?.id)
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(1)
           .single();
 
         if (error) {
           console.error("Error fetching results:", error);
+          if (error.code === 'PGRST116') {
+            throw new Error('No performance results found. Try uploading a new video.');
+          }
           throw error;
         }
 
@@ -60,16 +82,17 @@ const LastResults = () => {
         const success = searchParams.get('success');
         if (success === 'true') {
           toast({
-            title: "Payment Successful",
-            description: "Thank you for your subscription. Here are your performance results.",
+            title: "Analysis Complete",
+            description: "Your performance has been analyzed. Here are your results!",
             variant: "default",
           });
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching results:", error);
+        setError(error.message);
         toast({
           title: "Error",
-          description: "Failed to load your performance results.",
+          description: error.message || "Failed to load your performance results.",
           variant: "destructive",
         });
       } finally {
@@ -101,7 +124,22 @@ const LastResults = () => {
         </div>
 
         {isLoading ? (
-          <div className="text-white">Loading results...</div>
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-theater-gold" />
+            <p className="text-white mt-4">Loading your results...</p>
+          </div>
+        ) : error ? (
+          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
+            <div className="text-white text-center py-12">
+              <p className="text-lg mb-4">{error}</p>
+              <Button
+                onClick={() => navigate('/upload')}
+                className="bg-theater-gold hover:bg-theater-gold/80 text-black"
+              >
+                Upload a Video
+              </Button>
+            </div>
+          </div>
         ) : analysis || voiceAnalysis ? (
           <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
             <PerformanceAnalysis
@@ -112,7 +150,13 @@ const LastResults = () => {
           </div>
         ) : (
           <div className="text-white text-center py-12">
-            No performance results found. Try uploading a new video.
+            <p className="text-lg mb-4">No performance results found.</p>
+            <Button
+              onClick={() => navigate('/upload')}
+              className="bg-theater-gold hover:bg-theater-gold/80 text-black"
+            >
+              Upload a Video
+            </Button>
           </div>
         )}
       </div>
@@ -121,3 +165,4 @@ const LastResults = () => {
 };
 
 export default LastResults;
+
