@@ -34,17 +34,32 @@ serve(async (req) => {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object
-        
-        // Call our database function to update subscription
-        const { error } = await supabaseClient.rpc('handle_subscription_updated', {
-          user_id: session.metadata.user_id,
-          customer: session.customer,
-          subscription_id: session.subscription,
-          price_id: session.line_items?.data[0]?.price?.id
-        })
 
-        if (error) {
-          throw error
+        // For one-time payments, update subscription info immediately
+        if (session.mode === 'payment') {
+          const { error } = await supabaseClient.rpc('handle_subscription_updated', {
+            user_id: session.metadata.user_id,
+            customer: session.customer,
+            subscription_id: null,
+            price_id: session.line_items?.data[0]?.price?.id
+          })
+
+          if (error) {
+            throw error
+          }
+        } else {
+          // For subscriptions, Stripe sends additional webhooks we'll handle
+          const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
+          const { error } = await supabaseClient.rpc('handle_subscription_updated', {
+            user_id: session.metadata.user_id,
+            customer: session.customer,
+            subscription_id: subscription.id,
+            price_id: subscription.items.data[0]?.price?.id
+          })
+
+          if (error) {
+            throw error
+          }
         }
         break
       }

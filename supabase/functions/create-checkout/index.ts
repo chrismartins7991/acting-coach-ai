@@ -35,12 +35,12 @@ serve(async (req) => {
 
     // Get user's email
     const { data: { user }, error: userError } = await supabaseClient.auth.admin.getUserById(userId)
-    if (userError || !user) {
-      throw new Error('User not found')
+    if (userError || !user?.email) {
+      throw new Error('User not found or missing email')
     }
 
     // Create or retrieve Stripe customer
-    const { data: usage, error: usageError } = await supabaseClient
+    const { data: usages, error: usageError } = await supabaseClient
       .from('user_usage')
       .select('stripe_customer_id')
       .eq('user_id', userId)
@@ -50,7 +50,7 @@ serve(async (req) => {
       throw new Error('Error fetching user usage')
     }
 
-    let customerId = usage?.stripe_customer_id
+    let customerId = usages?.stripe_customer_id
 
     if (!customerId) {
       const customer = await stripe.customers.create({
@@ -62,20 +62,23 @@ serve(async (req) => {
       customerId = customer.id
 
       // Update user_usage with the new customer ID
-      await supabaseClient
+      const { error: updateError } = await supabaseClient
         .from('user_usage')
         .update({ stripe_customer_id: customerId })
         .eq('user_id', userId)
+
+      if (updateError) {
+        throw new Error('Error updating user usage with customer ID')
+      }
     }
 
-    // Create checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [{
         price: priceId,
         quantity: 1,
       }],
-      mode: 'subscription',
+      mode: priceId === 'price_1OxX5kGW0eRF7KXGXvEFGxUY' ? 'payment' : 'subscription',
       success_url: `${returnUrl}?success=true`,
       cancel_url: `${returnUrl}?success=false`,
       metadata: {
@@ -84,16 +87,20 @@ serve(async (req) => {
       allow_promotion_codes: true,
     })
 
-    console.log("Checkout session created:", session.id)
-
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
     })
   } catch (error) {
     console.error('Error:', error)
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+    return new Response(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      }),
+      {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    )
   }
 })
