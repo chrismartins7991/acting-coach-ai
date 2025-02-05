@@ -21,8 +21,6 @@ serve(async (req) => {
       throw new Error('Stripe configuration error');
     }
 
-    console.log('Using Stripe key starting with:', stripeKey.substring(0, 8));
-
     const stripe = new Stripe(stripeKey, {
       apiVersion: '2023-10-16',
     })
@@ -64,18 +62,6 @@ serve(async (req) => {
       },
     });
 
-    // Update user_usage with the new customer ID
-    const { error: updateError } = await supabaseClient
-      .from('user_usage')
-      .update({ stripe_customer_id: customer.id })
-      .eq('user_id', userId);
-
-    if (updateError) {
-      console.error('Update error:', updateError);
-      throw new Error('Error updating user usage with customer ID');
-    }
-    console.log('Updated user_usage with new test customer ID:', customer.id);
-
     // Verify price ID exists
     try {
       const price = await stripe.prices.retrieve(priceId);
@@ -85,49 +71,33 @@ serve(async (req) => {
       throw new Error(`Invalid price ID: ${priceId}`);
     }
 
-    // Determine if this is a one-time payment or subscription
-    const mode = priceId === 'price_1QomrhGW0eRF7KXGL1h0XbPR' ? 'payment' : 'subscription';
-    console.log('Creating checkout session with mode:', mode);
+    console.log('Creating checkout session...');
+    const session = await stripe.checkout.sessions.create({
+      customer: customer.id,
+      line_items: [{
+        price: priceId,
+        quantity: 1,
+      }],
+      mode: 'payment',
+      success_url: `${returnUrl}?success=true`,
+      cancel_url: `${returnUrl}?success=false`,
+      metadata: {
+        user_id: userId,
+      },
+      allow_promotion_codes: true,
+    });
 
-    try {
-      const session = await stripe.checkout.sessions.create({
-        customer: customer.id,
-        line_items: [{
-          price: priceId,
-          quantity: 1,
-        }],
-        mode: mode,
-        success_url: `${returnUrl}?success=true`,
-        cancel_url: `${returnUrl}?success=false`,
-        metadata: {
-          user_id: userId,
-        },
-        allow_promotion_codes: true,
-      });
-
-      console.log('Checkout session created successfully:', session.id);
-      
-      return new Response(JSON.stringify({ url: session.url }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      })
-    } catch (stripeError) {
-      console.error('Stripe checkout error:', stripeError);
-      return new Response(JSON.stringify({ error: stripeError.message }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
-      })
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-      }),
-      {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    )
+    console.log('Checkout session created successfully:', session.id);
+    
+    return new Response(JSON.stringify({ url: session.url }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    })
+  } catch (error: any) {
+    console.error('Error creating checkout session:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 400,
+    })
   }
 })

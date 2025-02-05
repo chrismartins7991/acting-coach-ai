@@ -44,6 +44,7 @@ export const PaymentWall = ({ onComplete }: PaymentWallProps) => {
       }
 
       if (data?.url) {
+        // Redirect to Stripe Checkout
         window.location.href = data.url;
       } else {
         throw new Error('No checkout URL returned');
@@ -52,7 +53,7 @@ export const PaymentWall = ({ onComplete }: PaymentWallProps) => {
       console.error('Error creating checkout session:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to start checkout process. Please try again.",
+        description: "Failed to start checkout process. Please try again.",
         variant: "destructive",
       });
     } finally {
