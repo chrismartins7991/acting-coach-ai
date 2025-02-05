@@ -42,8 +42,8 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
             .from('performance_results')
             .insert({
               user_id: user.id,
-              analysis: analysis as Json,
-              voice_analysis: voiceAnalysis as Json
+              analysis: analysis as unknown as Json,
+              voice_analysis: voiceAnalysis as unknown as Json
             });
 
           if (error) throw error;
