@@ -55,60 +55,26 @@ serve(async (req) => {
 
     console.log('Found user email:', user.email);
 
-    // Get current user usage data
-    const { data: usages, error: usageError } = await supabaseClient
+    // Create a new Stripe customer for test mode
+    console.log('Creating new test mode Stripe customer for user:', userId);
+    const customer = await stripe.customers.create({
+      email: user.email,
+      metadata: {
+        supabase_user_id: userId,
+      },
+    });
+
+    // Update user_usage with the new customer ID
+    const { error: updateError } = await supabaseClient
       .from('user_usage')
-      .select('stripe_customer_id')
-      .eq('user_id', userId)
-      .single()
+      .update({ stripe_customer_id: customer.id })
+      .eq('user_id', userId);
 
-    if (usageError) {
-      console.error('Usage error:', usageError);
-      throw new Error('Error fetching user usage');
+    if (updateError) {
+      console.error('Update error:', updateError);
+      throw new Error('Error updating user usage with customer ID');
     }
-
-    let customerId = usages?.stripe_customer_id;
-    let customer;
-
-    // Try to retrieve or create customer
-    if (customerId) {
-      try {
-        // Attempt to retrieve existing customer
-        customer = await stripe.customers.retrieve(customerId);
-        console.log('Retrieved existing customer:', customerId);
-      } catch (error) {
-        if (error.code === 'resource_missing' && error.param === 'customer') {
-          console.log('Customer exists in different mode, creating new test customer');
-          customerId = null; // Reset customer ID to create new one
-        } else {
-          throw error; // Re-throw if it's a different error
-        }
-      }
-    }
-
-    // Create new customer if needed
-    if (!customerId) {
-      console.log('Creating new Stripe customer for user:', userId);
-      customer = await stripe.customers.create({
-        email: user.email,
-        metadata: {
-          supabase_user_id: userId,
-        },
-      });
-      customerId = customer.id;
-
-      // Update user_usage with the new customer ID
-      const { error: updateError } = await supabaseClient
-        .from('user_usage')
-        .update({ stripe_customer_id: customerId })
-        .eq('user_id', userId);
-
-      if (updateError) {
-        console.error('Update error:', updateError);
-        throw new Error('Error updating user usage with customer ID');
-      }
-      console.log('Updated user_usage with new customer ID:', customerId);
-    }
+    console.log('Updated user_usage with new test customer ID:', customer.id);
 
     // Verify price ID exists
     try {
@@ -125,7 +91,7 @@ serve(async (req) => {
 
     try {
       const session = await stripe.checkout.sessions.create({
-        customer: customerId,
+        customer: customer.id,
         line_items: [{
           price: priceId,
           quantity: 1,
