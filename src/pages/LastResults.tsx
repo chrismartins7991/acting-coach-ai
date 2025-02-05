@@ -22,6 +22,7 @@ const LastResults = () => {
   useEffect(() => {
     const fetchLastResults = async () => {
       try {
+        console.log("Fetching last results for user:", user?.id);
         const { data, error } = await supabase
           .from('performance_results')
           .select('*')
@@ -30,17 +31,28 @@ const LastResults = () => {
           .limit(1)
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching results:", error);
+          throw error;
+        }
+
+        console.log("Fetched results:", data);
 
         if (data) {
           // Parse and validate the analysis data
           if (data.analysis && typeof data.analysis === 'object' && 'overallScore' in data.analysis) {
+            console.log("Setting analysis data:", data.analysis);
             setAnalysis(data.analysis as unknown as Analysis);
+          } else {
+            console.log("Invalid analysis data:", data.analysis);
           }
           
           // Parse and validate the voice analysis data
           if (data.voice_analysis && typeof data.voice_analysis === 'object' && 'overallScore' in data.voice_analysis) {
+            console.log("Setting voice analysis data:", data.voice_analysis);
             setVoiceAnalysis(data.voice_analysis as unknown as VoiceAnalysis);
+          } else {
+            console.log("Invalid voice analysis data:", data.voice_analysis);
           }
         }
 

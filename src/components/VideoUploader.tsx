@@ -1,4 +1,3 @@
-
 import { Upload } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { UploadProgress } from "./video/UploadProgress";
@@ -38,6 +37,7 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
     const storeResults = async () => {
       if (user?.id && (analysis || voiceAnalysis)) {
         try {
+          console.log("Storing analysis results:", { analysis, voiceAnalysis });
           const { error } = await supabase
             .from('performance_results')
             .insert({
@@ -46,15 +46,25 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
               voice_analysis: voiceAnalysis as unknown as Json
             });
 
-          if (error) throw error;
+          if (error) {
+            console.error("Error storing results:", error);
+            throw error;
+          }
+
+          console.log("Results stored successfully");
         } catch (error) {
           console.error("Error storing results:", error);
+          toast({
+            title: "Error",
+            description: "Failed to save your performance results. Please try again.",
+            variant: "destructive",
+          });
         }
       }
     };
 
     storeResults();
-  }, [user?.id, analysis, voiceAnalysis]);
+  }, [user?.id, analysis, voiceAnalysis, toast]);
 
   // Handle successful payment return
   useEffect(() => {
@@ -77,6 +87,7 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
 
       // Navigate to LastResults page if we have analysis
       if (analysis || voiceAnalysis) {
+        console.log("Redirecting to last-results with analysis");
         navigate('/last-results?success=true');
       }
     }
