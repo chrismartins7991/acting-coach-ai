@@ -1,6 +1,5 @@
-
-import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.1.3";
-import { CoachPreferences } from "./types.ts";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { CoachPreferences } from "./types";
 
 export async function analyzeFrameWithGemini(
   frame: string,
@@ -152,4 +151,3 @@ export async function analyzeFrameWithGemini(
     };
   }
 }
-

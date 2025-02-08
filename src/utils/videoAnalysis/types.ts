@@ -1,4 +1,3 @@
-
 export interface Category {
   score: number;
   feedback: string;
@@ -65,6 +64,39 @@ export interface Analysis {
   recommendations: string[];
   methodologicalAnalysis?: CombinedMethodologicalAnalysis;
   timelineAnalysis?: TimelineObservation[];
+}
+
+export interface CoachPreferences {
+  selectedCoach: string;
+  focusAreas: {
+    emotionInVoice: boolean;
+    voiceExpressiveness: boolean;
+    physicalPresence: boolean;
+    faceExpressions: boolean;
+    clearnessOfDiction: boolean;
+  };
+}
+
+export interface AnalysisResult {
+  timestamp: string;
+  overallScore: number;
+  categories: {
+    emotionalRange: Category;
+    physicalPresence: Category;
+    characterEmbodiment: Category;
+  };
+  methodologicalAnalysis?: {
+    methodologies: {
+      [key: string]: {
+        analysis: string;
+        exercises: string[];
+      }
+    };
+    synthesis: string;
+    overallRecommendations: string[];
+  };
+  timelineAnalysis?: any[];
+  recommendations: string[];
 }
 
 export interface AnalyzeVideoParams {

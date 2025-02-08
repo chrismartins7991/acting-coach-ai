@@ -1,6 +1,5 @@
-
-import { AnalysisResult, CoachPreferences } from "./types.ts";
-import { generateRecommendations, methodSpecificExercises } from "./methodologyUtils.ts";
+import { AnalysisResult, CoachPreferences } from "./types";
+import { generateRecommendations, methodSpecificExercises } from "./methodologyUtils";
 
 export function aggregateResults(
   frameAnalyses: any[],
