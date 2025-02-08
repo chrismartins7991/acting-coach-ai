@@ -312,6 +312,16 @@ export type Database = {
         }
         Returns: undefined
       }
+      store_performance_analysis: {
+        Args: {
+          p_user_id: string
+          p_analysis: Json
+          p_voice_analysis: Json
+          p_title: string
+          p_video_url: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       coach_type:
