@@ -35,18 +35,30 @@ serve(async (req) => {
     }
 
     // Initialize Gemini
-    const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+    if (!geminiApiKey) {
+      throw new Error('Gemini API key not configured');
+    }
+    
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-vision-latest" });
 
     console.log("Analyzing frames with Gemini Vision...");
     
-    // Take a smaller sample of frames for analysis
-    const frameIndices = [0, Math.floor(requestData.frames.length / 2), requestData.frames.length - 1];
+    // Take strategic frame samples for analysis
+    const frameIndices = [
+      0, // beginning
+      Math.floor(requestData.frames.length * 0.25), // quarter
+      Math.floor(requestData.frames.length * 0.5), // middle
+      Math.floor(requestData.frames.length * 0.75), // three-quarters
+      requestData.frames.length - 1 // end
+    ];
+    
     const selectedFrames = frameIndices.map(i => requestData.frames[i]);
     
-    // Analyze frames in parallel
+    // Analyze frames in parallel with proper position labeling
     const framePromises = selectedFrames.map((frame: string, index: number) => {
-      const position = ['beginning', 'middle', 'end'][index];
+      const position = ['beginning', 'quarter', 'middle', 'three-quarter', 'end'][index];
       console.log(`Analyzing frame at ${position}...`);
       return analyzeFrameWithGemini(frame, position, preferences, model);
     });
@@ -54,7 +66,7 @@ serve(async (req) => {
     const frameAnalyses = await Promise.all(framePromises);
     console.log("Frame analyses completed:", frameAnalyses);
 
-    // Aggregate results
+    // Aggregate results with improved weighting
     const analysisResult = aggregateResults(frameAnalyses, preferences);
     console.log("Sending aggregated analysis:", analysisResult);
 
