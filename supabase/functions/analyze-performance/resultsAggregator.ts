@@ -6,10 +6,13 @@ export function aggregateResults(
   frameAnalyses: any[],
   preferences: CoachPreferences
 ): AnalysisResult {
-  // Calculate weighted averages for each category
-  const weights = [0.2, 0.15, 0.3, 0.15, 0.2]; // Weights for beginning, quarter, middle, three-quarter, end
+  console.log("Starting enhanced results aggregation with temporal context");
   
-  // Filter out any invalid analyses before calculating scores
+  // Enhanced weighting system for temporal progression
+  const weights = [0.2, 0.15, 0.3, 0.15, 0.2]; // beginning, quarter, middle, three-quarter, end
+  const timeLabels = ['beginning', 'early', 'middle', 'later', 'end'];
+  
+  // Filter and validate analyses
   const validAnalyses = frameAnalyses.filter(analysis => 
     analysis && 
     typeof analysis.emotionalRange?.score === 'number' &&
@@ -21,6 +24,7 @@ export function aggregateResults(
     throw new Error('No valid frame analyses available');
   }
 
+  // Calculate weighted scores with temporal context
   const weightedScores = {
     emotionalRange: Math.round(
       validAnalyses.reduce((sum, a, i) => sum + (a.emotionalRange.score * weights[i]), 0)
@@ -33,71 +37,95 @@ export function aggregateResults(
     )
   };
 
-  // Get the selected coach methodology
+  // Enhanced temporal feedback compilation
+  const timelineAnalysis = validAnalyses.map((analysis, index) => ({
+    timestamp: timeLabels[index],
+    emotionalRange: {
+      score: analysis.emotionalRange.score,
+      feedback: analysis.emotionalRange.feedback,
+      observations: analysis.emotionalRange.observations || [],
+      technicalNotes: analysis.emotionalRange.technicalNotes || []
+    },
+    physicalPresence: {
+      score: analysis.physicalPresence.score,
+      feedback: analysis.physicalPresence.feedback,
+      keyMoments: analysis.physicalPresence.keyMoments || [],
+      technicalNotes: analysis.physicalPresence.technicalNotes || []
+    },
+    characterEmbodiment: {
+      score: analysis.characterEmbodiment.score,
+      feedback: analysis.characterEmbodiment.feedback,
+      evidence: analysis.characterEmbodiment.evidence || [],
+      technicalNotes: analysis.characterEmbodiment.technicalNotes || []
+    }
+  }));
+
+  // Get selected coach methodology
   const selectedCoach = preferences.selectedCoach.toLowerCase();
 
-  // Format feedback with proper timestamps and filter out duplicates
-  const combinedFeedback = {
-    emotionalRange: validAnalyses.map((a, i) => ({
-      timestamp: ['Start', 'Early', 'Middle', 'Later', 'End'][i],
-      feedback: a.emotionalRange.feedback
+  // Format detailed feedback with proper timestamps
+  const detailedFeedback = {
+    emotionalRange: timelineAnalysis.map(t => ({
+      timestamp: t.timestamp,
+      feedback: t.emotionalRange.feedback,
+      observations: t.emotionalRange.observations,
+      technicalNotes: t.emotionalRange.technicalNotes
+    })),
+    physicalPresence: timelineAnalysis.map(t => ({
+      timestamp: t.timestamp,
+      feedback: t.physicalPresence.feedback,
+      keyMoments: t.physicalPresence.keyMoments,
+      technicalNotes: t.physicalPresence.technicalNotes
+    })),
+    characterEmbodiment: timelineAnalysis.map(t => ({
+      timestamp: t.timestamp,
+      feedback: t.characterEmbodiment.feedback,
+      evidence: t.characterEmbodiment.evidence,
+      technicalNotes: t.characterEmbodiment.technicalNotes
     }))
-    .filter((item, index, self) => 
-      index === self.findIndex((t) => t.feedback === item.feedback)
-    )
-    .map(item => `${item.timestamp}: ${item.feedback}`)
-    .join(' '),
-
-    physicalPresence: validAnalyses.map((a, i) => ({
-      timestamp: ['Start', 'Early', 'Middle', 'Later', 'End'][i],
-      feedback: a.physicalPresence.feedback
-    }))
-    .filter((item, index, self) => 
-      index === self.findIndex((t) => t.feedback === item.feedback)
-    )
-    .map(item => `${item.timestamp}: ${item.feedback}`)
-    .join(' '),
-
-    characterEmbodiment: validAnalyses.map((a, i) => ({
-      timestamp: ['Start', 'Early', 'Middle', 'Later', 'End'][i],
-      feedback: a.characterEmbodiment.feedback
-    }))
-    .filter((item, index, self) => 
-      index === self.findIndex((t) => t.feedback === item.feedback)
-    )
-    .map(item => `${item.timestamp}: ${item.feedback}`)
-    .join(' ')
   };
 
   const overallScore = Math.round(
     (weightedScores.emotionalRange + weightedScores.physicalPresence + weightedScores.characterEmbodiment) / 3
   );
 
+  // Generate comprehensive performance analysis
   return {
     timestamp: new Date().toISOString(),
     overallScore,
     categories: {
       emotionalRange: {
         score: weightedScores.emotionalRange,
-        feedback: combinedFeedback.emotionalRange
+        feedback: detailedFeedback.emotionalRange.map(t => 
+          `${t.timestamp.toUpperCase()}: ${t.feedback}`
+        ).join(' ')
       },
       physicalPresence: {
         score: weightedScores.physicalPresence,
-        feedback: combinedFeedback.physicalPresence
+        feedback: detailedFeedback.physicalPresence.map(t => 
+          `${t.timestamp.toUpperCase()}: ${t.feedback}`
+        ).join(' ')
       },
       characterEmbodiment: {
         score: weightedScores.characterEmbodiment,
-        feedback: combinedFeedback.characterEmbodiment
+        feedback: detailedFeedback.characterEmbodiment.map(t => 
+          `${t.timestamp.toUpperCase()}: ${t.feedback}`
+        ).join(' ')
       }
     },
     methodologicalAnalysis: {
       methodologies: {
         [selectedCoach]: {
-          analysis: `Analysis based on ${preferences.selectedCoach}'s methodology, evaluating emotional expression (${weightedScores.emotionalRange}%), physical presence (${weightedScores.physicalPresence}%), and character embodiment (${weightedScores.characterEmbodiment}%).`,
+          analysis: `Detailed ${preferences.selectedCoach} methodology analysis:
+            Emotional Range (${weightedScores.emotionalRange}%): Progressive development through performance.
+            Physical Presence (${weightedScores.physicalPresence}%): Spatial awareness and body language evolution.
+            Character Embodiment (${weightedScores.characterEmbodiment}%): Character development arc.`,
           exercises: methodSpecificExercises[selectedCoach] || []
         }
       },
-      synthesis: `Performance analyzed through ${preferences.selectedCoach}'s methodology. Overall score: ${overallScore}%. Strong areas: ${
+      synthesis: `Performance analyzed through ${preferences.selectedCoach}'s methodology shows ${
+        overallScore >= 80 ? 'strong' : overallScore >= 60 ? 'developing' : 'emerging'
+      } command of technique. Overall score: ${overallScore}%. Key strengths: ${
         Object.entries(weightedScores)
           .sort(([, a], [, b]) => b - a)
           .map(([category, score]) => `${category} (${score}%)`)
@@ -105,6 +133,7 @@ export function aggregateResults(
       }.`,
       overallRecommendations: generateRecommendations(validAnalyses, selectedCoach)
     },
+    timelineAnalysis,
     recommendations: generateRecommendations(validAnalyses, selectedCoach)
   };
 }

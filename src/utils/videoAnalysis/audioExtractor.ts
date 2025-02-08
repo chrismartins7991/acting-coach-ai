@@ -1,76 +1,92 @@
 
 export const extractAudioFromVideo = async (file: File): Promise<string> => {
-  try {
-    console.log("Starting audio extraction...");
-    
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  console.log("Starting enhanced audio extraction...");
+  
+  return new Promise((resolve, reject) => {
     const video = document.createElement('video');
-    video.src = URL.createObjectURL(file);
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioDestination = audioContext.createMediaStreamDestination();
+    const chunks: BlobPart[] = [];
+    let mediaRecorder: MediaRecorder | null = null;
     
-    await new Promise((resolve) => {
-      video.onloadedmetadata = () => {
-        console.log("Video metadata loaded, duration:", video.duration);
-        resolve(null);
-      };
-    });
-    
-    const destination = audioContext.createMediaStreamDestination();
-    const source = audioContext.createMediaElementSource(video);
-    source.connect(destination);
-    source.connect(audioContext.destination); // This ensures we can hear the audio while recording
-    
-    return new Promise((resolve, reject) => {
-      const mediaRecorder = new MediaRecorder(destination.stream, {
-        mimeType: 'audio/webm;codecs=opus'
+    // Error handling for video
+    video.onerror = (error) => {
+      console.error("Video error during audio extraction:", error);
+      reject(new Error("Failed to load video for audio extraction"));
+    };
+
+    // Set up video events
+    video.onloadedmetadata = () => {
+      console.log("Video metadata loaded for audio extraction:", {
+        duration: video.duration,
+        hasAudio: video.mozHasAudio || Boolean((video as any).webkitAudioDecodedByteCount)
       });
       
-      const chunks: BlobPart[] = [];
-      
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          chunks.push(e.data);
-          console.log("Received audio chunk, size:", e.data.size);
-        }
-      };
-      
-      mediaRecorder.onstop = async () => {
-        try {
-          const audioBlob = new Blob(chunks, { type: 'audio/webm;codecs=opus' });
-          console.log("Audio blob created, size:", audioBlob.size);
-          const base64Audio = await blobToBase64(audioBlob);
-          console.log("Audio extraction completed, base64 length:", base64Audio.length);
-          resolve(base64Audio);
-        } catch (error) {
-          console.error("Error in audio extraction final stage:", error);
-          reject(error);
-        }
-      };
-      
-      video.currentTime = 0;
-      
-      // Wait for canplay event before starting playback
-      video.oncanplay = () => {
-        console.log("Video can play, starting recording...");
-        mediaRecorder.start();
-        video.play().catch(error => {
-          console.error("Error playing video:", error);
-          reject(error);
+      try {
+        const source = audioContext.createMediaElementSource(video);
+        source.connect(audioDestination);
+        source.connect(audioContext.destination);
+
+        mediaRecorder = new MediaRecorder(audioDestination.stream, {
+          mimeType: 'audio/webm;codecs=opus'
         });
-      };
-      
-      // Record for the duration of the video
-      setTimeout(() => {
-        console.log("Recording complete, stopping media recorder...");
-        mediaRecorder.stop();
-        video.pause();
-        URL.revokeObjectURL(video.src); // Clean up the object URL
-      }, (video.duration * 1000) + 100); // Add 100ms buffer
-    });
-    
-  } catch (error) {
-    console.error("Error in audio extraction:", error);
-    throw error;
-  }
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            chunks.push(e.data);
+            console.log("Audio chunk collected, size:", e.data.size);
+          }
+        };
+
+        mediaRecorder.onstop = async () => {
+          try {
+            const audioBlob = new Blob(chunks, { type: 'audio/webm;codecs=opus' });
+            console.log("Audio extraction complete, total size:", audioBlob.size);
+            
+            if (audioBlob.size < 1000) {
+              reject(new Error("Extracted audio is too small, possibly no audio in video"));
+              return;
+            }
+
+            const base64Audio = await blobToBase64(audioBlob);
+            resolve(base64Audio);
+          } catch (error) {
+            console.error("Error in audio processing:", error);
+            reject(error);
+          }
+        };
+
+        // Start recording
+        mediaRecorder.start();
+        video.currentTime = 0;
+        video.play().catch(reject);
+
+        // Stop recording when video ends
+        video.onended = () => {
+          if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            video.pause();
+          }
+        };
+
+        // Ensure we stop recording even if video hasn't ended
+        setTimeout(() => {
+          if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            video.pause();
+          }
+        }, (video.duration * 1000) + 500); // Add 500ms buffer
+
+      } catch (error) {
+        console.error("Error setting up audio extraction:", error);
+        reject(error);
+      }
+    };
+
+    // Load the video
+    video.src = URL.createObjectURL(file);
+    video.load();
+  });
 };
 
 const blobToBase64 = (blob: Blob): Promise<string> => {
@@ -78,8 +94,7 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
     const reader = new FileReader();
     reader.onloadend = () => {
       if (typeof reader.result === 'string') {
-        const base64String = reader.result.split(',')[1];
-        resolve(base64String);
+        resolve(reader.result.split(',')[1]);
       } else {
         reject(new Error('Failed to convert blob to base64'));
       }

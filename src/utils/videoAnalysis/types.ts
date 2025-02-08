@@ -1,6 +1,29 @@
+
 export interface Category {
   score: number;
   feedback: string;
+}
+
+export interface TimelineObservation {
+  timestamp: string;
+  emotionalRange: {
+    score: number;
+    feedback: string;
+    observations: string[];
+    technicalNotes: string[];
+  };
+  physicalPresence: {
+    score: number;
+    feedback: string;
+    keyMoments: string[];
+    technicalNotes: string[];
+  };
+  characterEmbodiment: {
+    score: number;
+    feedback: string;
+    evidence: string[];
+    technicalNotes: string[];
+  };
 }
 
 export interface VoiceAnalysis {
@@ -31,36 +54,17 @@ export interface CombinedMethodologicalAnalysis {
   overallRecommendations: string[];
 }
 
-export interface TimelineObservation {
-  timestamp: number;
-  visualAnalysis: {
-    emotionalState: string;
-    bodyLanguage: string;
-    facialExpression: string;
-    spatialPresence: string;
-  };
-  audioAnalysis?: {
-    voiceQuality: string;
-    emotionalTone: string;
-    clarity: string;
-    volume: string;
-  };
-  score: number;
-  feedback: string;
-}
-
 export interface Analysis {
+  timestamp: string;
   overallScore: number;
   categories: {
     emotionalRange: Category;
-    voiceAndDelivery: Category;
     physicalPresence: Category;
     characterEmbodiment: Category;
   };
   recommendations: string[];
-  timestamp?: string;
   methodologicalAnalysis?: CombinedMethodologicalAnalysis;
-  timelineObservations?: TimelineObservation[];
+  timelineAnalysis?: TimelineObservation[];
 }
 
 export interface AnalyzeVideoParams {
