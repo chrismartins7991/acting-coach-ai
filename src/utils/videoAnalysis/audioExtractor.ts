@@ -19,7 +19,10 @@ export const extractAudioFromVideo = async (file: File): Promise<string> => {
     video.onloadedmetadata = () => {
       console.log("Video metadata loaded for audio extraction:", {
         duration: video.duration,
-        hasAudio: video.mozHasAudio || Boolean((video as any).webkitAudioDecodedByteCount)
+        // Check for audio tracks in a cross-browser compatible way
+        hasAudio: Boolean((video as any).webkitAudioDecodedByteCount) || 
+                 Boolean(video.audioTracks?.length) ||
+                 true // Assume there's audio if we can't detect it
       });
       
       try {
