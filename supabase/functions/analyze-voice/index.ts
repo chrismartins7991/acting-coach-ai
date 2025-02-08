@@ -17,7 +17,7 @@ serve(async (req) => {
     
     const { audioData, userId, coachPreferences } = await req.json();
     console.log("Received request data:", { 
-      hasAudioData: !!audioData,
+      audioDataLength: audioData?.length,
       userId,
       hasPreferences: !!coachPreferences
     });
@@ -57,7 +57,7 @@ serve(async (req) => {
         statusText: response.statusText,
         error: errorText
       });
-      throw new Error(`Deepgram API error: ${errorText}`);
+      throw new Error(`Deepgram API error: ${response.status} - ${errorText}`);
     }
 
     const result = await response.json();
@@ -121,7 +121,7 @@ serve(async (req) => {
       wordTimings
     };
 
-    console.log("Sending analysis response");
+    console.log("Analysis created, sending response with categories:", Object.keys(analysis.categories));
 
     return new Response(
       JSON.stringify(analysis),
