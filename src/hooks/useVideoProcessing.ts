@@ -61,11 +61,14 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
       console.log("Retrieved coach preferences:", preferences);
 
       setProcessingStep('Extracting frames and audio...');
-      console.log("Starting frame extraction...");
+      
+      // Extract frames and audio in parallel
+      const [frames, audioData] = await Promise.all([
+        extractFramesFromVideo(file),
+        extractAudioFromVideo(file)
+      ]);
 
-      // Extract frames and audio
-      const frames = await extractFramesFromVideo(file);
-      if (frames.length < 3) {
+      if (!frames || frames.length < 3) {
         throw new Error('Failed to extract enough frames from video. Please try a different video.');
       }
       console.log(`Successfully extracted ${frames.length} frames from video`);
@@ -92,6 +95,43 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
         .getPublicUrl(filePath);
 
       console.log("Video uploaded successfully, public URL:", publicUrl);
+
+      // Process voice analysis if we have audio data
+      let voiceAnalysisResult = null;
+      if (audioData) {
+        setProcessingStep('Analyzing voice...');
+        console.log("Starting voice analysis...");
+        
+        const { data: voiceData, error: voiceError } = await supabase.functions
+          .invoke('analyze-voice', {
+            body: { 
+              audioData,
+              userId,
+              coachPreferences: {
+                selectedCoach: preferences.selected_coach,
+                focusAreas: {
+                  emotionInVoice: preferences.emotion_in_voice,
+                  voiceExpressiveness: preferences.voice_expressiveness,
+                  clearnessOfDiction: preferences.clearness_of_diction,
+                }
+              }
+            }
+          });
+
+        if (voiceError) {
+          console.error("Voice analysis error:", voiceError);
+          // Don't throw here, continue with visual analysis
+          toast({
+            title: "Warning",
+            description: "Voice analysis failed, but continuing with visual analysis",
+            variant: "destructive",
+          });
+        } else {
+          console.log("Voice analysis completed successfully");
+          voiceAnalysisResult = voiceData;
+          setVoiceAnalysis(voiceData);
+        }
+      }
 
       setProcessingStep('Analyzing performance...');
       console.log("Starting performance analysis with preferences:", preferences);
@@ -132,7 +172,7 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
             .insert({
               user_id: userId,
               analysis: analysisData as unknown as Json,
-              voice_analysis: voiceAnalysis ? (voiceAnalysis as unknown as Json) : null
+              voice_analysis: voiceAnalysisResult ? (voiceAnalysisResult as unknown as Json) : null
             });
 
           if (resultsError) {
