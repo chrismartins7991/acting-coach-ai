@@ -165,4 +165,3 @@ const LastResults = () => {
 };
 
 export default LastResults;
-

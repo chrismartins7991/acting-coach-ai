@@ -10,6 +10,7 @@ import ChatPage from "./pages/ChatPage";
 import UploadPage from "./pages/UploadPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import LastResults from "./pages/LastResults";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,14 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/last-results"
+              element={
+                <ProtectedRoute>
+                  <LastResults />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
           <Toaster />
         </Router>
@@ -78,4 +87,3 @@ const App = () => {
 };
 
 export default App;
-
