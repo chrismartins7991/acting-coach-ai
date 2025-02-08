@@ -5,6 +5,7 @@ import { useToast } from "./ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PlanCard } from "./pricing/PlanCard";
 import { plans } from "@/data/plans";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PaymentWallProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface PaymentWallProps {
 export const PaymentWall = ({ isOpen, onComplete }: PaymentWallProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const handleSubscribe = async (priceId: string) => {
     try {
@@ -74,16 +76,28 @@ export const PaymentWall = ({ isOpen, onComplete }: PaymentWallProps) => {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-6xl bg-black/80 border-theater-gold" onPointerDownOutside={(e) => e.preventDefault()}>
-        <div className="text-center space-y-6">
+    <Dialog open={isOpen} onOpenChange={onComplete ? () => onComplete() : undefined}>
+      <DialogContent 
+        className="sm:max-w-[95vw] lg:max-w-7xl bg-black/95 border-theater-gold backdrop-blur-lg"
+        onPointerDownOutside={(e) => {
+          if (onComplete) {
+            e.preventDefault();
+            onComplete();
+          }
+        }}
+      >
+        <div className="text-center space-y-6 py-4">
           <h2 className="text-2xl md:text-3xl text-white font-bold">
             Unlock Your Performance Analysis
           </h2>
           <p className="text-lg text-gray-300">
             Choose a plan to view your detailed acting analysis and feedback
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className={`grid grid-cols-1 ${
+            isMobile 
+              ? 'gap-4 px-2' 
+              : 'md:grid-cols-2 lg:grid-cols-4 gap-6 px-4'
+          }`}>
             {plans.map((plan) => (
               <PlanCard
                 key={plan.id}
@@ -98,3 +112,4 @@ export const PaymentWall = ({ isOpen, onComplete }: PaymentWallProps) => {
     </Dialog>
   );
 };
+
