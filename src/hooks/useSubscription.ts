@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -10,8 +11,14 @@ interface UserUsage {
   subscription_expiry: string | null;
 }
 
+interface SubscriptionPlan {
+  name: string;
+  description: string | null;
+  price: number;
+}
+
 export const useSubscription = () => {
-  const { data: usage, isLoading, error } = useQuery({
+  const { data: usage, isLoading: usageLoading, error: usageError } = useQuery({
     queryKey: ['user-usage'],
     queryFn: async () => {
       console.log("Fetching user usage and subscription info...");
@@ -37,6 +44,25 @@ export const useSubscription = () => {
     }
   });
 
+  const { data: plan, isLoading: planLoading } = useQuery({
+    queryKey: ['subscription-plan', usage?.subscription_tier],
+    enabled: !!usage?.subscription_tier,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('subscription_plans')
+        .select('*')
+        .eq('name', usage?.subscription_tier)
+        .single();
+
+      if (error) {
+        console.error("Error fetching subscription plan:", error);
+        return null;
+      }
+
+      return data as SubscriptionPlan;
+    }
+  });
+
   const canUploadPerformance = () => {
     if (!usage) return false;
     
@@ -53,8 +79,9 @@ export const useSubscription = () => {
 
   return {
     usage,
-    isLoading,
-    error,
+    plan,
+    isLoading: usageLoading || planLoading,
+    error: usageError,
     canUploadPerformance,
     isSubscribed: usage?.is_subscribed || false,
     subscriptionTier: usage?.subscription_tier || 'free',

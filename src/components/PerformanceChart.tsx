@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -7,6 +6,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } fro
 import { format } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscription } from "@/hooks/use-subscription";
 
 interface PerformanceData {
   date: string;
@@ -18,6 +18,7 @@ export const PerformanceChart = () => {
   const [totalPoints, setTotalPoints] = useState(0);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isSubscribed } = useSubscription();
 
   useEffect(() => {
     const fetchPerformanceData = async () => {
@@ -28,14 +29,15 @@ export const PerformanceChart = () => {
 
       try {
         console.log("Fetching performance data...");
-        // Query both performance_results and performances tables
         const { data: performanceData, error: performanceError } = await supabase
           .from('performances')
           .select(`
             id,
             created_at,
             performance_analysis (
-              overall_score
+              overall_score,
+              ai_feedback,
+              voice_feedback
             )
           `)
           .eq('user_id', user.id)
@@ -61,7 +63,6 @@ export const PerformanceChart = () => {
         setPerformances(formattedData);
         console.log("Performance data:", formattedData);
 
-        // Fetch total points from user_usage
         const { data: usageData, error: usageError } = await supabase
           .from('user_usage')
           .select('performance_count')
@@ -90,8 +91,10 @@ export const PerformanceChart = () => {
       }
     };
 
-    fetchPerformanceData();
-  }, [user, toast]);
+    if (isSubscribed) {
+      fetchPerformanceData();
+    }
+  }, [user, toast, isSubscribed]);
 
   const chartConfig = {
     score: {
