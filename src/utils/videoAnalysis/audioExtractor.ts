@@ -19,9 +19,9 @@ export const extractAudioFromVideo = async (file: File): Promise<string> => {
     video.onloadedmetadata = () => {
       console.log("Video metadata loaded for audio extraction:", {
         duration: video.duration,
-        // Check for audio tracks in a cross-browser compatible way
+        // Check for audio tracks in a type-safe way
         hasAudio: Boolean((video as any).webkitAudioDecodedByteCount) || 
-                 Boolean(video.audioTracks?.length) ||
+                 Boolean((video as any).mozHasAudio) ||
                  true // Assume there's audio if we can't detect it
       });
       
@@ -106,3 +106,4 @@ const blobToBase64 = (blob: Blob): Promise<string> => {
     reader.readAsDataURL(blob);
   });
 };
+
