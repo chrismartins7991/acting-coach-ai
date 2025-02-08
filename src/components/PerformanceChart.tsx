@@ -13,11 +13,6 @@ interface PerformanceData {
   score: number;
 }
 
-interface PerformanceAnalysis {
-  created_at: string;
-  overall_score: number;
-}
-
 export const PerformanceChart = () => {
   const [performances, setPerformances] = useState<PerformanceData[]>([]);
   const [totalPoints, setTotalPoints] = useState(0);
@@ -33,9 +28,17 @@ export const PerformanceChart = () => {
 
       try {
         console.log("Fetching performance data...");
+        // Query both performance_results and performances tables
         const { data: performanceData, error: performanceError } = await supabase
-          .from('performance_analysis')
-          .select('created_at, overall_score')
+          .from('performances')
+          .select(`
+            id,
+            created_at,
+            performance_analysis (
+              overall_score
+            )
+          `)
+          .eq('user_id', user.id)
           .order('created_at', { ascending: true });
 
         if (performanceError) {
@@ -49,10 +52,10 @@ export const PerformanceChart = () => {
         }
 
         const formattedData = (performanceData || [])
-          .filter((p: any) => p.overall_score !== null)
-          .map((p: any) => ({
+          .filter(p => p.performance_analysis?.[0]?.overall_score !== null)
+          .map(p => ({
             date: format(new Date(p.created_at), 'MMM d'),
-            score: p.overall_score
+            score: p.performance_analysis?.[0]?.overall_score || 0
           }));
 
         setPerformances(formattedData);
