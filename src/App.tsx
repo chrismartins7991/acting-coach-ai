@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { PostHogPageTracker } from "./components/providers/PostHogPageTracker";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
@@ -34,6 +35,7 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
+          <PostHogPageTracker />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<LoginPage />} />
