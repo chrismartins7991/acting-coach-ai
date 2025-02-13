@@ -8,10 +8,19 @@ import { format } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
+import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 
 interface PerformanceData {
   date: string;
   score: number;
+}
+
+interface PerformanceResult {
+  id: string;
+  created_at: string;
+  analysis: Analysis | null;
+  voice_analysis: VoiceAnalysis | null;
+  user_id: string;
 }
 
 export const PerformanceChart = () => {
@@ -74,11 +83,24 @@ export const PerformanceChart = () => {
 
         // Add scores from performance_results if they exist
         if (resultsData) {
-          const resultsPerformances = resultsData.map(r => ({
-            date: format(new Date(r.created_at), 'MMM d'),
-            score: r.analysis?.overallScore || r.voice_analysis?.overallScore || 0,
-            timestamp: new Date(r.created_at).getTime()
-          }));
+          const resultsPerformances = (resultsData as PerformanceResult[]).map(r => {
+            let score = 0;
+            
+            // Safely extract score from analysis
+            if (r.analysis && typeof r.analysis === 'object' && 'overallScore' in r.analysis) {
+              score = (r.analysis as Analysis).overallScore;
+            }
+            // If no score in analysis, try voice_analysis
+            else if (r.voice_analysis && typeof r.voice_analysis === 'object' && 'overallScore' in r.voice_analysis) {
+              score = (r.voice_analysis as VoiceAnalysis).overallScore;
+            }
+
+            return {
+              date: format(new Date(r.created_at), 'MMM d'),
+              score,
+              timestamp: new Date(r.created_at).getTime()
+            };
+          });
           allPerformances = [...allPerformances, ...resultsPerformances];
         }
 
