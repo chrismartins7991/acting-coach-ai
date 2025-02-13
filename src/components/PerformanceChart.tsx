@@ -30,6 +30,8 @@ export const PerformanceChart = () => {
 
       try {
         console.log("Fetching performance data...");
+        
+        // Fetch from performances and performance_analysis tables
         const { data: performanceData, error: performanceError } = await supabase
           .from('performances')
           .select(`
@@ -41,8 +43,7 @@ export const PerformanceChart = () => {
               voice_feedback
             )
           `)
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: true });
+          .eq('user_id', user.id);
 
         if (performanceError) {
           console.error("Error fetching performances:", performanceError);
@@ -54,15 +55,41 @@ export const PerformanceChart = () => {
           return;
         }
 
-        const formattedData = (performanceData || [])
-          .filter(p => p.performance_analysis?.[0]?.overall_score !== null)
-          .map(p => ({
-            date: format(new Date(p.created_at), 'MMM d'),
-            score: p.performance_analysis?.[0]?.overall_score || 0
-          }));
+        // Also fetch from performance_results table to ensure we get all scores
+        const { data: resultsData, error: resultsError } = await supabase
+          .from('performance_results')
+          .select('*')
+          .eq('user_id', user.id);
 
-        setPerformances(formattedData);
-        console.log("Performance data:", formattedData);
+        if (resultsError) {
+          console.error("Error fetching performance results:", resultsError);
+        }
+
+        // Combine and format all performance data
+        let allPerformances = [...(performanceData || [])].map(p => ({
+          date: format(new Date(p.created_at), 'MMM d'),
+          score: p.performance_analysis?.[0]?.overall_score || 0,
+          timestamp: new Date(p.created_at).getTime()
+        }));
+
+        // Add scores from performance_results if they exist
+        if (resultsData) {
+          const resultsPerformances = resultsData.map(r => ({
+            date: format(new Date(r.created_at), 'MMM d'),
+            score: r.analysis?.overallScore || r.voice_analysis?.overallScore || 0,
+            timestamp: new Date(r.created_at).getTime()
+          }));
+          allPerformances = [...allPerformances, ...resultsPerformances];
+        }
+
+        // Remove duplicates and sort by date
+        const uniquePerformances = allPerformances
+          .filter(p => p.score > 0) // Remove entries with 0 scores
+          .sort((a, b) => a.timestamp - b.timestamp)
+          .map(({ date, score }) => ({ date, score }));
+
+        console.log("Combined performance data:", uniquePerformances);
+        setPerformances(uniquePerformances);
 
         const { data: usageData, error: usageError } = await supabase
           .from('user_usage')
