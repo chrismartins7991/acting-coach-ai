@@ -107,8 +107,8 @@ export const PerformanceChart = () => {
   };
 
   return (
-    <Card className="relative z-0 p-6 bg-black/30 backdrop-blur-sm border-white/10 overflow-hidden">
-      <div className="space-y-4">
+    <Card className="relative z-0 p-8 bg-black/30 backdrop-blur-sm border-white/10 overflow-hidden">
+      <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold text-white">Performance Progress</h2>
           <div className="bg-theater-gold/20 px-4 py-2 rounded-full">
@@ -116,32 +116,42 @@ export const PerformanceChart = () => {
           </div>
         </div>
         
-        <div className="h-[300px] mt-4 relative">
+        <div className="h-[350px] mt-6 relative">
           <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart 
                 data={performances}
-                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
+                <CartesianGrid 
+                  strokeDasharray="3 3" 
+                  stroke="#ffffff20" 
+                  horizontal={true}
+                  vertical={true}
+                />
                 <XAxis 
                   dataKey="date" 
                   stroke="#ffffff60"
                   tick={{ fill: '#ffffff60' }}
+                  tickLine={{ stroke: '#ffffff40' }}
+                  axisLine={{ stroke: '#ffffff40' }}
                 />
                 <YAxis 
                   stroke="#ffffff60"
                   tick={{ fill: '#ffffff60' }}
+                  tickLine={{ stroke: '#ffffff40' }}
+                  axisLine={{ stroke: '#ffffff40' }}
                   domain={[0, 100]}
+                  ticks={[0, 20, 40, 60, 80, 100]}
                 />
                 <ChartTooltip
                   content={({ active, payload }) => {
                     if (!active || !payload?.length) return null;
                     return (
                       <ChartTooltipContent>
-                        <div className="text-sm">
-                          <p>Score: {payload[0].value}</p>
-                          <p>Date: {payload[0].payload.date}</p>
+                        <div className="text-sm font-medium">
+                          <p className="text-theater-gold">Score: {payload[0].value}%</p>
+                          <p className="text-white/80">Date: {payload[0].payload.date}</p>
                         </div>
                       </ChartTooltipContent>
                     );
@@ -152,7 +162,18 @@ export const PerformanceChart = () => {
                   dataKey="score"
                   stroke="#FFD700"
                   strokeWidth={2}
-                  dot={{ fill: '#FFD700', strokeWidth: 2 }}
+                  dot={{
+                    r: 6,
+                    fill: '#FFD700',
+                    stroke: '#FFFFFF',
+                    strokeWidth: 2
+                  }}
+                  activeDot={{
+                    r: 8,
+                    fill: '#FFD700',
+                    stroke: '#FFFFFF',
+                    strokeWidth: 2
+                  }}
                 />
               </LineChart>
             </ResponsiveContainer>
