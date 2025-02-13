@@ -9,17 +9,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
+import { Json } from "@/integrations/supabase/types";
 
 interface PerformanceData {
   date: string;
   score: number;
 }
 
-interface PerformanceResult {
+interface DatabasePerformanceResult {
   id: string;
   created_at: string;
-  analysis: Analysis | null;
-  voice_analysis: VoiceAnalysis | null;
+  analysis: Json;
+  voice_analysis: Json;
   user_id: string;
 }
 
@@ -83,16 +84,17 @@ export const PerformanceChart = () => {
 
         // Add scores from performance_results if they exist
         if (resultsData) {
-          const resultsPerformances = (resultsData as PerformanceResult[]).map(r => {
+          const resultsPerformances = (resultsData as DatabasePerformanceResult[]).map(r => {
             let score = 0;
             
-            // Safely extract score from analysis
-            if (r.analysis && typeof r.analysis === 'object' && 'overallScore' in r.analysis) {
-              score = (r.analysis as Analysis).overallScore;
-            }
-            // If no score in analysis, try voice_analysis
-            else if (r.voice_analysis && typeof r.voice_analysis === 'object' && 'overallScore' in r.voice_analysis) {
-              score = (r.voice_analysis as VoiceAnalysis).overallScore;
+            // Parse and validate analysis data
+            const analysisData = r.analysis as unknown as Analysis | null;
+            const voiceAnalysisData = r.voice_analysis as unknown as VoiceAnalysis | null;
+            
+            if (analysisData && 'overallScore' in analysisData) {
+              score = analysisData.overallScore;
+            } else if (voiceAnalysisData && 'overallScore' in voiceAnalysisData) {
+              score = voiceAnalysisData.overallScore;
             }
 
             return {
