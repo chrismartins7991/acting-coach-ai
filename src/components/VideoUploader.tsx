@@ -1,4 +1,3 @@
-
 import { Upload } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { UploadProgress } from "./video/UploadProgress";
@@ -103,7 +102,7 @@ const VideoUploader = ({ onAnalysisComplete }: VideoUploaderProps) => {
                 <Upload className="w-12 h-12 text-white mb-4 mx-auto" />
                 <h3 className="text-xl font-semibold text-white mb-2">Upload Video</h3>
                 <p className="text-white/80">
-                  {subscriptionTier === 'free' 
+                  {subscriptionTier === 'trial' 
                     ? "Upload a video file (max 50MB) for trial analysis" 
                     : "Upload a video file (max 50MB) for professional analysis"}
                 </p>

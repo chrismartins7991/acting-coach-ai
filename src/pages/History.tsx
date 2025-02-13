@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
+import { Json } from "@/integrations/supabase/types";
 
 interface Performance {
   id: string;
@@ -61,24 +62,24 @@ const History = () => {
 
         if (resultError) throw resultError;
 
-        // Transform performance data
+        // Transform performance data with proper type casting
         const transformedPerformances = (performanceData || []).map(perf => ({
           id: perf.id,
           title: perf.title || 'Untitled Performance',
           created_at: perf.created_at,
-          ai_feedback: perf.performance_analysis?.[0]?.ai_feedback as Analysis,
-          voice_feedback: perf.performance_analysis?.[0]?.voice_feedback as VoiceAnalysis,
+          ai_feedback: perf.performance_analysis?.[0]?.ai_feedback as unknown as Analysis | undefined,
+          voice_feedback: perf.performance_analysis?.[0]?.voice_feedback as unknown as VoiceAnalysis | undefined,
           overall_score: perf.performance_analysis?.[0]?.overall_score
         }));
 
-        // Transform result data
+        // Transform result data with proper type casting
         const transformedResults = (resultData || []).map(result => ({
           id: result.id,
           title: 'Performance Analysis',
           created_at: result.created_at,
-          ai_feedback: result.analysis as Analysis,
-          voice_feedback: result.voice_analysis as VoiceAnalysis,
-          overall_score: result.analysis?.overallScore || result.voice_analysis?.overallScore
+          ai_feedback: result.analysis as unknown as Analysis | undefined,
+          voice_feedback: result.voice_analysis as unknown as VoiceAnalysis | undefined,
+          overall_score: calculateOverallScore(result.analysis as Json, result.voice_analysis as Json)
         }));
 
         // Combine and sort all results
@@ -100,6 +101,22 @@ const History = () => {
 
     fetchAllPerformances();
   }, [user, toast]);
+
+  const calculateOverallScore = (aiAnalysis: Json | null, voiceAnalysis: Json | null): number => {
+    const aiScore = aiAnalysis && typeof aiAnalysis === 'object' && 'overallScore' in aiAnalysis 
+      ? Number(aiAnalysis.overallScore) 
+      : undefined;
+    
+    const voiceScore = voiceAnalysis && typeof voiceAnalysis === 'object' && 'overallScore' in voiceAnalysis 
+      ? Number(voiceAnalysis.overallScore) 
+      : undefined;
+
+    if (aiScore !== undefined && voiceScore !== undefined) {
+      return Math.round((aiScore + voiceScore) / 2);
+    }
+    
+    return aiScore ?? voiceScore ?? 0;
+  };
 
   const getOverallScore = (performance: Performance) => {
     if (performance.overall_score !== undefined) {

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -182,11 +181,11 @@ export const useVideoProcessing = (userId?: string): VideoProcessingHook => {
 
           console.log("Results stored successfully");
           
-          // Only show payment wall for free tier users after analysis is complete and saved
-          if (subscriptionTier === 'free') {
+          // Only show payment wall for trial tier users after analysis is complete and saved
+          if (subscriptionTier === 'trial') {
             setTimeout(() => {
               setShouldShowPaymentWall(true);
-            }, 1000); // Add a small delay to ensure UI updates
+            }, 1000);
           }
         } catch (error) {
           console.error("Error storing results:", error);
