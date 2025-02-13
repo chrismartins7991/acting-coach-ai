@@ -17,18 +17,9 @@ interface Performance {
   id: string;
   title: string;
   created_at: string;
-  ai_feedback: Analysis;
-  voice_feedback: VoiceAnalysis;
-}
-
-interface PerformanceData {
-  id: string;
-  title: string;
-  created_at: string;
-  performance_analysis: Array<{
-    ai_feedback: any;
-    voice_feedback: any;
-  }>;
+  ai_feedback?: Analysis;
+  voice_feedback?: VoiceAnalysis;
+  overall_score?: number;
 }
 
 const History = () => {
@@ -39,9 +30,12 @@ const History = () => {
   const [selectedPerformance, setSelectedPerformance] = useState<Performance | null>(null);
 
   useEffect(() => {
-    const fetchPerformances = async () => {
+    const fetchAllPerformances = async () => {
+      if (!user) return;
+
       try {
-        const { data, error } = await supabase
+        // Fetch performances with analysis
+        const { data: performanceData, error: performanceError } = await supabase
           .from('performances')
           .select(`
             id,
@@ -49,23 +43,49 @@ const History = () => {
             created_at,
             performance_analysis (
               ai_feedback,
-              voice_feedback
+              voice_feedback,
+              overall_score
             )
           `)
-          .order("created_at", { ascending: false });
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (performanceError) throw performanceError;
 
-        // Transform the data to match the Performance interface
-        const transformedData: Performance[] = (data as PerformanceData[]).map(perf => ({
+        // Fetch additional results from performance_results
+        const { data: resultData, error: resultError } = await supabase
+          .from('performance_results')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (resultError) throw resultError;
+
+        // Transform performance data
+        const transformedPerformances = (performanceData || []).map(perf => ({
           id: perf.id,
-          title: perf.title,
+          title: perf.title || 'Untitled Performance',
           created_at: perf.created_at,
           ai_feedback: perf.performance_analysis?.[0]?.ai_feedback as Analysis,
-          voice_feedback: perf.performance_analysis?.[0]?.voice_feedback as VoiceAnalysis
-        })).filter(perf => perf.ai_feedback && perf.voice_feedback); // Filter out performances without analysis
+          voice_feedback: perf.performance_analysis?.[0]?.voice_feedback as VoiceAnalysis,
+          overall_score: perf.performance_analysis?.[0]?.overall_score
+        }));
 
-        setPerformances(transformedData);
+        // Transform result data
+        const transformedResults = (resultData || []).map(result => ({
+          id: result.id,
+          title: 'Performance Analysis',
+          created_at: result.created_at,
+          ai_feedback: result.analysis as Analysis,
+          voice_feedback: result.voice_analysis as VoiceAnalysis,
+          overall_score: result.analysis?.overallScore || result.voice_analysis?.overallScore
+        }));
+
+        // Combine and sort all results
+        const allPerformances = [...transformedPerformances, ...transformedResults]
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+        setPerformances(allPerformances);
       } catch (error: any) {
         console.error("Error fetching performances:", error);
         toast({
@@ -78,8 +98,23 @@ const History = () => {
       }
     };
 
-    fetchPerformances();
-  }, [toast]);
+    fetchAllPerformances();
+  }, [user, toast]);
+
+  const getOverallScore = (performance: Performance) => {
+    if (performance.overall_score !== undefined) {
+      return performance.overall_score;
+    }
+    
+    const aiScore = performance.ai_feedback?.overallScore;
+    const voiceScore = performance.voice_feedback?.overallScore;
+    
+    if (aiScore !== undefined && voiceScore !== undefined) {
+      return Math.round((aiScore + voiceScore) / 2);
+    }
+    
+    return aiScore ?? voiceScore ?? 0;
+  };
 
   if (loading) {
     return (
@@ -123,8 +158,8 @@ const History = () => {
             className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10"
           >
             <PerformanceAnalysis 
-              analysis={selectedPerformance.ai_feedback}
-              voiceAnalysis={selectedPerformance.voice_feedback}
+              analysis={selectedPerformance.ai_feedback || null}
+              voiceAnalysis={selectedPerformance.voice_feedback || null}
             />
           </motion.div>
         ) : (
@@ -148,13 +183,18 @@ const History = () => {
                     </p>
                     <div className="mt-4">
                       <div className="text-lg font-semibold text-theater-gold">
-                        Score: {performance.ai_feedback.overallScore}%
+                        Score: {getOverallScore(performance)}%
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               </motion.div>
             ))}
+            {performances.length === 0 && (
+              <div className="col-span-full text-center text-white/60">
+                No performance history available yet.
+              </div>
+            )}
           </div>
         )}
       </div>
