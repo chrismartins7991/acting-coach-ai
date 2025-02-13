@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type SubscriptionTier = 'free' | 'pro' | 'annual';
+export type SubscriptionTier = 'trial' | 'pro' | 'actor' | 'lifetime';
 
 interface UserUsage {
   performance_count: number;
@@ -66,11 +66,11 @@ export const useSubscription = () => {
   const canUploadPerformance = () => {
     if (!usage) return false;
     
-    if (usage.subscription_tier === 'free') {
+    if (usage.subscription_tier === 'trial') {
       return usage.performance_count < 2;
     }
     
-    if (usage.subscription_tier === 'pro' || usage.subscription_tier === 'annual') {
+    if (usage.subscription_tier === 'pro' || usage.subscription_tier === 'actor' || usage.subscription_tier === 'lifetime') {
       return usage.subscription_expiry ? new Date(usage.subscription_expiry) > new Date() : false;
     }
 
@@ -84,6 +84,6 @@ export const useSubscription = () => {
     error: usageError,
     canUploadPerformance,
     isSubscribed: usage?.is_subscribed || false,
-    subscriptionTier: usage?.subscription_tier || 'free',
+    subscriptionTier: usage?.subscription_tier || 'trial',
   };
 };
