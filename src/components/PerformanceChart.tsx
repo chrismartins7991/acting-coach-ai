@@ -26,6 +26,16 @@ interface DatabasePerformanceResult {
   user_id: string;
 }
 
+interface AnalysisJson {
+  overallScore?: number;
+  voice_feedback?: {
+    overallScore?: number;
+  };
+  ai_feedback?: {
+    overallScore?: number;
+  };
+}
+
 export const PerformanceChart = () => {
   const [performances, setPerformances] = useState<PerformanceData[]>([]);
   const [totalPoints, setTotalPoints] = useState(0);
@@ -37,23 +47,27 @@ export const PerformanceChart = () => {
     if (!analysis && !voiceAnalysis) return 0;
 
     // Try to extract score from various possible locations
-    if (analysis && typeof analysis === 'object') {
+    if (analysis && typeof analysis === 'object' && !Array.isArray(analysis)) {
+      const typedAnalysis = analysis as AnalysisJson;
+      
       // Direct overall score
       if ('overallScore' in analysis) {
         return Number(analysis.overallScore) || 0;
       }
+      
       // Nested in voice_feedback
-      if (analysis.voice_feedback && typeof analysis.voice_feedback === 'object' && 'overallScore' in analysis.voice_feedback) {
-        return Number(analysis.voice_feedback.overallScore) || 0;
+      if (typedAnalysis.voice_feedback?.overallScore !== undefined) {
+        return Number(typedAnalysis.voice_feedback.overallScore) || 0;
       }
+      
       // Nested in ai_feedback
-      if (analysis.ai_feedback && typeof analysis.ai_feedback === 'object' && 'overallScore' in analysis.ai_feedback) {
-        return Number(analysis.ai_feedback.overallScore) || 0;
+      if (typedAnalysis.ai_feedback?.overallScore !== undefined) {
+        return Number(typedAnalysis.ai_feedback.overallScore) || 0;
       }
     }
 
     // Try voice analysis
-    if (voiceAnalysis && typeof voiceAnalysis === 'object' && 'overallScore' in voiceAnalysis) {
+    if (voiceAnalysis && typeof voiceAnalysis === 'object' && !Array.isArray(voiceAnalysis) && 'overallScore' in voiceAnalysis) {
       return Number(voiceAnalysis.overallScore) || 0;
     }
 
