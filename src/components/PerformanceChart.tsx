@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -199,6 +198,16 @@ export const PerformanceChart = () => {
     }
   }, [user, toast, isSubscribed]);
 
+  const chartConfig = {
+    score: {
+      label: "Score",
+      theme: {
+        light: "#FFD700",
+        dark: "#FFD700"
+      }
+    }
+  };
+
   return (
     <Card className="relative z-0 p-8 bg-black/30 backdrop-blur-sm border-white/10 overflow-hidden mb-8">
       <div className="space-y-6">
@@ -210,7 +219,7 @@ export const PerformanceChart = () => {
         </div>
         
         <div className="h-[400px] mt-6">
-          <ChartContainer>
+          <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart 
                 data={performances}
