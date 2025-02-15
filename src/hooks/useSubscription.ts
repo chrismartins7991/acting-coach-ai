@@ -52,14 +52,14 @@ export const useSubscription = () => {
         .from('subscription_plans')
         .select('*')
         .eq('name', usage?.subscription_tier)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching subscription plan:", error);
         return null;
       }
 
-      return data as SubscriptionPlan;
+      return data as SubscriptionPlan | null;
     }
   });
 
