@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -209,21 +210,21 @@ export const PerformanceChart = () => {
   };
 
   return (
-    <Card className="relative z-0 p-8 bg-black/30 backdrop-blur-sm border-white/10 overflow-hidden mb-8">
-      <div className="space-y-6">
+    <Card className="relative z-0 p-4 sm:p-6 bg-black/30 backdrop-blur-sm border-white/10 overflow-hidden mb-4 max-w-[900px] mx-auto">
+      <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-white">Performance Progress</h2>
-          <div className="bg-theater-gold/20 px-4 py-2 rounded-full">
-            <span className="text-theater-gold font-semibold">{totalPoints} Points</span>
+          <h2 className="text-lg sm:text-xl font-semibold text-white">Performance Progress</h2>
+          <div className="bg-theater-gold/20 px-3 py-1.5 rounded-full">
+            <span className="text-theater-gold font-semibold text-sm sm:text-base">{totalPoints} Points</span>
           </div>
         </div>
         
-        <div className="h-[400px] mt-6">
+        <div className="h-[300px] sm:h-[350px] w-full">
           <ChartContainer config={chartConfig}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart 
                 data={performances}
-                margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
+                margin={{ top: 10, right: 10, left: 0, bottom: 35 }}
               >
                 <CartesianGrid 
                   strokeDasharray="3 3" 
@@ -234,27 +235,30 @@ export const PerformanceChart = () => {
                 <XAxis 
                   dataKey="date" 
                   stroke="#ffffff60"
-                  tick={{ fill: '#ffffff60' }}
+                  tick={{ fill: '#ffffff60', fontSize: 11 }}
                   tickLine={{ stroke: '#ffffff40' }}
                   axisLine={{ stroke: '#ffffff40' }}
                   angle={-45}
                   textAnchor="end"
-                  height={60}
+                  height={50}
+                  interval={0}
+                  scale="point"
                 />
                 <YAxis 
                   stroke="#ffffff60"
-                  tick={{ fill: '#ffffff60' }}
+                  tick={{ fill: '#ffffff60', fontSize: 11 }}
                   tickLine={{ stroke: '#ffffff40' }}
                   axisLine={{ stroke: '#ffffff40' }}
                   domain={[0, 100]}
                   ticks={[0, 20, 40, 60, 80, 100]}
+                  width={35}
                 />
                 <ChartTooltip
                   content={({ active, payload }) => {
                     if (!active || !payload?.length) return null;
                     return (
                       <ChartTooltipContent>
-                        <div className="text-sm font-medium space-y-1">
+                        <div className="text-xs sm:text-sm font-medium space-y-1">
                           <p className="text-theater-gold">Score: {payload[0].value}%</p>
                           <p className="text-white/80">{payload[0].payload.date}</p>
                           <p className="text-white/60 text-xs">{payload[0].payload.actualDate}</p>
@@ -269,13 +273,13 @@ export const PerformanceChart = () => {
                   stroke="#FFD700"
                   strokeWidth={2}
                   dot={{
-                    r: 6,
+                    r: 4,
                     fill: '#FFD700',
                     stroke: '#FFFFFF',
-                    strokeWidth: 2
+                    strokeWidth: 1
                   }}
                   activeDot={{
-                    r: 8,
+                    r: 6,
                     fill: '#FFD700',
                     stroke: '#FFFFFF',
                     strokeWidth: 2
