@@ -88,7 +88,7 @@ export const PerformanceChart = () => {
       }
 
       try {
-        console.log("Fetching performance data...");
+        console.log("Fetching performance data for user:", user.id);
 
         // First get user subscription start date from user_usage
         const { data: userData, error: userError } = await supabase
@@ -105,45 +105,81 @@ export const PerformanceChart = () => {
         const userStartDate = parseISO(userData.created_at);
         console.log("User start date:", userStartDate);
 
-        // Fetch all performance data
-        const [performanceResults, performanceAnalysis] = await Promise.all([
-          // Get performance_results
-          supabase
-            .from('performance_results')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: true }),
-          
-          // Get performances with analysis
-          supabase
-            .from('performances')
-            .select(`
-              id,
-              created_at,
-              performance_analysis (
-                overall_score,
-                ai_feedback,
-                voice_feedback
-              )
-            `)
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: true })
-        ]);
+        // Get performances from performances table
+        const { data: performancesData, error: performancesError } = await supabase
+          .from('performances')
+          .select(`
+            id,
+            created_at,
+            title,
+            status,
+            performance_analysis (*)
+          `)
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: true });
 
-        console.log("Performance results:", performanceResults.data);
-        console.log("Performance analysis:", performanceAnalysis.data);
+        if (performancesError) {
+          console.error("Error fetching performances:", performancesError);
+          return;
+        }
 
-        // Combine and process performance data
-        let allPerformances: any[] = [];
+        console.log("Performances data:", performancesData);
 
-        // Add performance results data
-        if (performanceResults.data) {
-          const resultsData = performanceResults.data.map(result => {
+        // Get performance results
+        const { data: resultsData, error: resultsError } = await supabase
+          .from('performance_results')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: true });
+
+        if (resultsError) {
+          console.error("Error fetching performance results:", resultsError);
+          return;
+        }
+
+        console.log("Performance results data:", resultsData);
+
+        let allPerformances: PerformanceData[] = [];
+
+        // Process performances data
+        if (performancesData) {
+          const performanceScores = performancesData.map(perf => {
+            const performanceDate = parseISO(perf.created_at);
+            const daysSinceStart = differenceInDays(performanceDate, userStartDate) + 1;
+            
+            // Extract score from performance_analysis
+            let score = 0;
+            if (perf.performance_analysis) {
+              const analysisArray = Array.isArray(perf.performance_analysis) 
+                ? perf.performance_analysis 
+                : [perf.performance_analysis];
+              
+              if (analysisArray.length > 0) {
+                const analysis = analysisArray[0];
+                score = analysis.overall_score || extractScore(analysis.ai_feedback as Json, analysis.voice_feedback as Json);
+              }
+            }
+
+            console.log(`Performance ${perf.id} score:`, score);
+            
+            return {
+              date: `Day ${daysSinceStart}`,
+              day: daysSinceStart,
+              score,
+              actualDate: format(performanceDate, 'MMM d, yyyy')
+            };
+          });
+          allPerformances = [...allPerformances, ...performanceScores];
+        }
+
+        // Process performance results data
+        if (resultsData) {
+          const resultScores = resultsData.map(result => {
             const performanceDate = parseISO(result.created_at);
             const daysSinceStart = differenceInDays(performanceDate, userStartDate) + 1;
             const score = extractScore(result.analysis, result.voice_analysis);
             
-            console.log(`Processing result from ${result.created_at}, score: ${score}`);
+            console.log(`Result ${result.id} score:`, score);
             
             return {
               date: `Day ${daysSinceStart}`,
@@ -152,41 +188,13 @@ export const PerformanceChart = () => {
               actualDate: format(performanceDate, 'MMM d, yyyy')
             };
           });
-          allPerformances = [...allPerformances, ...resultsData];
+          allPerformances = [...allPerformances, ...resultScores];
         }
 
-        // Add performance analysis data
-        if (performanceAnalysis.data) {
-          const analysisData = performanceAnalysis.data.map(perf => {
-            const performanceDate = parseISO(perf.created_at);
-            const daysSinceStart = differenceInDays(performanceDate, userStartDate) + 1;
-            let score: number;
-            
-            if (perf.performance_analysis && perf.performance_analysis.length > 0) {
-              const analysis = perf.performance_analysis[0];
-              score = analysis.overall_score || 
-                     extractScore(analysis.ai_feedback as Json, analysis.voice_feedback as Json);
-            } else {
-              score = 0;
-            }
-            
-            console.log(`Processing analysis from ${perf.created_at}, score: ${score}`);
-            
-            return {
-              date: `Day ${daysSinceStart}`,
-              day: daysSinceStart,
-              score,
-              actualDate: format(performanceDate, 'MMM d, yyyy')
-            };
-          });
-          allPerformances = [...allPerformances, ...analysisData];
-        }
-
-        // Filter valid scores, remove duplicates by date, and sort by day
+        // Filter and sort performances
         const validPerformances = allPerformances
           .filter(p => p.score > 0)
           .sort((a, b) => a.day - b.day)
-          // Remove duplicates keeping the highest score for each day
           .reduce((acc: PerformanceData[], current) => {
             const existingIndex = acc.findIndex(p => p.day === current.day);
             if (existingIndex === -1) {
@@ -219,10 +227,10 @@ export const PerformanceChart = () => {
       }
     };
 
-    if (isSubscribed && user) {
+    if (user) {
       fetchPerformanceData();
     }
-  }, [user, toast, isSubscribed]);
+  }, [user, toast]);
 
   const chartConfig = {
     score: {
