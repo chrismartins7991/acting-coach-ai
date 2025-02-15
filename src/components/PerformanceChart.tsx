@@ -224,7 +224,7 @@ export const PerformanceChart = () => {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart 
                 data={performances}
-                margin={{ top: 10, right: 10, left: 0, bottom: 35 }}
+                margin={{ top: 20, right: 20, left: 40, bottom: 60 }}
               >
                 <CartesianGrid 
                   strokeDasharray="3 3" 
@@ -240,9 +240,10 @@ export const PerformanceChart = () => {
                   axisLine={{ stroke: '#ffffff40' }}
                   angle={-45}
                   textAnchor="end"
-                  height={50}
+                  height={60}
                   interval={0}
                   scale="point"
+                  dy={10}
                 />
                 <YAxis 
                   stroke="#ffffff60"
@@ -252,6 +253,7 @@ export const PerformanceChart = () => {
                   domain={[0, 100]}
                   ticks={[0, 20, 40, 60, 80, 100]}
                   width={35}
+                  dx={-10}
                 />
                 <ChartTooltip
                   content={({ active, payload }) => {
