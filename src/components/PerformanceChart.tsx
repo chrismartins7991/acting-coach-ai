@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -28,6 +27,9 @@ interface DatabasePerformanceResult {
 
 interface AnalysisJson {
   overallScore?: number;
+  methodologicalAnalysis?: {
+    overallScore?: number;
+  };
   voice_feedback?: {
     overallScore?: number;
   };
@@ -52,6 +54,11 @@ export const PerformanceChart = () => {
       // Direct overall score
       if ('overallScore' in analysis) {
         return Number(analysis.overallScore) || 0;
+      }
+
+      // Check methodologicalAnalysis.overallScore
+      if (typedAnalysis.methodologicalAnalysis?.overallScore !== undefined) {
+        return Number(typedAnalysis.methodologicalAnalysis.overallScore) || 0;
       }
       
       // Nested in voice_feedback
@@ -153,7 +160,15 @@ export const PerformanceChart = () => {
           const analysisData = performanceAnalysis.data.map(perf => {
             const performanceDate = parseISO(perf.created_at);
             const daysSinceStart = differenceInDays(performanceDate, userStartDate) + 1;
-            const score = perf.performance_analysis?.[0]?.overall_score || 0;
+            let score: number;
+            
+            if (perf.performance_analysis && perf.performance_analysis.length > 0) {
+              const analysis = perf.performance_analysis[0];
+              score = analysis.overall_score || 
+                     extractScore(analysis.ai_feedback as Json, analysis.voice_feedback as Json);
+            } else {
+              score = 0;
+            }
             
             console.log(`Processing analysis from ${perf.created_at}, score: ${score}`);
             
@@ -167,10 +182,20 @@ export const PerformanceChart = () => {
           allPerformances = [...allPerformances, ...analysisData];
         }
 
-        // Filter valid scores and sort by day
+        // Filter valid scores, remove duplicates by date, and sort by day
         const validPerformances = allPerformances
           .filter(p => p.score > 0)
-          .sort((a, b) => a.day - b.day);
+          .sort((a, b) => a.day - b.day)
+          // Remove duplicates keeping the highest score for each day
+          .reduce((acc: PerformanceData[], current) => {
+            const existingIndex = acc.findIndex(p => p.day === current.day);
+            if (existingIndex === -1) {
+              acc.push(current);
+            } else if (current.score > acc[existingIndex].score) {
+              acc[existingIndex] = current;
+            }
+            return acc;
+          }, []);
 
         console.log("Final processed performances:", validPerformances);
         setPerformances(validPerformances);
