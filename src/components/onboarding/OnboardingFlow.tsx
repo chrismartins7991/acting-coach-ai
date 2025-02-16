@@ -42,7 +42,6 @@ export const OnboardingFlow = () => {
         if (progress) {
           setCurrentStep(progress.current_step as OnboardingStep);
         } else {
-          // Create initial progress record
           await supabase
             .from('onboarding_progress')
             .insert([{ user_id: user.id }]);
@@ -66,14 +65,12 @@ export const OnboardingFlow = () => {
     if (!user) return;
 
     try {
-      // Get current completed steps
       const { data: currentProgress } = await supabase
         .from('onboarding_progress')
         .select('completed_steps')
         .eq('user_id', user.id)
         .single();
 
-      // Update with new step
       const completedSteps = Array.isArray(currentProgress?.completed_steps) 
         ? [...currentProgress.completed_steps, currentStep]
         : [currentStep];
@@ -97,8 +94,9 @@ export const OnboardingFlow = () => {
     }
   };
 
-  const handleComplete = () => {
-    navigate("/dashboard");
+  const handleCoachSelectionComplete = () => {
+    // After coach selection, navigate to upload page
+    navigate("/upload");
   };
 
   if (isLoading) {
@@ -120,7 +118,7 @@ export const OnboardingFlow = () => {
       case "goals":
         return <GoalSetting onNext={() => updateProgress("coach-selection")} />;
       case "coach-selection":
-        return <CoachSelection onComplete={handleComplete} />;
+        return <CoachSelection onComplete={handleCoachSelectionComplete} />;
       default:
         return <WelcomeScreen onNext={() => updateProgress("initial-progress")} />;
     }

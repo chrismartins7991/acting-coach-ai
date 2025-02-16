@@ -29,22 +29,30 @@ export const InitialProgress = ({ onNext }: InitialProgressProps) => {
           onValueChange={setExperience}
           className="space-y-4"
         >
-          <div className="flex items-center space-x-3">
-            <RadioGroupItem value="beginner" id="beginner" />
-            <Label htmlFor="beginner" className="text-white">Just starting out (0-2 years)</Label>
-          </div>
-          <div className="flex items-center space-x-3">
-            <RadioGroupItem value="intermediate" id="intermediate" />
-            <Label htmlFor="intermediate" className="text-white">Some experience (2-5 years)</Label>
-          </div>
-          <div className="flex items-center space-x-3">
-            <RadioGroupItem value="advanced" id="advanced" />
-            <Label htmlFor="advanced" className="text-white">Experienced actor (5+ years)</Label>
-          </div>
-          <div className="flex items-center space-x-3">
-            <RadioGroupItem value="professional" id="professional" />
-            <Label htmlFor="professional" className="text-white">Professional actor</Label>
-          </div>
+          {[
+            { value: "beginner", label: "Just starting out (0-2 years)" },
+            { value: "intermediate", label: "Some experience (2-5 years)" },
+            { value: "advanced", label: "Experienced actor (5+ years)" },
+            { value: "professional", label: "Professional actor" }
+          ].map(({ value, label }) => (
+            <div key={value} className={`flex items-center space-x-3 p-4 rounded-lg transition-colors ${
+              experience === value 
+                ? 'bg-theater-gold/20 border border-theater-gold' 
+                : 'hover:bg-white/5'
+            }`}>
+              <RadioGroupItem value={value} id={value} className="border-theater-gold" />
+              <Label 
+                htmlFor={value} 
+                className={`text-lg ${
+                  experience === value 
+                    ? 'text-theater-gold font-semibold' 
+                    : 'text-white'
+                }`}
+              >
+                {label}
+              </Label>
+            </div>
+          ))}
         </RadioGroup>
       </div>
 
