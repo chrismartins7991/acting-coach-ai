@@ -9,13 +9,17 @@ export function PostHogPageTracker() {
   useEffect(() => {
     try {
       const url = window.origin + location.pathname
-      posthog.capture('$pageview', {
-        '$current_url': url
-      }).then(() => {
-        // Capture successful
-      }).catch(error => {
-        console.warn('Failed to capture pageview:', error)
+      const captureResult = posthog.capture('$pageview', {
+        '$current_url': url,
+        '$host': window.location.host,
+        '$pathname': location.pathname,
       })
+      
+      if (captureResult && typeof captureResult === 'object' && 'catch' in captureResult) {
+        captureResult.catch(error => {
+          console.warn('Failed to capture pageview:', error)
+        })
+      }
     } catch (error) {
       console.warn('Error in PostHogPageTracker:', error)
     }
@@ -23,4 +27,3 @@ export function PostHogPageTracker() {
 
   return null
 }
-

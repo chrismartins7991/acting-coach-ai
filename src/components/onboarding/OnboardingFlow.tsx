@@ -69,8 +69,9 @@ export const OnboardingFlow = () => {
         .single();
 
       // Update with new step
-      const completedSteps = currentProgress?.completed_steps || [];
-      completedSteps.push(currentStep);
+      const completedSteps = Array.isArray(currentProgress?.completed_steps) 
+        ? [...currentProgress.completed_steps, currentStep]
+        : [currentStep];
 
       await supabase
         .from('onboarding_progress')
@@ -118,4 +119,3 @@ export const OnboardingFlow = () => {
     </div>
   );
 };
-
