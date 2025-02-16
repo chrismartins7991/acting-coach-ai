@@ -5,6 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { WelcomeScreen } from "./steps/WelcomeScreen";
+import { InitialProgress } from "./steps/InitialProgress";
+import { AssessmentQuiz } from "./steps/AssessmentQuiz";
+import { ProgressCalculation } from "./steps/ProgressCalculation";
+import { ResultsOverview } from "./steps/ResultsOverview";
+import { GoalSetting } from "./steps/GoalSetting";
 import { CoachSelection } from "../onboarding/CoachSelection";
 
 type OnboardingStep = 
@@ -104,6 +109,16 @@ export const OnboardingFlow = () => {
     switch (currentStep) {
       case "welcome":
         return <WelcomeScreen onNext={() => updateProgress("initial-progress")} />;
+      case "initial-progress":
+        return <InitialProgress onNext={() => updateProgress("assessment")} />;
+      case "assessment":
+        return <AssessmentQuiz onNext={() => updateProgress("calculation")} />;
+      case "calculation":
+        return <ProgressCalculation onNext={() => updateProgress("results")} />;
+      case "results":
+        return <ResultsOverview onNext={() => updateProgress("goals")} />;
+      case "goals":
+        return <GoalSetting onNext={() => updateProgress("coach-selection")} />;
       case "coach-selection":
         return <CoachSelection onComplete={handleComplete} />;
       default:
