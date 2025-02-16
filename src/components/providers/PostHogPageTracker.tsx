@@ -7,10 +7,16 @@ export function PostHogPageTracker() {
   const location = useLocation()
 
   useEffect(() => {
-    const url = window.origin + location.pathname
-    posthog.capture('$pageview', {
-      '$current_url': url
-    })
+    try {
+      const url = window.origin + location.pathname
+      posthog.capture('$pageview', {
+        '$current_url': url
+      }).catch(error => {
+        console.warn('Failed to capture pageview:', error)
+      })
+    } catch (error) {
+      console.warn('Error in PostHogPageTracker:', error)
+    }
   }, [location])
 
   return null
