@@ -16,6 +16,7 @@ interface CoachSelectionProps {
 export const CoachSelection = ({ onComplete }: CoachSelectionProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
   const [centerIndex, setCenterIndex] = useState(0);
   const [api, setApi] = useState<CarouselApi>();
@@ -59,7 +60,6 @@ export const CoachSelection = ({ onComplete }: CoachSelectionProps) => {
             faceExpressions: data.face_expressions,
             clearnessOfDiction: data.clearness_of_diction,
           });
-          onComplete();
         }
       } catch (error) {
         console.error('Error fetching preferences:', error);
@@ -67,9 +67,7 @@ export const CoachSelection = ({ onComplete }: CoachSelectionProps) => {
     };
 
     fetchPreferences();
-  }, [user, onComplete]);
-
-  const navigate = useNavigate();
+  }, [user]);
 
   const handleSelect = async () => {
     if (!user) {
@@ -85,7 +83,6 @@ export const CoachSelection = ({ onComplete }: CoachSelectionProps) => {
     const coach = coaches[centerIndex];
     setSelectedCoach(coach.type);
     setShowPreferences(true);
-    console.log(`Selected coach: ${coach.name}`);
   };
 
   const handlePreferenceToggle = (preference: keyof typeof preferences) => {
@@ -120,6 +117,8 @@ export const CoachSelection = ({ onComplete }: CoachSelectionProps) => {
         description: "Your coach and analysis preferences have been saved",
       });
       
+      // Navigate to upload page after saving preferences
+      navigate("/upload");
       onComplete();
     } catch (error) {
       console.error('Error saving preferences:', error);
