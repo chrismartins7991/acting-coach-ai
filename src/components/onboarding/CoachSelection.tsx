@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { type CarouselApi } from "@/components/ui/carousel";
 import { useToast } from "@/components/ui/use-toast";
@@ -38,7 +37,6 @@ export const CoachSelection = ({ onComplete }: CoachSelectionProps) => {
   }, [api]);
 
   useEffect(() => {
-    // Fetch existing preferences when component mounts
     const fetchPreferences = async () => {
       if (!user) return;
       
@@ -117,8 +115,6 @@ export const CoachSelection = ({ onComplete }: CoachSelectionProps) => {
         description: "Your coach and analysis preferences have been saved",
       });
       
-      // Navigate to upload page after saving preferences
-      navigate("/upload");
       onComplete();
     } catch (error) {
       console.error('Error saving preferences:', error);

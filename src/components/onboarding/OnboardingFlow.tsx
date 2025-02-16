@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +20,11 @@ type OnboardingStep =
   | "goals"
   | "coach-selection";
 
-export const OnboardingFlow = () => {
+interface OnboardingFlowProps {
+  onComplete?: () => void;
+}
+
+export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -95,8 +98,9 @@ export const OnboardingFlow = () => {
   };
 
   const handleCoachSelectionComplete = () => {
-    // After coach selection, navigate to upload page
-    navigate("/upload");
+    if (onComplete) {
+      onComplete();
+    }
   };
 
   if (isLoading) {
