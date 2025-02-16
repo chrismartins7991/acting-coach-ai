@@ -65,6 +65,36 @@ export type Database = {
           },
         ]
       }
+      onboarding_progress: {
+        Row: {
+          completed_steps: Json | null
+          created_at: string
+          current_step: string
+          id: string
+          is_completed: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_steps?: Json | null
+          created_at?: string
+          current_step?: string
+          id?: string
+          is_completed?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_steps?: Json | null
+          created_at?: string
+          current_step?: string
+          id?: string
+          is_completed?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       performance_analysis: {
         Row: {
           ai_feedback: Json | null
@@ -229,6 +259,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_assessment: {
+        Row: {
+          acting_style: string | null
+          audition_readiness: number | null
+          challenges: Json | null
+          created_at: string
+          emotional_range: number | null
+          id: string
+          technical_skills: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acting_style?: string | null
+          audition_readiness?: number | null
+          challenges?: Json | null
+          created_at?: string
+          emotional_range?: number | null
+          id?: string
+          technical_skills?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acting_style?: string | null
+          audition_readiness?: number | null
+          challenges?: Json | null
+          created_at?: string
+          emotional_range?: number | null
+          id?: string
+          technical_skills?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_coach_preferences: {
         Row: {
           clearness_of_diction: boolean | null
@@ -265,6 +331,39 @@ export type Database = {
           updated_at?: string
           user_id?: string
           voice_expressiveness?: boolean | null
+        }
+        Relationships: []
+      }
+      user_goals: {
+        Row: {
+          category: string
+          created_at: string
+          goal: string
+          id: string
+          priority: number | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          goal: string
+          id?: string
+          priority?: number | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          goal?: string
+          id?: string
+          priority?: number | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
