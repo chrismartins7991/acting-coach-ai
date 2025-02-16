@@ -9,20 +9,19 @@ import { supabase } from "@/integrations/supabase/client"
 
 // Initialize PostHog with error handling
 try {
-  posthog.init('phc_F0aCwVpM2hdUxcy7g2PBVJFbJlmaZZaQ61qMPkzHvEu', {
+  posthog.init(import.meta.env.VITE_POSTHOG_KEY || 'phc_F0aCwVpM2hdUxcy7g2PBVJFbJlmaZZaQ61qMPkzHvEu', {
     api_host: 'https://eu.i.posthog.com',
-    person_profiles: 'identified_only',
-    capture_pageview: false, // Disable automatic pageview capture
-    persistence: 'localStorage',
-    bootstrap: {
-      distinctID: 'anonymous',
-      isIdentified: false
-    },
-    autocapture: false, // Disable autocapture to reduce requests
     loaded: (posthog) => {
       // Successfully loaded
       console.log('PostHog loaded successfully');
     },
+    persistence: 'localStorage',
+    bootstrap: {
+      distinctId: 'anonymous',
+      isIdentifiedId: false
+    },
+    autocapture: false, // Disable autocapture to reduce requests
+    capture_pageview: false, // Disable automatic pageview capture
     sanitize_properties: (props) => {
       // Remove any sensitive information from the properties
       const { $current_url, $referrer, ...sanitizedProps } = props
@@ -32,14 +31,13 @@ try {
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     },
-    request_timeout: 10000, // 10 second timeout
-    opt_out_capturing_by_default: true // Only capture after explicit opt-in
+    request_timeout: 10000 // 10 second timeout
   })
 } catch (error) {
   console.warn('PostHog initialization failed:', error)
   // Create a mock posthog object to prevent errors
   window.posthog = {
-    capture: () => {},
+    capture: () => Promise.resolve({ status: 1 }),
     identify: () => {},
     reset: () => {},
     people: {
@@ -53,3 +51,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>,
 )
+

@@ -11,6 +11,8 @@ export function PostHogPageTracker() {
       const url = window.origin + location.pathname
       posthog.capture('$pageview', {
         '$current_url': url
+      }).then(() => {
+        // Capture successful
       }).catch(error => {
         console.warn('Failed to capture pageview:', error)
       })
@@ -21,3 +23,4 @@ export function PostHogPageTracker() {
 
   return null
 }
+

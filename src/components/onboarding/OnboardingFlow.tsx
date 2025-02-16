@@ -5,11 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { WelcomeScreen } from "./steps/WelcomeScreen";
-import { InitialProgress } from "./steps/InitialProgress";
-import { AssessmentQuiz } from "./steps/AssessmentQuiz";
-import { ProgressCalculation } from "./steps/ProgressCalculation";
-import { ResultsOverview } from "./steps/ResultsOverview";
-import { GoalSetting } from "./steps/GoalSetting";
 import { CoachSelection } from "../onboarding/CoachSelection";
 
 type OnboardingStep = 
@@ -66,11 +61,22 @@ export const OnboardingFlow = () => {
     if (!user) return;
 
     try {
+      // Get current completed steps
+      const { data: currentProgress } = await supabase
+        .from('onboarding_progress')
+        .select('completed_steps')
+        .eq('user_id', user.id)
+        .single();
+
+      // Update with new step
+      const completedSteps = currentProgress?.completed_steps || [];
+      completedSteps.push(currentStep);
+
       await supabase
         .from('onboarding_progress')
         .update({ 
           current_step: nextStep,
-          completed_steps: supabase.sql`array_append(completed_steps, ${currentStep})`
+          completed_steps: completedSteps
         })
         .eq('user_id', user.id);
 
@@ -97,16 +103,6 @@ export const OnboardingFlow = () => {
     switch (currentStep) {
       case "welcome":
         return <WelcomeScreen onNext={() => updateProgress("initial-progress")} />;
-      case "initial-progress":
-        return <InitialProgress onNext={() => updateProgress("assessment")} />;
-      case "assessment":
-        return <AssessmentQuiz onNext={() => updateProgress("calculation")} />;
-      case "calculation":
-        return <ProgressCalculation onNext={() => updateProgress("results")} />;
-      case "results":
-        return <ResultsOverview onNext={() => updateProgress("goals")} />;
-      case "goals":
-        return <GoalSetting onNext={() => updateProgress("coach-selection")} />;
       case "coach-selection":
         return <CoachSelection onComplete={handleComplete} />;
       default:
@@ -122,3 +118,4 @@ export const OnboardingFlow = () => {
     </div>
   );
 };
+
