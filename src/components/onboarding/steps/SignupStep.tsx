@@ -100,6 +100,17 @@ export const SignupStep = ({ onNext }: SignupStepProps) => {
         >
           {isLoading ? "Creating account..." : "Sign Up & Continue"}
         </Button>
+
+        <div className="text-center">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onNext}
+            className="text-gray-400 hover:text-white hover:bg-black/30"
+          >
+            Skip for now
+          </Button>
+        </div>
       </form>
     </motion.div>
   );
