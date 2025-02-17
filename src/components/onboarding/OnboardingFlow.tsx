@@ -10,9 +10,11 @@ import { ProgressCalculation } from "./steps/ProgressCalculation";
 import { ResultsOverview } from "./steps/ResultsOverview";
 import { GoalSetting } from "./steps/GoalSetting";
 import { CoachSelection } from "../onboarding/CoachSelection";
+import { SignupStep } from "./steps/SignupStep";
 
 type OnboardingStep = 
   | "welcome"
+  | "signup"
   | "initial-progress"
   | "assessment"
   | "calculation"
@@ -22,18 +24,22 @@ type OnboardingStep =
 
 interface OnboardingFlowProps {
   onComplete?: () => void;
+  startStep?: OnboardingStep;
 }
 
-export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
+export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: OnboardingFlowProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>("welcome");
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>(startStep);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkOnboardingProgress = async () => {
-      if (!user) return;
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
 
       try {
         const { data: progress } = await supabase
@@ -65,36 +71,36 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   }, [user, toast]);
 
   const updateProgress = async (nextStep: OnboardingStep) => {
-    if (!user) return;
-
-    try {
-      const { data: currentProgress } = await supabase
-        .from('onboarding_progress')
-        .select('completed_steps')
-        .eq('user_id', user.id)
-        .single();
-
-      const completedSteps = Array.isArray(currentProgress?.completed_steps) 
-        ? [...currentProgress.completed_steps, currentStep]
-        : [currentStep];
-
-      await supabase
-        .from('onboarding_progress')
-        .update({ 
-          current_step: nextStep,
-          completed_steps: completedSteps
-        })
-        .eq('user_id', user.id);
-
-      setCurrentStep(nextStep);
-    } catch (error) {
-      console.error('Error updating progress:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update progress",
-        variant: "destructive",
-      });
+    if (!user && nextStep !== "signup") {
+      setCurrentStep("signup");
+      return;
     }
+
+    if (user) {
+      try {
+        const { data: currentProgress } = await supabase
+          .from('onboarding_progress')
+          .select('completed_steps')
+          .eq('user_id', user.id)
+          .single();
+
+        const completedSteps = Array.isArray(currentProgress?.completed_steps) 
+          ? [...currentProgress.completed_steps, currentStep]
+          : [currentStep];
+
+        await supabase
+          .from('onboarding_progress')
+          .update({ 
+            current_step: nextStep,
+            completed_steps: completedSteps
+          })
+          .eq('user_id', user.id);
+      } catch (error) {
+        console.error('Error updating progress:', error);
+      }
+    }
+
+    setCurrentStep(nextStep);
   };
 
   const handleCoachSelectionComplete = () => {
@@ -110,7 +116,9 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
   const renderStep = () => {
     switch (currentStep) {
       case "welcome":
-        return <WelcomeScreen onNext={() => updateProgress("initial-progress")} />;
+        return <WelcomeScreen onNext={() => updateProgress("signup")} />;
+      case "signup":
+        return <SignupStep onNext={() => updateProgress("initial-progress")} />;
       case "initial-progress":
         return <InitialProgress onNext={() => updateProgress("assessment")} />;
       case "assessment":
@@ -124,7 +132,7 @@ export const OnboardingFlow = ({ onComplete }: OnboardingFlowProps) => {
       case "coach-selection":
         return <CoachSelection onComplete={handleCoachSelectionComplete} />;
       default:
-        return <WelcomeScreen onNext={() => updateProgress("initial-progress")} />;
+        return <WelcomeScreen onNext={() => updateProgress("signup")} />;
     }
   };
 

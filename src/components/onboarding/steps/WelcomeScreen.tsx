@@ -11,7 +11,7 @@ export const WelcomeScreen = ({ onNext }: WelcomeScreenProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="text-center space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-8"
+      className="text-center space-y-6 sm:space-y-8 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto"
     >
       <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
         AI ACTING COACH

@@ -11,7 +11,7 @@ export const Hero = () => {
   const isMobile = useIsMobile();
 
   const handleGetStarted = () => {
-    navigate('/signup');
+    navigate('/welcome');
   };
 
   return (
