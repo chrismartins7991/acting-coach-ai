@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,15 +33,17 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(startStep);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const checkOnboardingProgress = async () => {
-      if (!user) {
+      // Only check progress if user is authenticated and we're past the welcome/signup steps
+      if (!user || currentStep === "welcome" || currentStep === "signup") {
         setIsLoading(false);
         return;
       }
 
+      setIsLoading(true);
       try {
         const { data: progress } = await supabase
           .from('onboarding_progress')
@@ -49,11 +52,14 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
           .single();
 
         if (progress) {
-          setCurrentStep(progress.current_step as OnboardingStep);
+          // Only update if we're past signup
+          if (progress.current_step !== "welcome" && progress.current_step !== "signup") {
+            setCurrentStep(progress.current_step as OnboardingStep);
+          }
         } else {
           await supabase
             .from('onboarding_progress')
-            .insert([{ user_id: user.id }]);
+            .insert([{ user_id: user.id, current_step: currentStep }]);
         }
       } catch (error) {
         console.error('Error checking onboarding progress:', error);
@@ -68,15 +74,23 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
     };
 
     checkOnboardingProgress();
-  }, [user, toast]);
+  }, [user, currentStep, toast]);
 
   const updateProgress = async (nextStep: OnboardingStep) => {
+    // Special handling for welcome to signup transition
+    if (currentStep === "welcome" && nextStep === "signup") {
+      setCurrentStep("signup");
+      return;
+    }
+
+    // Require authentication for steps after signup
     if (!user && nextStep !== "signup") {
       setCurrentStep("signup");
       return;
     }
 
-    if (user) {
+    // Update progress in database for authenticated users
+    if (user && nextStep !== "welcome" && nextStep !== "signup") {
       try {
         const { data: currentProgress } = await supabase
           .from('onboarding_progress')
