@@ -9,16 +9,10 @@ interface AssessmentQuizProps {
   onNext: () => void;
 }
 
-interface Question {
-  id: string;
-  text: string;
-  options: { value: string; label: string }[];
-}
-
 export const AssessmentQuiz = ({ onNext }: AssessmentQuizProps) => {
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
-  const questions: Question[] = [
+  const questions = [
     {
       id: "practice",
       text: "How often do you practice acting?",
@@ -74,21 +68,21 @@ export const AssessmentQuiz = ({ onNext }: AssessmentQuizProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-3xl mx-auto space-y-8"
+      className="max-w-3xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-6"
     >
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-white mb-4">Quick Assessment</h2>
-        <p className="text-gray-300">Help us understand your acting preferences</p>
+        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4">Quick Assessment</h2>
+        <p className="text-base sm:text-lg text-gray-300">Help us understand your acting preferences</p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {questions.map((question) => (
-          <div key={question.id} className="bg-black/30 p-6 rounded-lg border border-theater-gold">
-            <h3 className="text-xl font-semibold text-white mb-4">{question.text}</h3>
+          <div key={question.id} className="bg-black/30 p-4 sm:p-6 rounded-lg border border-theater-gold">
+            <h3 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">{question.text}</h3>
             <RadioGroup
               value={answers[question.id] || ""}
               onValueChange={(value) => handleAnswerChange(question.id, value)}
-              className="space-y-3"
+              className="space-y-2 sm:space-y-3"
             >
               {question.options.map((option) => (
                 <div
@@ -106,7 +100,7 @@ export const AssessmentQuiz = ({ onNext }: AssessmentQuizProps) => {
                   />
                   <Label
                     htmlFor={`${question.id}-${option.value}`}
-                    className={`${
+                    className={`text-base sm:text-lg ${
                       answers[question.id] === option.value
                         ? 'text-theater-gold font-semibold'
                         : 'text-white'
@@ -121,11 +115,11 @@ export const AssessmentQuiz = ({ onNext }: AssessmentQuizProps) => {
         ))}
       </div>
 
-      <div className="flex justify-center">
+      <div className="flex justify-center pt-4">
         <Button
           onClick={onNext}
           disabled={!isComplete}
-          className="bg-theater-gold hover:bg-theater-gold/90 text-black font-bold px-8 py-3"
+          className="w-full sm:w-auto bg-theater-gold hover:bg-theater-gold/90 text-black font-bold px-6 sm:px-8 py-3"
         >
           Continue
         </Button>

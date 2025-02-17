@@ -128,23 +128,27 @@ export const CoachSelection = ({ onComplete }: CoachSelectionProps) => {
 
   return (
     <>
-      <div className="text-center space-y-4">
-        <h1 className="text-3xl md:text-4xl font-bold text-white">Choose Your Acting Coach</h1>
-        <p className="text-lg text-gray-300">Select an iconic coach to analyze your performance</p>
+      <div className="text-center space-y-4 px-4 sm:px-6">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Choose Your Acting Coach</h1>
+        <p className="text-base sm:text-lg text-gray-300">Select an iconic coach to analyze your performance</p>
       </div>
 
       {!showPreferences ? (
-        <CoachCarousel 
-          onCoachSelect={handleSelect}
-          centerIndex={centerIndex}
-          setApi={setApi}
-        />
+        <div className="px-2 sm:px-8 md:px-12">
+          <CoachCarousel 
+            onCoachSelect={handleSelect}
+            centerIndex={centerIndex}
+            setApi={setApi}
+          />
+        </div>
       ) : (
-        <PreferencesForm
-          preferences={preferences}
-          onTogglePreference={handlePreferenceToggle}
-          onSave={handleSavePreferences}
-        />
+        <div className="px-4 sm:px-6">
+          <PreferencesForm
+            preferences={preferences}
+            onTogglePreference={handlePreferenceToggle}
+            onSave={handleSavePreferences}
+          />
+        </div>
       )}
     </>
   );

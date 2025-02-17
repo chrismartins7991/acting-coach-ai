@@ -16,18 +16,18 @@ export const InitialProgress = ({ onNext }: InitialProgressProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-2xl mx-auto space-y-8"
+      className="max-w-2xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-6"
     >
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-white mb-4">Your Acting Journey</h2>
-        <p className="text-gray-300">Let's understand where you are in your acting career</p>
+        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4">Your Acting Journey</h2>
+        <p className="text-base sm:text-lg text-gray-300">Let's understand where you are in your acting career</p>
       </div>
 
-      <div className="bg-black/30 p-8 rounded-lg border border-theater-gold space-y-6">
+      <div className="bg-black/30 p-4 sm:p-8 rounded-lg border border-theater-gold space-y-4 sm:space-y-6">
         <RadioGroup
           value={experience}
           onValueChange={setExperience}
-          className="space-y-4"
+          className="space-y-3 sm:space-y-4"
         >
           {[
             { value: "beginner", label: "Just starting out (0-2 years)" },
@@ -35,7 +35,7 @@ export const InitialProgress = ({ onNext }: InitialProgressProps) => {
             { value: "advanced", label: "Experienced actor (5+ years)" },
             { value: "professional", label: "Professional actor" }
           ].map(({ value, label }) => (
-            <div key={value} className={`flex items-center space-x-3 p-4 rounded-lg transition-colors ${
+            <div key={value} className={`flex items-center space-x-3 p-3 sm:p-4 rounded-lg transition-colors ${
               experience === value 
                 ? 'bg-theater-gold/20 border border-theater-gold' 
                 : 'hover:bg-white/5'
@@ -43,7 +43,7 @@ export const InitialProgress = ({ onNext }: InitialProgressProps) => {
               <RadioGroupItem value={value} id={value} className="border-theater-gold" />
               <Label 
                 htmlFor={value} 
-                className={`text-lg ${
+                className={`text-base sm:text-lg ${
                   experience === value 
                     ? 'text-theater-gold font-semibold' 
                     : 'text-white'
@@ -56,11 +56,11 @@ export const InitialProgress = ({ onNext }: InitialProgressProps) => {
         </RadioGroup>
       </div>
 
-      <div className="flex justify-center">
+      <div className="flex justify-center pt-4">
         <Button
           onClick={onNext}
           disabled={!experience}
-          className="bg-theater-gold hover:bg-theater-gold/90 text-black font-bold px-8 py-3"
+          className="w-full sm:w-auto bg-theater-gold hover:bg-theater-gold/90 text-black font-bold px-6 sm:px-8 py-3"
         >
           Continue to Assessment
         </Button>
