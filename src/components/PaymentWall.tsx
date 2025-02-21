@@ -77,7 +77,7 @@ export const PaymentWall = ({ isOpen, onComplete }: PaymentWallProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onComplete ? () => onComplete() : undefined}>
       <DialogContent 
-        className="sm:max-w-[95vw] lg:max-w-7xl bg-black/95 border-theater-gold backdrop-blur-lg h-[90vh] sm:h-auto overflow-y-auto"
+        className="max-h-screen w-[95vw] max-w-none sm:max-w-[95vw] lg:max-w-7xl bg-black/95 border-theater-gold backdrop-blur-lg overflow-y-auto"
         onPointerDownOutside={(e) => {
           if (onComplete) {
             e.preventDefault();
@@ -85,17 +85,20 @@ export const PaymentWall = ({ isOpen, onComplete }: PaymentWallProps) => {
           }
         }}
       >
-        <div className="text-center space-y-4 sm:space-y-6 py-4">
-          <h2 className="text-xl sm:text-2xl md:text-3xl text-white font-bold px-2">
-            Unlock Your Performance Analysis
-          </h2>
-          <p className="text-base sm:text-lg text-gray-300 px-2">
-            Choose a plan to view your detailed acting analysis and feedback
-          </p>
-          <div className={`grid grid-cols-1 gap-4 px-2 sm:px-4 ${
+        <div className="flex flex-col items-center justify-start min-h-0 max-h-full py-6 px-4">
+          <div className="text-center space-y-4 mb-6">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white font-bold">
+              Unlock Your Performance Analysis
+            </h2>
+            <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">
+              Choose a plan to view your detailed acting analysis and feedback
+            </p>
+          </div>
+          
+          <div className={`w-full grid gap-6 auto-rows-fr ${
             isMobile 
-              ? '' 
-              : 'md:grid-cols-2 lg:grid-cols-4 gap-6'
+              ? 'grid-cols-1' 
+              : 'sm:grid-cols-2 lg:grid-cols-4'
           }`}>
             {plans.map((plan) => (
               <PlanCard
