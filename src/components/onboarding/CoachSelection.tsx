@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { type CarouselApi } from "@/components/ui/carousel";
 import { useToast } from "@/components/ui/use-toast";
@@ -15,7 +16,6 @@ interface CoachSelectionProps {
 export const CoachSelection = ({ onComplete }: CoachSelectionProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
   const [centerIndex, setCenterIndex] = useState(0);
   const [api, setApi] = useState<CarouselApi>();
@@ -74,7 +74,6 @@ export const CoachSelection = ({ onComplete }: CoachSelectionProps) => {
         description: "Please log in to select a coach",
         variant: "destructive",
       });
-      navigate("/login");
       return;
     }
 
@@ -115,6 +114,7 @@ export const CoachSelection = ({ onComplete }: CoachSelectionProps) => {
         description: "Your coach and analysis preferences have been saved",
       });
       
+      // Call onComplete to trigger navigation to upload page
       onComplete();
     } catch (error) {
       console.error('Error saving preferences:', error);

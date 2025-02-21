@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,7 +36,6 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
 
   useEffect(() => {
     const checkOnboardingProgress = async () => {
-      // Only check progress if user is authenticated and we're past the welcome/signup steps
       if (!user || currentStep === "welcome" || currentStep === "signup") {
         setIsLoading(false);
         return;
@@ -52,7 +50,6 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
           .single();
 
         if (progress) {
-          // Only update if we're past signup
           if (progress.current_step !== "welcome" && progress.current_step !== "signup") {
             setCurrentStep(progress.current_step as OnboardingStep);
           }
@@ -77,19 +74,16 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
   }, [user, currentStep, toast]);
 
   const updateProgress = async (nextStep: OnboardingStep) => {
-    // Special handling for welcome to signup transition
     if (currentStep === "welcome" && nextStep === "signup") {
       setCurrentStep("signup");
       return;
     }
 
-    // Require authentication for steps after signup
     if (!user && nextStep !== "signup") {
       setCurrentStep("signup");
       return;
     }
 
-    // Update progress in database for authenticated users
     if (user && nextStep !== "welcome" && nextStep !== "signup") {
       try {
         const { data: currentProgress } = await supabase
@@ -121,6 +115,7 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
     if (onComplete) {
       onComplete();
     }
+    navigate('/upload');
   };
 
   if (isLoading) {
