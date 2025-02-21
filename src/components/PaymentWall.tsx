@@ -61,7 +61,6 @@ export const PaymentWall = ({ isOpen, onComplete }: PaymentWallProps) => {
         return;
       }
 
-      // Redirect to Stripe Checkout
       window.location.href = data.url;
     } catch (error) {
       console.error('Error creating checkout session:', error);
@@ -78,7 +77,7 @@ export const PaymentWall = ({ isOpen, onComplete }: PaymentWallProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onComplete ? () => onComplete() : undefined}>
       <DialogContent 
-        className="sm:max-w-[95vw] lg:max-w-7xl bg-black/95 border-theater-gold backdrop-blur-lg"
+        className="sm:max-w-[95vw] lg:max-w-7xl bg-black/95 border-theater-gold backdrop-blur-lg h-[90vh] sm:h-auto overflow-y-auto"
         onPointerDownOutside={(e) => {
           if (onComplete) {
             e.preventDefault();
@@ -86,17 +85,17 @@ export const PaymentWall = ({ isOpen, onComplete }: PaymentWallProps) => {
           }
         }}
       >
-        <div className="text-center space-y-6 py-4">
-          <h2 className="text-2xl md:text-3xl text-white font-bold">
+        <div className="text-center space-y-4 sm:space-y-6 py-4">
+          <h2 className="text-xl sm:text-2xl md:text-3xl text-white font-bold px-2">
             Unlock Your Performance Analysis
           </h2>
-          <p className="text-lg text-gray-300">
+          <p className="text-base sm:text-lg text-gray-300 px-2">
             Choose a plan to view your detailed acting analysis and feedback
           </p>
-          <div className={`grid grid-cols-1 ${
+          <div className={`grid grid-cols-1 gap-4 px-2 sm:px-4 ${
             isMobile 
-              ? 'gap-4 px-2' 
-              : 'md:grid-cols-2 lg:grid-cols-4 gap-6 px-4'
+              ? '' 
+              : 'md:grid-cols-2 lg:grid-cols-4 gap-6'
           }`}>
             {plans.map((plan) => (
               <PlanCard
@@ -112,4 +111,3 @@ export const PaymentWall = ({ isOpen, onComplete }: PaymentWallProps) => {
     </Dialog>
   );
 };
-
