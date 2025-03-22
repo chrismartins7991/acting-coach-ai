@@ -77,7 +77,11 @@ export const PaymentWall = ({ isOpen, onComplete }: PaymentWallProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onComplete ? () => onComplete() : undefined}>
       <DialogContent 
-        className="max-h-screen w-[95vw] max-w-none sm:max-w-[95vw] lg:max-w-7xl bg-black/95 border-theater-gold backdrop-blur-lg overflow-y-auto"
+        className="sm:max-w-[95vw] md:max-w-4xl lg:max-w-6xl xl:max-w-7xl overflow-y-auto bg-black/95 border-theater-gold backdrop-blur-lg"
+        style={{ 
+          maxHeight: '90vh',
+          width: 'calc(100% - 32px)'  // Ensures there's a margin on mobile
+        }}
         onPointerDownOutside={(e) => {
           if (onComplete) {
             e.preventDefault();
@@ -85,21 +89,17 @@ export const PaymentWall = ({ isOpen, onComplete }: PaymentWallProps) => {
           }
         }}
       >
-        <div className="flex flex-col items-center justify-start min-h-0 max-h-full py-6 px-4">
-          <div className="text-center space-y-4 mb-6">
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white font-bold">
+        <div className="flex flex-col items-center justify-start py-4 px-2 sm:py-6 sm:px-4 md:px-6">
+          <div className="text-center space-y-2 sm:space-y-4 mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white font-bold">
               Unlock Your Performance Analysis
             </h2>
-            <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto">
               Choose a plan to view your detailed acting analysis and feedback
             </p>
           </div>
           
-          <div className={`w-full grid gap-6 auto-rows-fr ${
-            isMobile 
-              ? 'grid-cols-1' 
-              : 'sm:grid-cols-2 lg:grid-cols-4'
-          }`}>
+          <div className="w-full grid gap-3 sm:gap-4 md:gap-5 lg:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 auto-rows-fr">
             {plans.map((plan) => (
               <PlanCard
                 key={plan.id}

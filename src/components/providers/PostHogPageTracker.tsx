@@ -10,7 +10,7 @@ export function PostHogPageTracker() {
     try {
       const url = window.origin + location.pathname
       // Ensure posthog.capture is called with the correct arguments
-      posthog?.capture('$pageview', {
+      posthog?.capture?.('$pageview', {
         $current_url: url,
         $host: window.location.host,
         $pathname: location.pathname,
