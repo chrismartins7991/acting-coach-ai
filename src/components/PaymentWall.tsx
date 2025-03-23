@@ -75,31 +75,40 @@ export const PaymentWall = ({ isOpen, onComplete }: PaymentWallProps) => {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onComplete ? () => onComplete() : undefined}>
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={onComplete ? () => onComplete() : undefined}
+    >
       <DialogContent 
-        className="sm:max-w-[95vw] md:max-w-4xl lg:max-w-6xl xl:max-w-7xl overflow-y-auto bg-black/95 border-theater-gold backdrop-blur-lg"
+        className="bg-black/95 border-theater-gold backdrop-blur-lg rounded-lg"
         style={{ 
+          width: isMobile ? 'calc(100% - 32px)' : 'auto',
+          maxWidth: isMobile ? '100%' : '95vw',
           maxHeight: '90vh',
-          width: 'calc(100% - 32px)'  // Ensures there's a margin on mobile
+          overflow: 'auto',
+          margin: isMobile ? '16px' : 'auto',
         }}
+        // Prevent closing by clicking outside
         onPointerDownOutside={(e) => {
-          if (onComplete) {
-            e.preventDefault();
-            onComplete();
-          }
+          // Prevent closing by clicking outside
+          e.preventDefault();
+        }}
+        onEscapeKeyDown={(e) => {
+          // Prevent closing by pressing Escape
+          e.preventDefault();
         }}
       >
-        <div className="flex flex-col items-center justify-start py-4 px-2 sm:py-6 sm:px-4 md:px-6">
-          <div className="text-center space-y-2 sm:space-y-4 mb-4 sm:mb-6">
-            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-white font-bold">
+        <div className="flex flex-col items-center justify-start p-2 sm:p-4 md:p-6">
+          <div className="text-center space-y-2 sm:space-y-3 mb-4 sm:mb-6">
+            <h2 className="text-base sm:text-xl md:text-2xl text-white font-bold">
               Unlock Your Performance Analysis
             </h2>
-            <p className="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xs sm:text-sm md:text-base text-gray-300 max-w-2xl mx-auto">
               Choose a plan to view your detailed acting analysis and feedback
             </p>
           </div>
           
-          <div className="w-full grid gap-3 sm:gap-4 md:gap-5 lg:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 auto-rows-fr">
+          <div className="w-full grid gap-3 sm:gap-4 md:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 auto-rows-fr">
             {plans.map((plan) => (
               <PlanCard
                 key={plan.id}

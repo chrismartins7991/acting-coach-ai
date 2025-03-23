@@ -19,6 +19,7 @@ const LastResults = () => {
   const [voiceAnalysis, setVoiceAnalysis] = useState<VoiceAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchLastResults = async () => {
@@ -40,6 +41,11 @@ const LastResults = () => {
             throw new Error('Please complete the coach selection process first.');
           }
           throw preferencesError;
+        }
+
+        // Store the selected coach for display
+        if (preferences?.methodology) {
+          setSelectedCoach(preferences.methodology);
         }
 
         const { data, error } = await supabase
@@ -108,30 +114,46 @@ const LastResults = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red">
       <TopMenu />
-      <div className="container mx-auto px-4 py-8 pt-32 max-w-7xl">
-        <div className="flex items-center gap-4 mb-8">
+      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 pt-24 sm:pt-32 max-w-7xl">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-8">
           <Button
             variant="ghost"
             onClick={() => navigate('/upload')}
-            className="text-white hover:text-theater-gold hover:bg-white/10"
+            className="text-white hover:text-theater-gold hover:bg-white/10 w-full sm:w-auto"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Upload
           </Button>
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white">
             Performance Results
           </h1>
+          
+          {selectedCoach && (
+            <div className="ml-auto hidden sm:block">
+              <span className="bg-theater-gold/20 text-theater-gold px-3 py-1 rounded-full text-sm border border-theater-gold/50">
+                {selectedCoach} Method
+              </span>
+            </div>
+          )}
         </div>
+        
+        {selectedCoach && (
+          <div className="mb-4 sm:hidden">
+            <span className="bg-theater-gold/20 text-theater-gold px-3 py-1 rounded-full text-sm border border-theater-gold/50">
+              {selectedCoach} Method
+            </span>
+          </div>
+        )}
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-12">
+          <div className="flex flex-col items-center justify-center py-8 sm:py-12">
             <Loader2 className="h-8 w-8 animate-spin text-theater-gold" />
             <p className="text-white mt-4">Loading your results...</p>
           </div>
         ) : error ? (
-          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
-            <div className="text-white text-center py-12">
-              <p className="text-lg mb-4">{error}</p>
+          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-white/10">
+            <div className="text-white text-center py-8 sm:py-12">
+              <p className="text-base sm:text-lg mb-4">{error}</p>
               <Button
                 onClick={() => navigate('/upload')}
                 className="bg-theater-gold hover:bg-theater-gold/80 text-black"
@@ -141,16 +163,17 @@ const LastResults = () => {
             </div>
           </div>
         ) : analysis || voiceAnalysis ? (
-          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 border border-white/10">
+          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3 sm:p-6 border border-white/10">
             <PerformanceAnalysis
               analysis={analysis}
               voiceAnalysis={voiceAnalysis}
               isLoading={false}
+              methodology={selectedCoach}
             />
           </div>
         ) : (
-          <div className="text-white text-center py-12">
-            <p className="text-lg mb-4">No performance results found.</p>
+          <div className="text-white text-center py-8 sm:py-12">
+            <p className="text-base sm:text-lg mb-4">No performance results found.</p>
             <Button
               onClick={() => navigate('/upload')}
               className="bg-theater-gold hover:bg-theater-gold/80 text-black"
