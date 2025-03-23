@@ -108,7 +108,7 @@ export const PaymentWall = ({ isOpen, onComplete }: PaymentWallProps) => {
             </p>
           </div>
           
-          <div className="w-full grid gap-3 sm:gap-4 md:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 auto-rows-fr">
+          <div className="w-full grid gap-3 sm:gap-5 md:gap-6 lg:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {plans.map((plan) => (
               <PlanCard
                 key={plan.id}
