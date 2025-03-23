@@ -26,7 +26,7 @@ export const Hero = () => {
           alt="AI Acting Coach Logo" 
           className={`object-contain ${isMobile ? 'w-[90vw] max-w-[500px] h-auto' : 'w-16 h-16'}`}
           loading="eager"
-          fetchpriority="high"
+          fetchPriority="high"
         />
       </div>
 
