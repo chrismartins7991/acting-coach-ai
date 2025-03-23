@@ -8,10 +8,11 @@ interface PerformanceAnalysisProps {
   analysis: Analysis | null;
   voiceAnalysis: VoiceAnalysis | null;
   isLoading?: boolean;
+  methodology?: string | null;
 }
 
-export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: PerformanceAnalysisProps) => {
-  console.log("PerformanceAnalysis received:", { analysis, voiceAnalysis, isLoading });
+export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading, methodology }: PerformanceAnalysisProps) => {
+  console.log("PerformanceAnalysis received:", { analysis, voiceAnalysis, isLoading, methodology });
 
   // Define the mapping of coach avatars
   const methodologyPortraits = {
@@ -65,10 +66,11 @@ export const PerformanceAnalysis = ({ analysis, voiceAnalysis, isLoading }: Perf
     return name.replace(/([A-Z])/g, ' $1').trim();
   };
 
-  // Get the selected coach from methodologicalAnalysis
-  const selectedCoach = analysis?.methodologicalAnalysis?.methodologies 
-    ? Object.keys(analysis.methodologicalAnalysis.methodologies)[0]
-    : null;
+  // Get the selected coach from methodologicalAnalysis or passed methodology prop
+  const selectedCoach = methodology || 
+    (analysis?.methodologicalAnalysis?.methodologies 
+      ? Object.keys(analysis.methodologicalAnalysis.methodologies)[0]
+      : null);
 
   const combinedScore = analysis && voiceAnalysis 
     ? Math.round((analysis.overallScore + voiceAnalysis.overallScore) / 2)

@@ -44,8 +44,8 @@ const LastResults = () => {
         }
 
         // Store the selected coach for display
-        if (preferences?.methodology) {
-          setSelectedCoach(preferences.methodology);
+        if (preferences?.selected_coach) {
+          setSelectedCoach(preferences.selected_coach);
         }
 
         const { data, error } = await supabase
