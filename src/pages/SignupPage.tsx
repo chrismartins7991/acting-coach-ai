@@ -57,7 +57,7 @@ export default function SignupPage() {
       {/* Logo */}
       <Link to="/" className="absolute top-4 left-4 z-10">
         <img 
-          src="/AI Acting Coach Logo-nobackground.png" 
+          src="AI Acting Coach Logo-nobackground.png" 
           alt="AI Acting Coach Logo" 
           className="w-24 h-auto object-contain"
           loading="eager"

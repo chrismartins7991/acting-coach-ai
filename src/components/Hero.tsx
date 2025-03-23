@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
@@ -21,7 +22,7 @@ export const Hero = () => {
       {/* Logo - positioned with margin to prevent overlap */}
       <div className={`absolute z-20 ${isMobile ? 'top-16 left-1/2 -translate-x-1/2' : 'top-4 left-4'}`}>
         <img 
-          src="/AI Acting Coach Logo-nobackground.png" 
+          src="AI Acting Coach Logo-nobackground.png" 
           alt="AI Acting Coach Logo" 
           className={`object-contain ${isMobile ? 'w-[90vw] max-w-[500px] h-auto' : 'w-16 h-16'}`}
           loading="eager"
