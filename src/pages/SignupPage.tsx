@@ -59,7 +59,7 @@ export default function SignupPage() {
         <img 
           src="/AI Acting Coach Logo-nobackground.png" 
           alt="AI Acting Coach Logo" 
-          className="w-16 h-16 object-contain"
+          className="w-24 h-auto object-contain"
           loading="eager"
           fetchPriority="high"
         />
@@ -119,4 +119,4 @@ export default function SignupPage() {
       </div>
     </div>
   );
-};
+}
