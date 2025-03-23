@@ -61,7 +61,6 @@ export default function SignupPage() {
           alt="AI Acting Coach Logo" 
           className="w-24 h-auto object-contain"
           loading="eager"
-          fetchPriority="high"
         />
       </Link>
 

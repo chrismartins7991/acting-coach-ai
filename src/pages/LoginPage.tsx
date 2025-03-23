@@ -63,7 +63,6 @@ export default function LoginPage() {
           alt="AI Acting Coach Logo" 
           className="w-24 h-auto object-contain"
           loading="eager"
-          fetchPriority="high"
         />
       </Link>
 
