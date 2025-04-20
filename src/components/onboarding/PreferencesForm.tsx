@@ -14,7 +14,7 @@ interface PreferencesProps {
     faceExpressions: boolean;
     clearnessOfDiction: boolean;
   };
-  onTogglePreference: (preference: keyof typeof preferences) => void;
+  onTogglePreference: (preference: keyof PreferencesProps['preferences']) => void;
   onSave: () => void;
 }
 
