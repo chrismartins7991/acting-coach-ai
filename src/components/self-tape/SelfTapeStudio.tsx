@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Camera, Video, Mic, MicOff, Play, Stop, Download, Clipboard, Settings } from "lucide-react";
+import { Camera, Video, Mic, MicOff, Play, stop as Stop, Download, Clipboard, Settings } from "lucide-react";
 import { CameraView } from "./CameraView";
 import { TakeCounter } from "./TakeCounter";
 import { FramingGuide } from "./FramingGuide";

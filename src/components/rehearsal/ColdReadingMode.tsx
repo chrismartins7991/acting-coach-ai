@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
-import { Book, Clock, Timer, Upload, Search, Play, Stop } from "lucide-react";
+import { Book, Clock, Timer, Upload, Search, Play, stop as Stop } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 export const ColdReadingMode = () => {

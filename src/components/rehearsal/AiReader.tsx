@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Play, Stop, Mic } from "lucide-react";
+import { Play, stop as Stop, Mic } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface AiReaderProps {

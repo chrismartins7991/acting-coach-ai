@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { BookOpen } from "lucide-react";
 
 interface ScriptEditorProps {
   value: string;

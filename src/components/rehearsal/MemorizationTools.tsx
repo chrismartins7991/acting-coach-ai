@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Eye, EyeOff, Play, Headphones } from "lucide-react";
+import { Eye, EyeOff, Play, Headphones, stop as Stop } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface MemorizationToolsProps {
