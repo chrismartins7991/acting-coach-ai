@@ -13,6 +13,8 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import LastResults from "./pages/LastResults";
 import { OnboardingFlow } from "./components/onboarding/OnboardingFlow";
+import SelfTapeStudioPage from "./pages/SelfTapeStudioPage";
+import RehearsalRoomPage from "./pages/RehearsalRoomPage";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +81,22 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <LastResults />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/self-tape-studio"
+              element={
+                <ProtectedRoute>
+                  <SelfTapeStudioPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/rehearsal-room"
+              element={
+                <ProtectedRoute>
+                  <RehearsalRoomPage />
                 </ProtectedRoute>
               }
             />

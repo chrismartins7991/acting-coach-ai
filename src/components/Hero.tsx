@@ -53,10 +53,10 @@ export const Hero = () => {
           </h1>
           
           <p className="text-lg md:text-2xl text-gray-200 mb-8 leading-relaxed max-w-3xl mx-auto">
-            Master your craft with personalized feedback based on Stanislavski, Brecht, Lee Strasberg and Chekhov methods.
+            Master your craft with personalized feedback, a self-tape studio, and an advanced rehearsal room.
           </p>
 
-          <div className="flex items-center justify-center gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-6">
             <div className="relative">
               <div className="absolute inset-0">
                 <SparklesCore
@@ -75,6 +75,25 @@ export const Hero = () => {
                 className="bg-[#FFD700] hover:bg-[#FFD700]/90 text-black font-semibold text-base px-6 py-5 relative z-10 transition-all duration-300 hover:scale-105"
               >
                 Analyse my Performance
+              </Button>
+            </div>
+
+            {/* Feature links */}
+            <div className="flex flex-wrap gap-4 justify-center mt-4">
+              <Button
+                onClick={() => navigate('/self-tape-studio')}
+                variant="outline"
+                className="text-white hover:text-theater-gold border-white/20 hover:border-theater-gold/50"
+              >
+                Self-Tape Studio
+              </Button>
+              
+              <Button
+                onClick={() => navigate('/rehearsal-room')}
+                variant="outline"
+                className="text-white hover:text-theater-gold border-white/20 hover:border-theater-gold/50"
+              >
+                Rehearsal Room
               </Button>
             </div>
 
