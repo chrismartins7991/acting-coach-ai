@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Eye, EyeOff, Play, Headphones, stop as Stop } from "lucide-react";
+import { Eye, EyeOff, Play, Headphones, Square } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface MemorizationToolsProps {
@@ -19,7 +18,6 @@ export const MemorizationTools = ({ script }: MemorizationToolsProps) => {
   const [isListening, setIsListening] = useState(false);
   const [mode, setMode] = useState<"hide-lines" | "audio">("hide-lines");
   
-  // Parse script to identify characters
   const characters = script ? [...new Set(
     script.split('\n')
       .filter(line => /^[A-Z]+:/.test(line))
@@ -42,8 +40,6 @@ export const MemorizationTools = ({ script }: MemorizationToolsProps) => {
       description: "You can now listen to the script. Your lines are muted.",
     });
     
-    // Implementation for actual audio playback would go here
-    // For now we just toggle the state after 3 seconds
     setTimeout(() => {
       setIsListening(false);
     }, 3000);
@@ -63,18 +59,14 @@ export const MemorizationTools = ({ script }: MemorizationToolsProps) => {
     const lines = text.split('\n');
     
     return lines.map(line => {
-      // If we're in "hide all but mine" mode and this is my character's line
       if (hideAllButMine && characterName && line.startsWith(`${characterName}:`)) {
-        return line; // Don't hide my character's lines
+        return line;
       }
       
-      // For other lines or when not in "hide all but mine" mode
-      // Calculate how many characters to hide based on hidePercentage
       const hideCount = Math.floor(line.length * (hidePercentage / 100));
       
       if (hideCount <= 0) return line;
       
-      // Keep character names visible
       const colonIndex = line.indexOf(':');
       if (colonIndex > 0) {
         const name = line.substring(0, colonIndex + 1);
@@ -90,7 +82,6 @@ export const MemorizationTools = ({ script }: MemorizationToolsProps) => {
         return `${name}${visiblePart}${hiddenPart}`;
       }
       
-      // For lines without character names
       const visiblePart = line.substring(0, line.length - hideCount);
       const hiddenPart = "█".repeat(hideCount);
       
@@ -223,7 +214,7 @@ export const MemorizationTools = ({ script }: MemorizationToolsProps) => {
                     variant="destructive"
                     className="flex-1"
                   >
-                    <Stop className="mr-2 h-4 w-4" />
+                    <Square className="mr-2 h-4 w-4" />
                     Stop Audio
                   </Button>
                 )}

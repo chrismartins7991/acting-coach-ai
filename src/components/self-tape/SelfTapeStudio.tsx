@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Camera, Video, Mic, MicOff, Play, stop as Stop, Download, Clipboard, Settings } from "lucide-react";
+import { Camera, Video, Mic, MicOff, Play, Square, Download, Clipboard, Settings } from "lucide-react";
 import { CameraView } from "./CameraView";
 import { TakeCounter } from "./TakeCounter";
 import { FramingGuide } from "./FramingGuide";
@@ -205,7 +204,7 @@ export const SelfTapeStudio = () => {
                   </Button>
                 ) : isRecording ? (
                   <Button onClick={handleStopRecording} variant="destructive">
-                    <Stop className="mr-2 h-4 w-4" />
+                    <Square className="mr-2 h-4 w-4" />
                     Stop Recording
                   </Button>
                 ) : null}

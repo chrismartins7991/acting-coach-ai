@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
-import { Book, Clock, Timer, Upload, Search, Play, stop as Stop } from "lucide-react";
+import { Book, Clock, Timer, Upload, Search, Play, Square } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 export const ColdReadingMode = () => {
@@ -164,7 +163,7 @@ export const ColdReadingMode = () => {
               onClick={handleStopPractice}
               variant="destructive"
             >
-              <Stop className="mr-2 h-4 w-4" />
+              <Square className="mr-2 h-4 w-4" />
               End Practice
             </Button>
           </div>

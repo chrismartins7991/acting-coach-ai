@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Play, stop as Stop, Mic } from "lucide-react";
+import { Play, Square, Mic } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface AiReaderProps {
@@ -35,8 +34,6 @@ export const AiReader = ({ script }: AiReaderProps) => {
       description: "The AI reader is now reading your script.",
     });
     
-    // Implementation for actual voice playback would go here
-    // For now we just toggle the state after 3 seconds
     setTimeout(() => {
       setIsPlaying(false);
     }, 3000);
@@ -146,7 +143,7 @@ export const AiReader = ({ script }: AiReaderProps) => {
           </Button>
         ) : (
           <Button onClick={handleStop} variant="destructive" className="flex-1">
-            <Stop className="mr-2 h-4 w-4" />
+            <Square className="mr-2 h-4 w-4" />
             Stop Reading
           </Button>
         )}
