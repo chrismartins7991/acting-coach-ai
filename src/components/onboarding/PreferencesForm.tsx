@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -5,7 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-export const PreferencesForm = () => {
+interface PreferencesProps {
+  preferences: {
+    emotionInVoice: boolean;
+    voiceExpressiveness: boolean;
+    physicalPresence: boolean;
+    faceExpressions: boolean;
+    clearnessOfDiction: boolean;
+  };
+  onTogglePreference: (preference: keyof typeof preferences) => void;
+  onSave: () => void;
+}
+
+export const PreferencesForm = ({ 
+  preferences, 
+  onTogglePreference, 
+  onSave 
+}: PreferencesProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -34,9 +51,8 @@ export const PreferencesForm = () => {
       description: "Your preferences have been saved successfully.",
     });
 
-    setTimeout(() => {
-      navigate("/upload");
-    }, 1500);
+    // Call the onSave callback passed via props
+    onSave();
   };
 
   return (
@@ -92,6 +108,66 @@ export const PreferencesForm = () => {
             <option value="lee_strasberg">Lee Strasberg</option>
             <option value="chekhov">Chekhov</option>
           </select>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-white">Analysis Preferences</h3>
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2">
+            <input 
+              type="checkbox" 
+              id="emotionInVoice" 
+              checked={preferences.emotionInVoice}
+              onChange={() => onTogglePreference('emotionInVoice')}
+              className="rounded border-gray-400"
+            />
+            <Label htmlFor="emotionInVoice" className="text-gray-300">Emotion in Voice</Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <input 
+              type="checkbox" 
+              id="voiceExpressiveness" 
+              checked={preferences.voiceExpressiveness}
+              onChange={() => onTogglePreference('voiceExpressiveness')}
+              className="rounded border-gray-400"
+            />
+            <Label htmlFor="voiceExpressiveness" className="text-gray-300">Voice Expressiveness</Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <input 
+              type="checkbox" 
+              id="physicalPresence" 
+              checked={preferences.physicalPresence}
+              onChange={() => onTogglePreference('physicalPresence')}
+              className="rounded border-gray-400"
+            />
+            <Label htmlFor="physicalPresence" className="text-gray-300">Physical Presence</Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <input 
+              type="checkbox" 
+              id="faceExpressions" 
+              checked={preferences.faceExpressions}
+              onChange={() => onTogglePreference('faceExpressions')}
+              className="rounded border-gray-400"
+            />
+            <Label htmlFor="faceExpressions" className="text-gray-300">Facial Expressions</Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <input 
+              type="checkbox" 
+              id="clearnessOfDiction" 
+              checked={preferences.clearnessOfDiction}
+              onChange={() => onTogglePreference('clearnessOfDiction')}
+              className="rounded border-gray-400"
+            />
+            <Label htmlFor="clearnessOfDiction" className="text-gray-300">Clearness of Diction</Label>
+          </div>
         </div>
       </div>
 
