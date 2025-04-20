@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
@@ -77,23 +78,7 @@ export const Hero = () => {
               </Button>
             </div>
 
-            <div className="flex flex-wrap gap-4 justify-center mt-4">
-              <Button
-                onClick={() => navigate('/self-tape-studio')}
-                variant="outline"
-                className="text-white hover:text-theater-gold border-white/20 hover:border-theater-gold/50"
-              >
-                Self-Tape Studio
-              </Button>
-              
-              <Button
-                onClick={() => navigate('/rehearsal-room')}
-                variant="outline"
-                className="text-white hover:text-theater-gold border-white/20 hover:border-theater-gold/50"
-              >
-                Rehearsal Room
-              </Button>
-            </div>
+            {/* Removed the Self-Tape Studio and Rehearsal Room buttons as requested */}
           </div>
 
           <p className="mt-4 text-sm text-gray-400">
@@ -104,3 +89,4 @@ export const Hero = () => {
     </section>
   );
 };
+
