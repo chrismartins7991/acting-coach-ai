@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
@@ -49,11 +48,11 @@ export const Hero = () => {
           className="text-center max-w-4xl mx-auto"
         >
           <h1 className="text-5xl md:text-8xl font-bold text-white mb-4 tracking-tight">
-            Your AI Acting Coach
+            Your AI Acting Studio
           </h1>
           
           <p className="text-lg md:text-2xl text-gray-200 mb-8 leading-relaxed max-w-3xl mx-auto">
-            Master your craft with personalized feedback, a self-tape studio, and an advanced rehearsal room.
+            Master your craft with self-tape studio, rehearsal room, and advanced AI coaching.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-6">
@@ -72,13 +71,12 @@ export const Hero = () => {
               <Button
                 onClick={handleGetStarted}
                 size="lg"
-                className="bg-[#FFD700] hover:bg-[#FFD700]/90 text-black font-semibold text-base px-6 py-5 relative z-10 transition-all duration-300 hover:scale-105"
+                className="bg-theater-gold hover:bg-theater-gold/90 text-black font-semibold text-base px-6 py-5 relative z-10 transition-all duration-300 hover:scale-105"
               >
-                Analyse my Performance
+                Start Your Journey
               </Button>
             </div>
 
-            {/* Feature links */}
             <div className="flex flex-wrap gap-4 justify-center mt-4">
               <Button
                 onClick={() => navigate('/self-tape-studio')}
@@ -96,21 +94,10 @@ export const Hero = () => {
                 Rehearsal Room
               </Button>
             </div>
-
-            {/* "Start the Trial" button - hidden on mobile */}
-            {!isMobile && (
-              <Button
-                onClick={handleGetStarted}
-                variant="link"
-                className="text-[#6B1525] hover:text-theater-gold text-lg font-medium"
-              >
-                Start the Trial
-              </Button>
-            )}
           </div>
 
           <p className="mt-4 text-sm text-gray-400">
-            Made by actors, for actors • Cancel anytime
+            Professional acting tools • AI-powered feedback • Cancel anytime
           </p>
         </motion.div>
       </div>

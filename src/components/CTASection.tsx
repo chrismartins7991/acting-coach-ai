@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
-import { Check, X, Home, Video, Target } from "lucide-react";
+import { Check, X, Home, Video, Target, BookOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface CTASectionProps {
@@ -13,19 +13,19 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
 
   const whyUseReasons = [
     {
-      icon: Home,
-      title: "Rehearse Drama School Exercises at Home",
-      description: "Practice and perfect your drama school exercises in a comfortable, private environment with instant AI feedback."
+      icon: Video,
+      title: "Professional Self-Tape Studio",
+      description: "Record auditions with framing guides, lighting tips, and built-in teleprompter. Compare takes side-by-side."
     },
     {
-      icon: Video,
-      title: "Prepare and Refine Self Tapes",
-      description: "Get professional-level analysis and improvements for your self-tape auditions before sending them out."
+      icon: BookOpen,
+      title: "Advanced Rehearsal Room",
+      description: "Practice with AI scene partners, memorization tools, and cold reading simulations."
     },
     {
       icon: Target,
       title: "Targeted Skill Improvement",
-      description: "Focus on specific weaknesses and work towards your individual acting goals with personalized AI guidance."
+      description: "Get personalized AI feedback based on professional acting methods."
     }
   ];
 
@@ -34,18 +34,18 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
       name: 'Trial',
       price: '1',
       period: 'trial',
-      description: 'Perfect for trying out AI acting analysis',
+      description: 'Perfect for trying out AI acting tools',
       features: [
-        { name: 'AI Performance Analysis', included: true },
-        { name: '1 Scene Analysis per Month', included: true },
-        { name: 'Basic Emotion Accuracy Score', included: true },
-        { name: 'Basic Body Language Analysis', included: true },
-        { name: 'AI Professor Pick (Strasberg, Chekhov, etc)', included: false },
-        { name: 'Digital Certified Actor Badge (NFT)', included: false },
-        { name: 'Performance Tracking Over Time', included: false },
-        { name: 'Detailed Feedback Reports', included: false },
-        { name: 'Professional Actor Comparisons', included: false },
-        { name: 'History of Performance Analyses', included: false }
+        { name: 'Basic Self-Tape Recording', included: true },
+        { name: 'Simple Framing Guide', included: true },
+        { name: 'Basic Script Reading', included: true },
+        { name: 'Limited AI Scene Partner', included: true },
+        { name: 'Teleprompter Features', included: false },
+        { name: 'Take Comparison Tools', included: false },
+        { name: 'Cold Reading Practice', included: false },
+        { name: 'Memorization Tools', included: false },
+        { name: 'Custom Export Templates', included: false },
+        { name: 'Advanced AI Reader Options', included: false }
       ],
       buttonText: 'Get Started',
       popular: false
@@ -54,18 +54,18 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
       name: 'Pro',
       price: '7.99',
       period: 'month',
-      description: 'Enhanced access to AI coaching features',
+      description: 'Enhanced access to studio features',
       features: [
-        { name: 'AI Performance Analysis', included: true },
-        { name: '10 Scene Analyses per Month', included: true },
-        { name: 'Advanced Emotion Accuracy Score', included: true },
-        { name: 'Detailed Body Language Analysis', included: true },
-        { name: 'Random AI Professor Method Based Analyses', included: true },
-        { name: 'Performance Tracking Over Time', included: true },
-        { name: 'Digital Certified Actor Badge (NFT)', included: false },
-        { name: 'Detailed Feedback Reports', included: false },
-        { name: 'Professional Actor Comparisons', included: false },
-        { name: 'History of Performance Analyses', included: false }
+        { name: 'Professional Self-Tape Studio', included: true },
+        { name: 'Advanced Framing Guides', included: true },
+        { name: 'Take Comparison Tools', included: true },
+        { name: 'Full Script Reading Features', included: true },
+        { name: 'Teleprompter with Controls', included: true },
+        { name: 'Basic Export Templates', included: true },
+        { name: 'Cold Reading Practice', included: true },
+        { name: 'Basic Memorization Tools', included: false },
+        { name: 'Custom Export Templates', included: false },
+        { name: 'Advanced AI Reader Options', included: false }
       ],
       buttonText: 'Start Pro Trial',
       popular: false
@@ -75,18 +75,18 @@ export const CTASection = ({ onGetStarted }: CTASectionProps) => {
       price: '9.22',
       originalPrice: '12.90',
       period: 'month',
-      description: 'Full access to all AI coaching features',
+      description: 'Full access to all studio features',
       features: [
-        { name: 'AI Performance Analysis', included: true },
-        { name: 'Unlimited Scene Analyses', included: true },
-        { name: 'Advanced Emotion Accuracy Score', included: true },
-        { name: 'Digital Certified Actor Badge (NFT)', included: true },
-        { name: 'Detailed Body Language Analysis', included: true },
-        { name: 'AI Professor Pick (Strasberg, Chekhov, etc)', included: true },
-        { name: 'Performance Tracking Over Time', included: true },
-        { name: 'Detailed Feedback Reports', included: true },
-        { name: 'Professional Actor Comparisons', included: true },
-        { name: 'History of Performance Analyses', included: true }
+        { name: 'Professional Self-Tape Studio', included: true },
+        { name: 'Advanced Framing & Lighting', included: true },
+        { name: 'Advanced Take Comparison', included: true },
+        { name: 'Full Rehearsal Room Access', included: true },
+        { name: 'Advanced Teleprompter', included: true },
+        { name: 'Custom Export Templates', included: true },
+        { name: 'Advanced Cold Reading', included: true },
+        { name: 'Full Memorization Tools', included: true },
+        { name: 'Multi-Language AI Readers', included: true },
+        { name: 'Priority Support', included: true }
       ],
       buttonText: 'Become an Actor',
       popular: true

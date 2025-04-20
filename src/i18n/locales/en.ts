@@ -1,8 +1,9 @@
+
 export default {
   translation: {
     hero: {
-      title: "Your AI Acting Coach",
-      subtitle: "Master your craft with personalized feedback based on Stanislavski, Brecht, Lee Strasberg and Chekhov methods.",
+      title: "Your AI Acting Studio",
+      subtitle: "Master your craft with self-tape studio, rehearsal room, and advanced AI coaching based on established methods.",
       startTrial: "Start Free Trial",
       learnMore: "Learn more",
       login: "Login",
