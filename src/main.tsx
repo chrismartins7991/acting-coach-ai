@@ -1,4 +1,3 @@
-
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
@@ -6,7 +5,7 @@ import './index.css'
 import './i18n'
 import { Toaster } from '@/components/ui/toaster'
 import posthog from 'posthog-js'
-import { defineCustomElements } from '@ionic/pwa-elements/loader';
+import { defineCustomElements } from '@ionic/pwa-elements/loader'
 
 // Initialize PWA elements for native features
 defineCustomElements(window);
