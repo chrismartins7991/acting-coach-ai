@@ -6,6 +6,10 @@ import './index.css'
 import './i18n'
 import { Toaster } from '@/components/ui/toaster'
 import posthog from 'posthog-js'
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
+
+// Initialize PWA elements for native features
+defineCustomElements(window);
 
 // Initialize PostHog with your project API key and host URL (if available)
 if (import.meta.env.VITE_POSTHOG_API_KEY) {
