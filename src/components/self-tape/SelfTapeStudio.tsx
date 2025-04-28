@@ -1,20 +1,12 @@
-import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Camera, Video, Mic, MicOff, Play, Square, Download, Clipboard, Settings } from "lucide-react";
-import { CameraView } from "./CameraView";
-import { TakeCounter } from "./TakeCounter";
-import { FramingGuide } from "./FramingGuide";
-import { Teleprompter } from "./Teleprompter";
-import { LightingTips } from "./LightingTips";
+import { useToast } from "@/components/ui/use-toast";
+import { CameraPreview } from "./camera/CameraPreview";
+import { RecordingControls } from "./controls/RecordingControls";
+import { TeleprompterSettings } from "./teleprompter/TeleprompterSettings";
 import { TakeComparison } from "./TakeComparison";
 import { ExportOptions } from "./ExportOptions";
-import { useToast } from "@/components/ui/use-toast";
 
 export const SelfTapeStudio = () => {
   const { toast } = useToast();
@@ -35,7 +27,7 @@ export const SelfTapeStudio = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const recordedChunksRef = useRef<BlobPart[]>([]);
-  
+
   const handleStartCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -130,200 +122,55 @@ export const SelfTapeStudio = () => {
           </TabsList>
           
           <TabsContent value="record" className="space-y-6">
-            <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-              {cameraActive ? (
-                <CameraView stream={streamRef.current} />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Button onClick={handleStartCamera}>
-                    <Camera className="mr-2 h-4 w-4" />
-                    Activate Camera
-                  </Button>
-                </div>
-              )}
-              
-              {cameraActive && showFramingGuide && (
-                <FramingGuide />
-              )}
-              
-              {cameraActive && showTeleprompter && (
-                <Teleprompter 
-                  text={teleprompterText}
-                  speed={teleprompterSpeed}
-                  opacity={teleprompterOpacity}
-                  isRecording={isRecording}
-                />
-              )}
-              
-              {cameraActive && showLightingTips && (
-                <LightingTips />
-              )}
-              
-              {cameraActive && (
-                <TakeCounter currentTake={currentTake} />
-              )}
-            </div>
+            <CameraPreview
+              cameraActive={cameraActive}
+              showFramingGuide={showFramingGuide}
+              showTeleprompter={showTeleprompter}
+              showLightingTips={showLightingTips}
+              currentTake={currentTake}
+              stream={streamRef.current}
+              teleprompterText={teleprompterText}
+              teleprompterSpeed={teleprompterSpeed}
+              teleprompterOpacity={teleprompterOpacity}
+              isRecording={isRecording}
+              onStartCamera={handleStartCamera}
+            />
             
-            <div className="flex flex-wrap gap-4 justify-between items-center">
-              <div className="space-y-2">
-                <div className="flex items-center space-x-4">
-                  <Button
-                    variant={micActive ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setMicActive(!micActive)}
-                  >
-                    {micActive ? <Mic className="h-4 w-4 mr-2" /> : <MicOff className="h-4 w-4 mr-2" />}
-                    {micActive ? "Mic On" : "Mic Off"}
-                  </Button>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="framing-guide"
-                      checked={showFramingGuide}
-                      onCheckedChange={setShowFramingGuide}
-                    />
-                    <Label htmlFor="framing-guide">Framing Guide</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="lighting-tips"
-                      checked={showLightingTips}
-                      onCheckedChange={setShowLightingTips}
-                    />
-                    <Label htmlFor="lighting-tips">Lighting Tips</Label>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex space-x-4">
-                {cameraActive && !isRecording ? (
-                  <Button onClick={handleStartRecording} className="bg-red-600 hover:bg-red-700">
-                    <Video className="mr-2 h-4 w-4" />
-                    Start Recording
-                  </Button>
-                ) : isRecording ? (
-                  <Button onClick={handleStopRecording} variant="destructive">
-                    <Square className="mr-2 h-4 w-4" />
-                    Stop Recording
-                  </Button>
-                ) : null}
-                
-                {cameraActive && (
-                  <Button variant="outline" onClick={handleStopCamera}>
-                    Turn Off Camera
-                  </Button>
-                )}
-              </div>
-            </div>
+            <RecordingControls
+              cameraActive={cameraActive}
+              micActive={micActive}
+              isRecording={isRecording}
+              showFramingGuide={showFramingGuide}
+              showLightingTips={showLightingTips}
+              onMicToggle={() => setMicActive(!micActive)}
+              onFramingGuideToggle={setShowFramingGuide}
+              onLightingTipsToggle={setShowLightingTips}
+              onStartCamera={handleStartCamera}
+              onStopCamera={handleStopCamera}
+              onStartRecording={handleStartRecording}
+              onStopRecording={handleStopRecording}
+            />
           </TabsContent>
           
           <TabsContent value="teleprompter" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="teleprompter-text">Script</Label>
-                  <textarea
-                    id="teleprompter-text"
-                    className="w-full h-60 p-3 bg-black/50 text-white border border-white/20 rounded-md"
-                    placeholder="Paste your script here..."
-                    value={teleprompterText}
-                    onChange={(e) => setTeleprompterText(e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="show-teleprompter"
-                      checked={showTeleprompter}
-                      onCheckedChange={setShowTeleprompter}
-                    />
-                    <Label htmlFor="show-teleprompter">Show Teleprompter</Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="ai-reader"
-                      checked={aiReaderEnabled}
-                      onCheckedChange={setAiReaderEnabled}
-                    />
-                    <Label htmlFor="ai-reader">AI Reader</Label>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <Label>
-                    Scroll Speed: {teleprompterSpeed}%
-                  </Label>
-                  <Slider
-                    value={[teleprompterSpeed]}
-                    min={10}
-                    max={100}
-                    step={1}
-                    onValueChange={(values) => setTeleprompterSpeed(values[0])}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label>
-                    Opacity: {teleprompterOpacity}%
-                  </Label>
-                  <Slider
-                    value={[teleprompterOpacity]}
-                    min={10}
-                    max={100}
-                    step={1}
-                    onValueChange={(values) => setTeleprompterOpacity(values[0])}
-                  />
-                </div>
-                
-                {aiReaderEnabled && (
-                  <div className="space-y-4 bg-black/20 p-4 rounded-lg border border-white/10">
-                    <h3 className="text-lg font-semibold text-white">AI Reader Settings</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="ai-voice">Voice</Label>
-                        <select 
-                          id="ai-voice" 
-                          className="w-full p-2 bg-black/50 text-white border border-white/20 rounded-md"
-                        >
-                          <option value="female-neutral">Female (Neutral)</option>
-                          <option value="male-neutral">Male (Neutral)</option>
-                          <option value="female-dramatic">Female (Dramatic)</option>
-                          <option value="male-dramatic">Male (Dramatic)</option>
-                        </select>
-                      </div>
-                      <div>
-                        <Label htmlFor="ai-accent">Accent</Label>
-                        <select 
-                          id="ai-accent" 
-                          className="w-full p-2 bg-black/50 text-white border border-white/20 rounded-md"
-                        >
-                          <option value="american">American</option>
-                          <option value="british">British</option>
-                          <option value="australian">Australian</option>
-                          <option value="irish">Irish</option>
-                        </select>
-                      </div>
-                    </div>
-                    <Button className="w-full mt-2">
-                      <Play className="mr-2 h-4 w-4" />
-                      Test Voice
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
+            <TeleprompterSettings
+              showTeleprompter={showTeleprompter}
+              teleprompterSpeed={teleprompterSpeed}
+              teleprompterOpacity={teleprompterOpacity}
+              teleprompterText={teleprompterText}
+              aiReaderEnabled={aiReaderEnabled}
+              onShowTeleprompterChange={setShowTeleprompter}
+              onSpeedChange={(values) => setTeleprompterSpeed(values[0])}
+              onOpacityChange={(values) => setTeleprompterOpacity(values[0])}
+              onTextChange={setTeleprompterText}
+              onAiReaderToggle={setAiReaderEnabled}
+            />
           </TabsContent>
           
           <TabsContent value="export" className="space-y-6">
             {recordedTakes.length > 0 ? (
               <>
                 <TakeComparison takes={recordedTakes} />
-                
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-white">Export Options</h3>
                   <ExportOptions onExport={handleExport} />
