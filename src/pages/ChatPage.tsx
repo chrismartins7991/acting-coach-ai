@@ -42,9 +42,9 @@ const ChatPage = () => {
                 <span className="text-sm text-white">Coach</span>
               </Link>
               
-              <Link to="/rehearsal-room" className="flex flex-col items-center space-y-2">
+              <Link to="/profile" className="flex flex-col items-center space-y-2">
                 <div className="bg-neutral-900 rounded-full p-4">
-                  <Clock className="h-6 w-6 text-white" />
+                  <User className="h-6 w-6 text-white" />
                 </div>
                 <span className="text-sm text-white">Profile</span>
               </Link>

@@ -15,6 +15,7 @@ import LastResults from "./pages/LastResults";
 import { OnboardingFlow } from "./components/onboarding/OnboardingFlow";
 import SelfTapeStudioPage from "./pages/SelfTapeStudioPage";
 import RehearsalRoomPage from "./pages/RehearsalRoomPage";
+import ProfilePage from "./pages/ProfilePage";
 
 const queryClient = new QueryClient();
 
@@ -97,6 +98,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <RehearsalRoomPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
                 </ProtectedRoute>
               }
             />

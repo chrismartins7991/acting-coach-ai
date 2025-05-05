@@ -40,7 +40,7 @@ export const menuItems = [
   },
   {
     title: "Profile",
-    href: "/dashboard/profile",
+    href: "/profile",
     icon: User,
     description: "Manage your profile and preferences",
   },

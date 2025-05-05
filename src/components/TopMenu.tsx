@@ -47,7 +47,7 @@ export const TopMenu = () => {
                 <span className="text-sm text-white">Rehearsal</span>
               </Link>
               
-              <Link to="/dashboard/profile" className="flex flex-col items-center space-y-2">
+              <Link to="/profile" className="flex flex-col items-center space-y-2">
                 <div className="bg-neutral-900 rounded-full p-4">
                   <User className="h-6 w-6 text-white" />
                 </div>
