@@ -6,7 +6,6 @@ import { useState } from "react";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import { PerformanceSection } from "@/components/dashboard/PerformanceSection";
 import { ChevronRight, Activity, Award, Clock, User } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
 import { BackgroundEffects } from "@/components/dashboard/BackgroundEffects";
 import { SkillProgressBar } from "@/components/dashboard/SkillProgressBar";
@@ -82,8 +81,7 @@ const Dashboard = () => {
   const overallProgress = 68;
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <BackgroundEffects fromLanding={fromLanding} />
+    <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red text-white">
       <TopMenu />
       
       <div className={`container mx-auto px-4 py-8 ${isMobile ? 'pt-20' : 'pt-36'} pb-28 max-w-7xl`}>
