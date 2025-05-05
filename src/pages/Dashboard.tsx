@@ -134,6 +134,21 @@ const Dashboard = () => {
             ))}
           </div>
           
+          {/* Skill Progress - Moved here to appear right below the stats */}
+          <div className="mb-6">
+            <h2 className="text-lg md:text-xl font-bold mb-3">Skill Progress</h2>
+            <div className="bg-neutral-900 rounded-lg p-3 md:p-4 space-y-3">
+              {skills.map((skill) => (
+                <SkillProgressBar 
+                  key={skill.name} 
+                  name={skill.name} 
+                  progress={skill.progress} 
+                  color={skill.color}
+                />
+              ))}
+            </div>
+          </div>
+          
           {currentAnalysis ? (
             <PerformanceSection
               currentAnalysis={currentAnalysis}
@@ -181,20 +196,6 @@ const Dashboard = () => {
                     </div>
                   </div>
                 ))}
-              </div>
-              
-              <div className="mb-4">
-                <h2 className="text-lg md:text-xl font-bold mb-3">Skill Progress</h2>
-                <div className="bg-neutral-900 rounded-lg p-3 md:p-4 space-y-3">
-                  {skills.map((skill) => (
-                    <SkillProgressBar 
-                      key={skill.name} 
-                      name={skill.name} 
-                      progress={skill.progress} 
-                      color={skill.color}
-                    />
-                  ))}
-                </div>
               </div>
             </>
           )}
