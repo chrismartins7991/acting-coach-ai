@@ -10,12 +10,14 @@ import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
 import { BackgroundEffects } from "@/components/dashboard/BackgroundEffects";
 import { SkillProgressBar } from "@/components/dashboard/SkillProgressBar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
   const { isProcessing: isAnalyzing } = useVideoProcessing();
+  const isMobile = useIsMobile();
   const [currentAnalysis, setCurrentAnalysis] = useState<{
     analysis: Analysis | null;
     voiceAnalysis: VoiceAnalysis | null;
@@ -84,7 +86,7 @@ const Dashboard = () => {
       <BackgroundEffects fromLanding={fromLanding} />
       <TopMenu />
       
-      <div className="container mx-auto px-4 py-8 pt-20 pb-28 max-w-7xl">
+      <div className={`container mx-auto px-4 py-8 ${isMobile ? 'pt-20' : 'pt-36'} pb-28 max-w-7xl`}>
         <div className="flex justify-between items-start mb-8">
           <div>
             <p className="text-gray-400 mb-1">Welcome back,</p>
@@ -197,40 +199,42 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Fixed bottom menu as shown in the image */}
-      <div className="fixed bottom-0 left-0 right-0 bg-neutral-950 py-4 border-t border-neutral-900">
-        <div className="container mx-auto max-w-md">
-          <div className="flex justify-around">
-            <Link to="/upload" className="flex flex-col items-center space-y-2">
-              <div className="bg-neutral-900 rounded-full p-4">
-                <Activity className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-sm text-white">Upload</span>
-            </Link>
-            
-            <Link to="/chat" className="flex flex-col items-center space-y-2">
-              <div className="bg-neutral-900 rounded-full p-4">
-                <Award className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-sm text-white">Coach</span>
-            </Link>
-            
-            <Link to="/rehearsal-room" className="flex flex-col items-center space-y-2">
-              <div className="bg-neutral-900 rounded-full p-4">
-                <Clock className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-sm text-white">Rehearsal</span>
-            </Link>
-            
-            <Link to="/dashboard/profile" className="flex flex-col items-center space-y-2">
-              <div className="bg-neutral-900 rounded-full p-4">
-                <User className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-sm text-white">Profile</span>
-            </Link>
+      {/* Fixed bottom menu - only visible on mobile */}
+      {isMobile && (
+        <div className="fixed bottom-0 left-0 right-0 bg-neutral-950 py-4 border-t border-neutral-900">
+          <div className="container mx-auto max-w-md">
+            <div className="flex justify-around">
+              <Link to="/upload" className="flex flex-col items-center space-y-2">
+                <div className="bg-neutral-900 rounded-full p-4">
+                  <Activity className="h-6 w-6 text-white" />
+                </div>
+                <span className="text-sm text-white">Upload</span>
+              </Link>
+              
+              <Link to="/chat" className="flex flex-col items-center space-y-2">
+                <div className="bg-neutral-900 rounded-full p-4">
+                  <Award className="h-6 w-6 text-white" />
+                </div>
+                <span className="text-sm text-white">Coach</span>
+              </Link>
+              
+              <Link to="/rehearsal-room" className="flex flex-col items-center space-y-2">
+                <div className="bg-neutral-900 rounded-full p-4">
+                  <Clock className="h-6 w-6 text-white" />
+                </div>
+                <span className="text-sm text-white">Rehearsal</span>
+              </Link>
+              
+              <Link to="/dashboard/profile" className="flex flex-col items-center space-y-2">
+                <div className="bg-neutral-900 rounded-full p-4">
+                  <User className="h-6 w-6 text-white" />
+                </div>
+                <span className="text-sm text-white">Profile</span>
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
