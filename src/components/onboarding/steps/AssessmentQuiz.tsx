@@ -2,8 +2,68 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+
+interface Question {
+  id: string;
+  text: string;
+  options: {
+    id: string;
+    text: string;
+  }[];
+}
+
+const assessmentQuestions: Question[] = [
+  {
+    id: "technique",
+    text: "How comfortable are you with different acting techniques?",
+    options: [
+      { id: "beginner", text: "I know very little about acting techniques" },
+      { id: "familiar", text: "I'm familiar with some basic techniques" },
+      { id: "comfortable", text: "I'm comfortable with several techniques" },
+      { id: "expert", text: "I have mastered multiple techniques" }
+    ]
+  },
+  {
+    id: "improvisation",
+    text: "How would you rate your improvisation skills?",
+    options: [
+      { id: "nervous", text: "I get nervous when improvising" },
+      { id: "basic", text: "I can handle basic improvisation" },
+      { id: "good", text: "I'm quite good at thinking on my feet" },
+      { id: "excellent", text: "Improvisation is one of my strengths" }
+    ]
+  },
+  {
+    id: "emotion",
+    text: "How easily can you access and express emotions?",
+    options: [
+      { id: "difficult", text: "I find it difficult to express emotions" },
+      { id: "somewhat", text: "I can express some emotions convincingly" },
+      { id: "most", text: "I can express most emotions effectively" },
+      { id: "all", text: "I can access and express all emotions authentically" }
+    ]
+  },
+  {
+    id: "voice",
+    text: "How would you rate your vocal control and projection?",
+    options: [
+      { id: "limited", text: "My vocal control is limited" },
+      { id: "developing", text: "I'm working on improving my vocal skills" },
+      { id: "good", text: "I have good vocal control in most situations" },
+      { id: "excellent", text: "My vocal control and projection are excellent" }
+    ]
+  },
+  {
+    id: "physical",
+    text: "How comfortable are you with physical aspects of acting?",
+    options: [
+      { id: "uncomfortable", text: "I'm uncomfortable with physical expression" },
+      { id: "somewhat", text: "I'm somewhat comfortable with basic movement" },
+      { id: "comfortable", text: "I'm comfortable with most physical requirements" },
+      { id: "very", text: "Physical expression is one of my strengths" }
+    ]
+  }
+];
 
 interface AssessmentQuizProps {
   onNext: () => void;
@@ -11,119 +71,114 @@ interface AssessmentQuizProps {
 
 export const AssessmentQuiz = ({ onNext }: AssessmentQuizProps) => {
   const [answers, setAnswers] = useState<Record<string, string>>({});
-
-  const questions = [
-    {
-      id: "practice",
-      text: "How often do you practice acting?",
-      options: [
-        { value: "daily", label: "Daily" },
-        { value: "weekly", label: "2-3 times per week" },
-        { value: "monthly", label: "A few times per month" },
-        { value: "rarely", label: "Rarely" }
-      ]
-    },
-    {
-      id: "style",
-      text: "What's your preferred acting style?",
-      options: [
-        { value: "method", label: "Method Acting" },
-        { value: "classical", label: "Classical" },
-        { value: "improv", label: "Improvisational" },
-        { value: "naturalistic", label: "Naturalistic" }
-      ]
-    },
-    {
-      id: "challenge",
-      text: "What's your biggest challenge in acting?",
-      options: [
-        { value: "emotion", label: "Emotional expression" },
-        { value: "voice", label: "Voice projection" },
-        { value: "character", label: "Character development" },
-        { value: "technique", label: "Technical skills" }
-      ]
-    },
-    {
-      id: "goals",
-      text: "What's your primary acting goal?",
-      options: [
-        { value: "professional", label: "Professional career" },
-        { value: "hobby", label: "Serious hobby" },
-        { value: "social", label: "Social/Community theater" },
-        { value: "skills", label: "Personal skill development" }
-      ]
-    }
-  ];
-
-  const handleAnswerChange = (questionId: string, value: string) => {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  
+  const currentQuestion = assessmentQuestions[currentQuestionIndex];
+  const totalQuestions = assessmentQuestions.length;
+  const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+  
+  const handleSelectOption = (questionId: string, optionId: string) => {
     setAnswers(prev => ({
       ...prev,
-      [questionId]: value
+      [questionId]: optionId
     }));
+    
+    // Auto-advance after selection
+    if (currentQuestionIndex < totalQuestions - 1) {
+      setTimeout(() => {
+        setCurrentQuestionIndex(prev => prev + 1);
+      }, 300);
+    }
   };
-
-  const isComplete = questions.every(q => answers[q.id]);
-
+  
+  const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
+  const canContinue = answers[currentQuestion.id] !== undefined;
+  
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="max-w-3xl mx-auto space-y-6 sm:space-y-8 px-4 sm:px-6"
-    >
-      <div className="text-center">
-        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4">Quick Assessment</h2>
-        <p className="text-base sm:text-lg text-gray-300">Help us understand your acting preferences</p>
-      </div>
-
-      <div className="space-y-4 sm:space-y-6">
-        {questions.map((question) => (
-          <div key={question.id} className="bg-black/30 p-4 sm:p-6 rounded-lg border border-theater-gold">
-            <h3 className="text-lg sm:text-xl font-semibold text-white mb-3 sm:mb-4">{question.text}</h3>
-            <RadioGroup
-              value={answers[question.id] || ""}
-              onValueChange={(value) => handleAnswerChange(question.id, value)}
-              className="space-y-2 sm:space-y-3"
-            >
-              {question.options.map((option) => (
-                <div
-                  key={option.value}
-                  className={`flex items-center space-x-3 p-3 rounded-lg transition-colors ${
-                    answers[question.id] === option.value
-                      ? 'bg-theater-gold/20 border border-theater-gold'
-                      : 'hover:bg-white/5'
-                  }`}
-                >
-                  <RadioGroupItem 
-                    value={option.value} 
-                    id={`${question.id}-${option.value}`}
-                    className="border-theater-gold"
-                  />
-                  <Label
-                    htmlFor={`${question.id}-${option.value}`}
-                    className={`text-base sm:text-lg ${
-                      answers[question.id] === option.value
-                        ? 'text-theater-gold font-semibold'
-                        : 'text-white'
-                    }`}
-                  >
-                    {option.label}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
+    <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple p-6 sm:p-8">
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-xl sm:text-2xl font-bold text-white">Acting Assessment</h2>
+            <span className="text-gray-400 text-sm">
+              Question {currentQuestionIndex + 1} of {totalQuestions}
+            </span>
           </div>
-        ))}
-      </div>
-
-      <div className="flex justify-center pt-4">
-        <Button
-          onClick={onNext}
-          disabled={!isComplete}
-          className="w-full sm:w-auto bg-theater-gold hover:bg-theater-gold/90 text-black font-bold px-6 sm:px-8 py-3"
+          
+          <div className="w-full h-2 bg-neutral-800 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-theater-gold transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+        </div>
+        
+        <motion.div
+          key={currentQuestion.id}
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ duration: 0.3 }}
+          className="space-y-6"
         >
-          Continue
-        </Button>
+          <h3 className="text-xl text-white font-semibold">
+            {currentQuestion.text}
+          </h3>
+          
+          <div className="space-y-3">
+            {currentQuestion.options.map((option, index) => (
+              <motion.div
+                key={option.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <button
+                  onClick={() => handleSelectOption(currentQuestion.id, option.id)}
+                  className={`w-full text-left p-4 rounded-lg border transition-all
+                    ${answers[currentQuestion.id] === option.id
+                      ? "border-theater-gold bg-neutral-800"
+                      : "border-neutral-800 bg-neutral-900 hover:bg-neutral-800"
+                    }`}
+                >
+                  <span className="text-white">{option.text}</span>
+                </button>
+              </motion.div>
+            ))}
+          </div>
+          
+          <div className="flex justify-between mt-8">
+            <Button
+              onClick={() => setCurrentQuestionIndex(prev => Math.max(0, prev - 1))}
+              variant="outline"
+              className="border-white/20 text-white hover:bg-white/10 disabled:opacity-50"
+              disabled={currentQuestionIndex === 0}
+            >
+              Previous
+            </Button>
+            
+            {isLastQuestion && (
+              <Button
+                onClick={onNext}
+                disabled={!canContinue}
+                className="bg-theater-gold hover:bg-theater-gold/90 text-black font-bold"
+              >
+                Complete Assessment
+              </Button>
+            )}
+            
+            {!isLastQuestion && (
+              <Button
+                onClick={() => setCurrentQuestionIndex(prev => Math.min(totalQuestions - 1, prev + 1))}
+                disabled={!canContinue}
+                className="bg-theater-gold hover:bg-theater-gold/90 text-black font-bold"
+              >
+                Next
+              </Button>
+            )}
+          </div>
+        </motion.div>
       </div>
-    </motion.div>
+    </div>
   );
 };

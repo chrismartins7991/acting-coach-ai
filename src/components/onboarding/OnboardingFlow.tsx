@@ -1,21 +1,22 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { WelcomeScreen } from "./steps/WelcomeScreen";
-import { InitialProgress } from "./steps/InitialProgress";
+import { ExperienceScreen } from "./steps/ExperienceScreen";
 import { AssessmentQuiz } from "./steps/AssessmentQuiz";
-import { ProgressCalculation } from "./steps/ProgressCalculation";
-import { ResultsOverview } from "./steps/ResultsOverview";
-import { GoalSetting } from "./steps/GoalSetting";
+import { CalculationScreen } from "./steps/CalculationScreen";
+import { ResultsScreen } from "./steps/ResultsScreen";
+import { GoalSettingScreen } from "./steps/GoalSettingScreen";
 import { CoachSelection } from "../onboarding/CoachSelection";
 import { SignupStep } from "./steps/SignupStep";
 
 type OnboardingStep = 
   | "welcome"
   | "signup"
-  | "initial-progress"
+  | "experience"
   | "assessment"
   | "calculation"
   | "results"
@@ -119,7 +120,11 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-t-transparent border-theater-gold rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   const renderStep = () => {
@@ -127,17 +132,17 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
       case "welcome":
         return <WelcomeScreen onNext={() => updateProgress("signup")} />;
       case "signup":
-        return <SignupStep onNext={() => updateProgress("initial-progress")} />;
-      case "initial-progress":
-        return <InitialProgress onNext={() => updateProgress("assessment")} />;
+        return <SignupStep onNext={() => updateProgress("experience")} />;
+      case "experience":
+        return <ExperienceScreen onNext={() => updateProgress("assessment")} />;
       case "assessment":
         return <AssessmentQuiz onNext={() => updateProgress("calculation")} />;
       case "calculation":
-        return <ProgressCalculation onNext={() => updateProgress("results")} />;
+        return <CalculationScreen onNext={() => updateProgress("results")} />;
       case "results":
-        return <ResultsOverview onNext={() => updateProgress("goals")} />;
+        return <ResultsScreen onNext={() => updateProgress("goals")} />;
       case "goals":
-        return <GoalSetting onNext={() => updateProgress("coach-selection")} />;
+        return <GoalSettingScreen onNext={() => updateProgress("coach-selection")} />;
       case "coach-selection":
         return <CoachSelection onComplete={handleCoachSelectionComplete} />;
       default:
@@ -146,10 +151,8 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple p-8">
-      <div className="max-w-4xl mx-auto">
-        {renderStep()}
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple">
+      {renderStep()}
     </div>
   );
 };
