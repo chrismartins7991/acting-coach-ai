@@ -167,35 +167,38 @@ const Dashboard = () => {
                 </button>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-                {recentPerformances.map((performance) => (
-                  <div 
-                    key={performance.id} 
-                    className="bg-neutral-900 rounded-lg overflow-hidden"
-                  >
-                    <div className="relative h-28 md:h-40">
-                      <img 
-                        src={performance.image} 
-                        alt={performance.title} 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="p-3 md:p-4">
-                      <h3 className="text-base md:text-lg font-bold">{performance.title}</h3>
-                      <p className="text-gray-400 text-xs md:text-sm">{performance.date}</p>
-                      <div className="flex justify-between items-center mt-1 md:mt-2">
-                        <span className="text-xs md:text-sm">Score:</span>
-                        <span 
-                          className={`text-base md:text-lg font-bold ${
-                            performance.score >= 70 ? 'text-theater-gold' : 'text-white'
-                          }`}
-                        >
-                          {performance.score}
-                        </span>
+              {/* Changed from grid to horizontal scrollable */}
+              <div className="mb-6 overflow-x-auto pb-2">
+                <div className="flex space-x-3 min-w-min">
+                  {recentPerformances.map((performance) => (
+                    <div 
+                      key={performance.id} 
+                      className="bg-neutral-900 rounded-lg overflow-hidden flex-shrink-0 w-[280px]"
+                    >
+                      <div className="relative h-28 md:h-40">
+                        <img 
+                          src={performance.image} 
+                          alt={performance.title} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="p-3 md:p-4">
+                        <h3 className="text-base md:text-lg font-bold">{performance.title}</h3>
+                        <p className="text-gray-400 text-xs md:text-sm">{performance.date}</p>
+                        <div className="flex justify-between items-center mt-1 md:mt-2">
+                          <span className="text-xs md:text-sm">Score:</span>
+                          <span 
+                            className={`text-base md:text-lg font-bold ${
+                              performance.score >= 70 ? 'text-theater-gold' : 'text-white'
+                            }`}
+                          >
+                            {performance.score}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </>
           )}
