@@ -3,8 +3,12 @@ import { useState } from "react";
 import { TopMenu } from "@/components/TopMenu";
 import { SelfTapeStudio } from "@/components/self-tape/SelfTapeStudio";
 import { AnimatePresence, motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileNavBar } from "@/components/dashboard/MobileNavBar";
 
 const SelfTapeStudioPage = () => {
+  const isMobile = useIsMobile();
+  
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -16,7 +20,7 @@ const SelfTapeStudioPage = () => {
       >
         <TopMenu />
         
-        <div className="container mx-auto px-4 py-8 pt-32 relative z-10">
+        <div className={`container mx-auto px-4 ${isMobile ? 'pt-20 pb-24' : 'pt-28 pb-8'} relative z-10`}>
           <motion.h1 
             className="text-2xl md:text-3xl font-bold text-white mb-8"
             initial={{ y: 20, opacity: 0 }}
@@ -28,6 +32,9 @@ const SelfTapeStudioPage = () => {
           
           <SelfTapeStudio />
         </div>
+        
+        {/* Fixed bottom menu - only visible on mobile */}
+        {isMobile && <MobileNavBar />}
       </motion.div>
     </AnimatePresence>
   );

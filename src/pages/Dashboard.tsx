@@ -29,24 +29,6 @@ const Dashboard = () => {
     setCurrentAnalysis(data);
   };
 
-  // Mock data for recent performances
-  const recentPerformances = [
-    {
-      id: 1,
-      title: "Macbeth Monologue",
-      date: "May 15, 2025",
-      score: 72,
-      image: "https://images.pexels.com/photos/713149/pexels-photo-713149.jpeg"
-    },
-    {
-      id: 2,
-      title: "Romeo & Juliet Scene",
-      date: "May 10, 2025",
-      score: 68,
-      image: "https://images.pexels.com/photos/3214958/pexels-photo-3214958.jpeg"
-    }
-  ];
-
   // Mock data for skills
   const skills = [
     { name: "Voice", progress: 65, color: "bg-purple-500" },
@@ -87,7 +69,22 @@ const Dashboard = () => {
               onReset={() => setCurrentAnalysis(null)}
             />
           ) : (
-            <PerformancesList performances={recentPerformances} />
+            <PerformancesList performances={[
+              {
+                id: 1,
+                title: "Macbeth Monologue",
+                date: "May 15, 2025",
+                score: 72,
+                image: "https://images.pexels.com/photos/713149/pexels-photo-713149.jpeg"
+              },
+              {
+                id: 2,
+                title: "Romeo & Juliet Scene",
+                date: "May 10, 2025",
+                score: 68,
+                image: "https://images.pexels.com/photos/3214958/pexels-photo-3214958.jpeg"
+              }
+            ]} />
           )}
         </ScrollArea>
       </div>
