@@ -1,13 +1,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Mic, MicOff, User, Bot, AlertCircle } from 'lucide-react';
+import { Send, Mic, MicOff, User, Bot } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from './ui/button';
 import { Avatar } from './ui/avatar';
+import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
-import { Alert, AlertDescription } from './ui/alert';
+import { Card } from './ui/card';
 import { ChatHistory } from './ChatHistory';
 import { useChat } from '@/hooks/useChat';
 import { useToast } from './ui/use-toast';
@@ -20,39 +21,16 @@ export const Chat: React.FC = () => {
   const [input, setInput] = useState('');
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
-  
-  // Check if OPENAI_API_KEY is set
-  useEffect(() => {
-    const checkApiKey = async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('check-api-config', {
-          body: { checkKey: 'OPENAI_API_KEY' }
-        });
-        
-        if (error || !data?.isConfigured) {
-          setApiError('Chat functionality requires OpenAI API key configuration.');
-        }
-      } catch (err) {
-        console.error("Error checking API key:", err);
-        // Silent fail - endpoint might not exist yet
-      }
-    };
-    
-    if (user) {
-      checkApiKey();
-    }
-  }, [user]);
   
   const handleSendMessage = async () => {
-    if (!input.trim() || apiError) return;
+    if (!input.trim()) return;
     
     await sendMessage(input);
     setInput('');
   };
 
   const handleProcessVoiceMessage = async (text: string) => {
-    if (!text.trim() || apiError) {
+    if (!text.trim()) {
       toast({
         title: "No speech detected",
         description: "Please try speaking more clearly.",
@@ -120,7 +98,6 @@ export const Chat: React.FC = () => {
             "bg-red-500/20 hover:bg-red-500/30 text-red-500 border-red-500/50" : 
             "bg-white/10 hover:bg-white/20 text-white border-white/20"}
           onClick={toggleRecording}
-          disabled={!!apiError}
         >
           {isRecording ? (
             <>
@@ -135,13 +112,6 @@ export const Chat: React.FC = () => {
           )}
         </Button>
       </div>
-      
-      {apiError && (
-        <Alert className="m-4 bg-yellow-500/10 border-yellow-500/50">
-          <AlertCircle className="h-4 w-4 text-yellow-500" />
-          <AlertDescription className="text-yellow-500 ml-2">{apiError}</AlertDescription>
-        </Alert>
-      )}
       
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
@@ -186,7 +156,7 @@ export const Chat: React.FC = () => {
         <div className="flex gap-2">
           <Textarea
             className="bg-black/20 border-white/20 placeholder-white/40 text-white"
-            placeholder={apiError ? "API key configuration required..." : "Ask your AI acting coach a question..."}
+            placeholder="Ask your AI acting coach a question..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -196,12 +166,11 @@ export const Chat: React.FC = () => {
               }
             }}
             rows={1}
-            disabled={!!apiError}
           />
           <Button 
             className="bg-theater-gold hover:bg-theater-gold/80 text-black"
             onClick={handleSendMessage}
-            disabled={isLoading || !input.trim() || !!apiError}
+            disabled={isLoading || !input.trim()}
           >
             <Send className="h-4 w-4" />
           </Button>

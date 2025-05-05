@@ -1,5 +1,4 @@
-
-import VideoUpload from "@/components/VideoUpload";
+import { VideoUpload } from "@/components/VideoUpload";
 import { FeatureCard } from "@/components/FeatureCard";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import { Camera, History } from "lucide-react";
@@ -39,7 +38,7 @@ export const FeaturesGrid = ({
     >
       <motion.div>
         <VideoUpload
-          onAnalysisComplete={(data) => onAnalysisComplete(data)}
+          onAnalysisComplete={onAnalysisComplete}
           isAnalyzing={isAnalyzing}
         />
       </motion.div>
