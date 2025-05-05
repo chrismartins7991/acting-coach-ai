@@ -16,7 +16,7 @@ import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 
 export const Chat: React.FC = () => {
   const { user } = useAuth();
-  const { messages, sendMessage, loading } = useChat();
+  const { messages, sendMessage, isLoading, currentConversationId, loadConversation } = useChat();
   const { toast } = useToast();
   const [input, setInput] = useState('');
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
@@ -170,7 +170,7 @@ export const Chat: React.FC = () => {
           <Button 
             className="bg-theater-gold hover:bg-theater-gold/80 text-black"
             onClick={handleSendMessage}
-            disabled={loading || !input.trim()}
+            disabled={isLoading || !input.trim()}
           >
             <Send className="h-4 w-4" />
           </Button>
