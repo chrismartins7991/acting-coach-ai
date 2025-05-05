@@ -1,3 +1,4 @@
+
 export default {
   translation: {
     hero: {
@@ -32,20 +33,24 @@ export default {
       title: "Cómo Funciona",
       steps: {
         record: {
-          title: "Graba Tu Escena",
-          description: "Sube un video de tu actuación usando cualquier dispositivo"
+          title: "Sube Tu Actuación",
+          description: "Graba en la app o sube videos de hasta 50MB"
         },
-        feedback: {
-          title: "Retroalimentación IA",
-          description: "Recibe análisis instantáneo basado en métodos profesionales"
+        analysis: {
+          title: "Análisis de Actuación con IA",
+          description: "Recibe feedback detallado sobre emoción, presencia física y personaje"
+        },
+        tools: {
+          title: "Herramientas de Ensayo",
+          description: "Usa gestión de guiones, lector IA y herramientas de memorización"
         },
         coaching: {
-          title: "Coaching Interactivo",
-          description: "Chatea con nuestra IA para entender áreas de mejora"
+          title: "Chat de Coaching con IA",
+          description: "Obtén orientación específica basada en metodologías y sugerencias"
         },
         progress: {
           title: "Seguimiento de Progreso",
-          description: "Monitorea tu mejora con métricas detalladas"
+          description: "Revisa tu historial de actuaciones y visualiza tu mejora"
         }
       }
     },

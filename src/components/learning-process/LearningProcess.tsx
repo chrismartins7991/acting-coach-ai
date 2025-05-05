@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { LearningProcessStep } from "./LearningProcessStep";
 import { steps } from "./learningProcessData";
@@ -18,7 +19,7 @@ export const LearningProcess = () => {
           {t("process.title")}
         </motion.h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
           {steps.map((step, index) => (
             <LearningProcessStep
               key={index}

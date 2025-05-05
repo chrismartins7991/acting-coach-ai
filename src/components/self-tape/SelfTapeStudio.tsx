@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
@@ -7,6 +8,8 @@ import { RecordingControls } from "./controls/RecordingControls";
 import { TeleprompterSettings } from "./teleprompter/TeleprompterSettings";
 import { TakeComparison } from "./TakeComparison";
 import { ExportOptions } from "./ExportOptions";
+import { Button } from "@/components/ui/button";
+import { Video } from "lucide-react";
 
 export const SelfTapeStudio = () => {
   const { toast } = useToast();

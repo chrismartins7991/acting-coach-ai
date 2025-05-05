@@ -1,3 +1,4 @@
+
 export default {
   translation: {
     hero: {
@@ -32,20 +33,24 @@ export default {
       title: "Comment ça Marche",
       steps: {
         record: {
-          title: "Enregistrez Votre Scène",
-          description: "Téléchargez une vidéo de votre performance avec n'importe quel appareil"
+          title: "Téléchargez Votre Performance",
+          description: "Enregistrez dans l'app ou téléchargez des vidéos jusqu'à 50MB"
         },
-        feedback: {
-          title: "Retour IA",
-          description: "Recevez une analyse instantanée basée sur des méthodes professionnelles"
+        analysis: {
+          title: "Analyse de Performance IA",
+          description: "Recevez des retours détaillés sur l'émotion, la présence physique et l'incarnation"
+        },
+        tools: {
+          title: "Outils de Répétition",
+          description: "Utilisez la gestion de scripts, lecteur IA et outils de mémorisation"
         },
         coaching: {
-          title: "Coaching Interactif",
-          description: "Discutez avec notre IA pour comprendre les points d'amélioration"
+          title: "Chat de Coaching IA",
+          description: "Obtenez des conseils spécifiques à la méthodologie et suggestions d'amélioration"
         },
         progress: {
-          title: "Suivez vos Progrès",
-          description: "Surveillez votre progression au fil du temps avec des métriques détaillées"
+          title: "Suivez Vos Progrès",
+          description: "Consultez l'historique des performances et visualisez l'amélioration"
         }
       }
     },

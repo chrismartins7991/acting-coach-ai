@@ -33,20 +33,24 @@ export default {
       title: "How It Works",
       steps: {
         record: {
-          title: "Record Your Scene",
-          description: "Upload a video of your performance using any device"
+          title: "Upload Your Performance",
+          description: "Record within the app or upload videos up to 50MB"
         },
-        feedback: {
-          title: "Get AI Feedback",
-          description: "Receive instant analysis based on professional acting methods"
+        analysis: {
+          title: "AI Performance Analysis",
+          description: "Get detailed feedback on emotion, physicality and character embodiment"
+        },
+        tools: {
+          title: "Rehearsal Tools",
+          description: "Use script management, AI reader, and memorization tools"
         },
         coaching: {
-          title: "Interactive Coaching",
-          description: "Chat with our AI to understand areas of improvement"
+          title: "AI Coaching Chat",
+          description: "Get methodology-specific guidance and improvement suggestions"
         },
         progress: {
-          title: "Track Progress",
-          description: "Monitor your improvement over time with detailed metrics"
+          title: "Track Your Progress",
+          description: "Review performance history and visualize improvement over time"
         }
       }
     },

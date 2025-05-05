@@ -1,3 +1,4 @@
+
 export default {
   translation: {
     hero: {
@@ -32,20 +33,24 @@ export default {
       title: "使用方法",
       steps: {
         record: {
-          title: "录制您的场景",
-          description: "使用任何设备上传您的表演视频"
+          title: "上传您的表演",
+          description: "在应用内录制或上传最大50MB的视频"
         },
-        feedback: {
-          title: "获取AI反馈",
-          description: "基于专业方法获得即时分析"
+        analysis: {
+          title: "AI表演分析",
+          description: "获取关于情感、肢体语言和角色塑造的详细反馈"
+        },
+        tools: {
+          title: "排练工具",
+          description: "使用剧本管理、AI阅读器和记忆工具"
         },
         coaching: {
-          title: "互动指导",
-          description: "与我们的AI交流以了解改进领域"
+          title: "AI教练聊天",
+          description: "获取基于特定方法论的指导和改进建议"
         },
         progress: {
           title: "追踪进度",
-          description: "通过详细指标监控您的进步"
+          description: "查看表演历史并可视化改进过程"
         }
       }
     },

@@ -1,4 +1,5 @@
-import { Camera, Mic, MessageSquare, Award } from "lucide-react";
+
+import { Camera, Brain, Layers, MessageSquare, Award } from "lucide-react";
 
 export const steps = [
   {
@@ -7,9 +8,14 @@ export const steps = [
     descriptionKey: "process.steps.record.description"
   },
   {
-    icon: Mic,
-    titleKey: "process.steps.feedback.title",
-    descriptionKey: "process.steps.feedback.description"
+    icon: Brain,
+    titleKey: "process.steps.analysis.title",
+    descriptionKey: "process.steps.analysis.description"
+  },
+  {
+    icon: Layers,
+    titleKey: "process.steps.tools.title",
+    descriptionKey: "process.steps.tools.description"
   },
   {
     icon: MessageSquare,

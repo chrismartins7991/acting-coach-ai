@@ -1,3 +1,4 @@
+
 export default {
   translation: {
     hero: {
@@ -32,20 +33,24 @@ export default {
       title: "Como Funciona",
       steps: {
         record: {
-          title: "Grave a Sua Cena",
-          description: "Envie um vídeo da sua performance utilizando qualquer dispositivo"
+          title: "Envie a Sua Performance",
+          description: "Grave na aplicação ou envie vídeos até 50MB"
         },
-        feedback: {
-          title: "Feedback da IA",
-          description: "Receba análise instantânea baseada em métodos profissionais"
+        analysis: {
+          title: "Análise de Performance IA",
+          description: "Receba feedback detalhado sobre emoção, presença física e personagem"
+        },
+        tools: {
+          title: "Ferramentas de Ensaio",
+          description: "Use gestão de scripts, leitor IA e ferramentas de memorização"
         },
         coaching: {
-          title: "Treino Interativo",
-          description: "Converse com a nossa IA para compreender áreas de melhoria"
+          title: "Chat de Coaching IA",
+          description: "Obtenha orientação específica de metodologia e sugestões de melhoria"
         },
         progress: {
-          title: "Acompanhe o seu Progresso",
-          description: "Monitorize a sua evolução com métricas detalhadas"
+          title: "Acompanhe o Seu Progresso",
+          description: "Reveja o histórico de performances e visualize a melhoria"
         }
       }
     },
