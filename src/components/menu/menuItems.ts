@@ -1,6 +1,13 @@
-import { Camera, FileVideo, History, Home, User, MessageSquare } from "lucide-react";
+
+import { Camera, FileVideo, History, Home, User, MessageSquare, LayoutDashboard } from "lucide-react";
 
 export const menuItems = [
+  {
+    title: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+    description: "View your dashboard overview",
+  },
   {
     title: "Home",
     href: "/dashboard",
