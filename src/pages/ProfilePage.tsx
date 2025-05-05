@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { TopMenu } from "@/components/TopMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -6,7 +7,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Camera, ChevronRight, LogOut, Settings } from "lucide-react";
+import { Camera, ChevronRight, LogOut, Settings, LayoutDashboard, Activity, MessageSquare as Award, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";

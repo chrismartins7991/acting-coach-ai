@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -96,7 +95,6 @@ export const RehearsalRoom = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4 mb-2">
         <div>
-          <h2 className="text-xl font-bold text-white">Rehearsal Room</h2>
           <p className="text-white/60">Practice your lines, work with an AI reader, and improve your cold reading skills</p>
         </div>
         
