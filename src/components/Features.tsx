@@ -1,5 +1,5 @@
 
-import { Camera, Brain, Trophy, Users, Mic2, GraduationCap, Award, MessageSquare, BookOpen, FileText } from "lucide-react";
+import { Camera, Brain, Trophy, Users, Mic2, GraduationCap, Award, MessageSquare, BookOpen, Book } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
@@ -33,9 +33,9 @@ export const Features = () => {
       icon: GraduationCap,
     },
     {
-      name: "Script Management Tools",
-      description: "Upload, edit, and rehearse with your scripts using our built-in tools",
-      icon: FileText,
+      name: "Line Memorization Tools",
+      description: "Advanced techniques to help you memorize your lines quickly and effectively",
+      icon: Book,
     },
     {
       name: "AI Scene Partner",
