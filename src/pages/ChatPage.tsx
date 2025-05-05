@@ -9,10 +9,10 @@ const ChatPage = () => {
   const isMobile = useIsMobile();
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red pt-24">
+    <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red">
       <TopMenu />
       
-      <div className="container mx-auto px-4 pb-24">
+      <div className={`container mx-auto px-4 ${isMobile ? 'pt-20' : 'pt-36'} pb-24`}>
         <Chat />
       </div>
       
