@@ -10,8 +10,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Book, Database } from "lucide-react";
 import { TopMenu } from "@/components/TopMenu";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { MobileMenu } from "@/components/menu/MobileMenu";
 
 const UploadPage = () => {
   const { canUploadPerformance } = useSubscription();
@@ -19,7 +17,6 @@ const UploadPage = () => {
   const [showPaymentWall, setShowPaymentWall] = useState(false);
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
@@ -72,15 +69,7 @@ const UploadPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple">
       {/* Top Menu for Navigation */}
-      <div className="fixed top-4 right-4 z-50">
-        {isMobile ? (
-          <MobileMenu />
-        ) : (
-          <div className="flex items-center gap-4">
-            <TopMenu />
-          </div>
-        )}
-      </div>
+      <TopMenu />
       
       <div className="p-6 sm:p-8 pt-20">
         <div className="max-w-7xl mx-auto">
