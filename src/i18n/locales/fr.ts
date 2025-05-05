@@ -42,7 +42,7 @@ export default {
         },
         tools: {
           title: "Outils de Répétition",
-          description: "Utilisez la gestion de scripts, lecteur IA et outils de mémorisation"
+          description: "Utilisez la gestion de scripts, lecteur froid IA et outils de mémorisation"
         },
         coaching: {
           title: "Chat de Coaching IA",

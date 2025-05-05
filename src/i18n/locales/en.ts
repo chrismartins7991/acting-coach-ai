@@ -42,7 +42,7 @@ export default {
         },
         tools: {
           title: "Rehearsal Tools",
-          description: "Use script management, AI reader, and memorization tools"
+          description: "Use script management, AI cold reader, and memorization tools"
         },
         coaching: {
           title: "AI Coaching Chat",

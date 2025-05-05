@@ -42,7 +42,7 @@ export default {
         },
         tools: {
           title: "Herramientas de Ensayo",
-          description: "Usa gestión de guiones, lector IA y herramientas de memorización"
+          description: "Usa gestión de guiones, lector frío IA y herramientas de memorización"
         },
         coaching: {
           title: "Chat de Coaching con IA",

@@ -42,7 +42,7 @@ export default {
         },
         tools: {
           title: "排练工具",
-          description: "使用剧本管理、AI阅读器和记忆工具"
+          description: "使用剧本管理、AI冷读器和记忆工具"
         },
         coaching: {
           title: "AI教练聊天",
