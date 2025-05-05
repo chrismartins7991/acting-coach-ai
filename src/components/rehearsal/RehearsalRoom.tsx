@@ -1,203 +1,197 @@
-import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Book, BookOpen, Mic, Play, Timer, Upload, Clipboard, Search, Copy, Eye, FileText } from "lucide-react";
-import { ScriptEditor } from "./ScriptEditor";
-import { AiReader } from "./AiReader";
-import { MemorizationTools } from "./MemorizationTools";
-import { ColdReadingMode } from "./ColdReadingMode";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const RehearsalRoom = () => {
+  const [exercises, setExercises] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
   const { toast } = useToast();
-  const [script, setScript] = useState("");
-  const [activeTab, setActiveTab] = useState("script");
-  const [coldReadingMode, setColdReadingMode] = useState(false);
-  const [hideLines, setHideLines] = useState(false);
-  const [aiReaderEnabled, setAiReaderEnabled] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const handleScriptUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (typeof event.target?.result === 'string') {
-        setScript(event.target.result);
-        toast({
-          title: "Script uploaded",
-          description: `${file.name} has been loaded successfully.`,
+  const { user } = useAuth();
+
+  // Check if the OpenAI API is configured
+  useEffect(() => {
+    const checkApiConfig = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('check-api-config', {
+          body: { checkKey: 'OPENAI_API_KEY' }
         });
+        
+        if (error || !data?.isConfigured) {
+          setApiError('Rehearsal functionality requires OpenAI API key configuration.');
+        }
+      } catch (err) {
+        console.error("Error checking API configuration:", err);
+        // Silent fail - endpoint might not exist
       }
     };
-    reader.readAsText(file);
-  };
-  
-  const handlePasteScript = () => {
-    navigator.clipboard.readText().then(text => {
-      setScript(text);
-      toast({
-        title: "Script pasted",
-        description: "Text has been pasted from clipboard.",
-      });
-    }).catch(err => {
-      toast({
-        title: "Clipboard error",
-        description: "Could not access clipboard. Please paste manually.",
-        variant: "destructive",
-      });
-    });
-  };
+    
+    if (user) {
+      checkApiConfig();
+    }
+  }, [user]);
 
-  const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(script).then(() => {
-      toast({
-        title: "Copied to clipboard",
-        description: "Script has been copied to clipboard.",
-      });
-    }).catch(err => {
-      toast({
-        title: "Clipboard error",
-        description: "Could not copy to clipboard.",
-        variant: "destructive",
-      });
-    });
-  };
-
-  const handleSaveScript = () => {
-    // Create a blob from the script content
-    const blob = new Blob([script], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    
-    // Create a download link and trigger download
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'script.txt';
-    document.body.appendChild(a);
-    a.click();
-    
-    // Clean up
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    toast({
-      title: "Script saved",
-      description: "Script has been downloaded as a text file.",
-    });
-  };
-  
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4 mb-2">
-        <div>
-          <p className="text-white/60">Practice your lines, work with an AI reader, and improve your cold reading skills</p>
-        </div>
-        
-        <div className="flex gap-2">
-          {activeTab === "script" && (
-            <Button 
-              variant="outline" 
-              className="text-white border-white/20 hover:bg-white/10"
-              onClick={handleSaveScript}
-              disabled={!script}
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              Save Script
-            </Button>
-          )}
-        </div>
-      </div>
+  // Mock exercise data - in a real app, this would come from the backend
+  useEffect(() => {
+    // Simulate fetching exercises from backend
+    const fetchExercises = async () => {
+      if (!user) return;
       
-      <Card className="p-6 bg-black/30 border-white/10">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 mb-6 bg-black/50">
-            <TabsTrigger value="script" className="data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold">
-              <Book className="w-4 h-4 mr-2" />
-              Script
-            </TabsTrigger>
-            <TabsTrigger value="ai-reader" className="data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold">
-              <Mic className="w-4 h-4 mr-2" />
-              AI Reader
-            </TabsTrigger>
-            <TabsTrigger value="memorization" className="data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold">
-              <BookOpen className="w-4 h-4 mr-2" />
-              Memorization
-            </TabsTrigger>
-            <TabsTrigger value="cold-reading" className="data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold">
-              <Eye className="w-4 h-4 mr-2" />
-              Cold Reading
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="script" className="space-y-6">
-            <div className="flex flex-wrap gap-4 justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-white">Your Script</h3>
-              
-              <div className="flex flex-wrap gap-3">
-                <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Upload Script
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    className="hidden" 
-                    accept=".txt,.pdf,.docx"
-                    onChange={handleScriptUpload}
-                  />
-                </Button>
-                
-                <Button variant="outline" onClick={handlePasteScript}>
-                  <Clipboard className="mr-2 h-4 w-4" />
-                  Paste Script
-                </Button>
-                
-                <Button variant="outline" onClick={handleCopyToClipboard} disabled={!script}>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy Script
-                </Button>
-              </div>
-            </div>
-            
-            <ScriptEditor 
-              value={script} 
-              onChange={setScript} 
-            />
-          </TabsContent>
-          
-          <TabsContent value="ai-reader" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">AI Reader Settings</h3>
-                <AiReader script={script} />
-              </div>
-              
-              <div className="bg-black/20 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-white mb-4">Script Preview</h3>
-                <div className="max-h-80 overflow-y-auto p-4 bg-black/30 rounded-md border border-white/10">
-                  <pre className="text-white/90 whitespace-pre-wrap font-sans text-sm">
-                    {script || "No script loaded. Please add a script on the Script tab."}
-                  </pre>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="memorization" className="space-y-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Memorization Tools</h3>
-            <MemorizationTools script={script} />
-          </TabsContent>
-          
-          <TabsContent value="cold-reading" className="space-y-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Cold Reading Practice</h3>
-            <ColdReadingMode />
-          </TabsContent>
-        </Tabs>
+      setLoading(true);
+      try {
+        // This would be a real API call in production
+        // const { data, error } = await supabase.functions.invoke('get-exercises', {
+        //   body: { userId: user.id }
+        // });
+        
+        // Mocked data for now
+        setTimeout(() => {
+          setExercises([
+            {
+              id: 1,
+              category: "voice",
+              title: "Vocal Warm-up",
+              description: "Start with deep breathing exercises. Inhale deeply through your nose, filling your diaphragm, then exhale slowly through your mouth. Repeat 10 times.",
+              duration: "10 minutes",
+              level: "Beginner"
+            },
+            {
+              id: 2,
+              category: "voice",
+              title: "Articulation Practice",
+              description: "Practice tongue twisters slowly and then gradually increase speed. Example: 'Peter Piper picked a peck of pickled peppers.'",
+              duration: "15 minutes",
+              level: "Intermediate"
+            },
+            {
+              id: 3,
+              category: "physical",
+              title: "Body Awareness",
+              description: "Stand in a neutral position. Slowly scan your body from head to toe, noting any tension. Release tension in each area as you go.",
+              duration: "5 minutes",
+              level: "Beginner"
+            },
+            {
+              id: 4,
+              category: "physical",
+              title: "Character Physicality",
+              description: "Choose a character and explore how they would walk, stand, and gesture. Practice transitioning between different character physicalities.",
+              duration: "20 minutes",
+              level: "Advanced"
+            },
+            {
+              id: 5,
+              category: "emotional",
+              title: "Emotional Memory",
+              description: "Recall a personal memory with a strong emotional connection. Focus on the sensory details and allow the emotion to manifest physically.",
+              duration: "15 minutes",
+              level: "Intermediate"
+            },
+            {
+              id: 6,
+              category: "emotional",
+              title: "Emotion Transitions",
+              description: "Practice transitioning between contrasting emotions (joy to sadness, fear to anger) within a short monologue or scene.",
+              duration: "25 minutes",
+              level: "Advanced"
+            }
+          ]);
+          setLoading(false);
+        }, 1000);
+      } catch (error) {
+        console.error("Error fetching exercises:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load exercises. Please try again.",
+          variant: "destructive",
+        });
+        setLoading(false);
+      }
+    };
+
+    if (!apiError) {
+      fetchExercises();
+    } else {
+      setLoading(false);
+    }
+  }, [user, toast, apiError]);
+
+  const renderExercises = (category: string) => {
+    const filteredExercises = exercises.filter(ex => ex.category === category);
+    
+    if (filteredExercises.length === 0) {
+      return (
+        <div className="text-center py-8 text-white/60">
+          No exercises available for this category yet.
+        </div>
+      );
+    }
+    
+    return filteredExercises.map(exercise => (
+      <Card key={exercise.id} className="mb-4 bg-black/40 border-white/10">
+        <CardContent className="p-4">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="text-lg font-semibold text-white">{exercise.title}</h3>
+            <span className="text-xs bg-theater-purple px-2 py-1 rounded-full text-white">
+              {exercise.level}
+            </span>
+          </div>
+          <p className="text-white/80 text-sm mb-3">{exercise.description}</p>
+          <div className="text-xs text-white/60">Duration: {exercise.duration}</div>
+        </CardContent>
       </Card>
+    ));
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-theater-gold" />
+        <span className="ml-2 text-white">Loading exercises...</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {apiError && (
+        <Alert className="bg-yellow-500/10 border-yellow-500/50">
+          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+          <AlertDescription className="text-yellow-500 ml-2">{apiError}</AlertDescription>
+        </Alert>
+      )}
+      
+      <Tabs defaultValue="voice" className="w-full">
+        <TabsList className="grid grid-cols-3 mb-6 bg-black/20">
+          <TabsTrigger value="voice" className="text-white data-[state=active]:text-theater-gold data-[state=active]:bg-black/40">
+            Voice
+          </TabsTrigger>
+          <TabsTrigger value="physical" className="text-white data-[state=active]:text-theater-gold data-[state=active]:bg-black/40">
+            Physical
+          </TabsTrigger>
+          <TabsTrigger value="emotional" className="text-white data-[state=active]:text-theater-gold data-[state=active]:bg-black/40">
+            Emotional
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="voice" className="mt-0">
+          {renderExercises("voice")}
+        </TabsContent>
+        
+        <TabsContent value="physical" className="mt-0">
+          {renderExercises("physical")}
+        </TabsContent>
+        
+        <TabsContent value="emotional" className="mt-0">
+          {renderExercises("emotional")}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
