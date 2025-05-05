@@ -1,4 +1,5 @@
-import { Camera, Brain, Trophy, Star, Mic2, Users, Zap, GraduationCap, Award } from "lucide-react";
+
+import { Camera, Brain, Trophy, Users, Mic2, GraduationCap, Award, MessageSquare, BookOpen, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
@@ -7,33 +8,48 @@ export const Features = () => {
 
   const features = [
     {
-      name: "Instant Scene Analysis",
-      description: "Upload your performance and get detailed feedback in seconds",
+      name: "Video Performance Analysis",
+      description: "Upload your performance videos for AI-powered analysis with detailed feedback",
       icon: Camera,
     },
     {
-      name: "Emotion Recognition",
-      description: "Get scored on emotional authenticity and range with advanced AI analysis",
+      name: "Emotion & Character Analysis",
+      description: "Get scored on emotional authenticity, character embodiment and performance range",
       icon: Brain,
     },
     {
-      name: "Body Language Analysis",
-      description: "Detailed feedback on your physical performance and stage presence",
+      name: "Physical Performance Feedback",
+      description: "Detailed analysis of your body language, movement and stage presence",
       icon: Users,
     },
     {
-      name: "AI Professor Pick",
-      description: "Learn from Strasberg, Chekhov, Stanislavski, and Brecht methods",
+      name: "Voice & Delivery Analysis",
+      description: "Receive feedback on your vocal delivery, pacing, and emotional expression",
+      icon: Mic2,
+    },
+    {
+      name: "AI Coaching Methodology",
+      description: "Learn from Strasberg, Chekhov, Stanislavski, Meisner, and Brecht methods",
       icon: GraduationCap,
     },
     {
-      name: "Digital Certified Actor Badge",
-      description: "Earn a limited NFT badge to showcase your acting achievements",
-      icon: Award,
+      name: "Script Management Tools",
+      description: "Upload, edit, and rehearse with your scripts using our built-in tools",
+      icon: FileText,
+    },
+    {
+      name: "AI Scene Partner",
+      description: "Practice your scenes with an AI-powered reading partner for natural rehearsals",
+      icon: BookOpen,
+    },
+    {
+      name: "Voice-Interactive Coach",
+      description: "Speak directly to your AI coach and receive spoken guidance in real-time",
+      icon: MessageSquare,
     },
     {
       name: "Performance Tracking",
-      description: "Monitor your growth with detailed performance metrics over time",
+      description: "Monitor your growth with detailed metrics and visualize improvement over time",
       icon: Trophy,
     },
   ];
