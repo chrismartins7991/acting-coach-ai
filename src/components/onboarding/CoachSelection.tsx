@@ -4,10 +4,10 @@ import { type CarouselApi } from "@/components/ui/carousel";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { CoachCarousel } from "./CoachCarousel";
 import { PreferencesForm } from "./PreferencesForm";
 import { coaches } from "./coachData";
+import { motion } from "framer-motion";
 
 interface CoachSelectionProps {
   onComplete: () => void;
@@ -127,29 +127,42 @@ export const CoachSelection = ({ onComplete }: CoachSelectionProps) => {
   };
 
   return (
-    <>
-      <div className="text-center space-y-4 px-4 sm:px-6">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Choose Your Acting Coach</h1>
-        <p className="text-base sm:text-lg text-gray-300">Select an iconic coach to analyze your performance</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple p-6 sm:p-8 flex items-center justify-center">
+      <motion.div 
+        className="w-full max-w-4xl"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="text-center space-y-4 mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+            {!showPreferences ? "Choose Your Acting Coach" : "Customize Your Experience"}
+          </h1>
+          <p className="text-base sm:text-lg text-gray-300">
+            {!showPreferences 
+              ? "Select an iconic coach to analyze your performance" 
+              : "Select the aspects of your performance you'd like analyzed"}
+          </p>
+        </div>
 
-      {!showPreferences ? (
-        <div className="px-2 sm:px-8 md:px-12">
-          <CoachCarousel 
-            onCoachSelect={handleSelect}
-            centerIndex={centerIndex}
-            setApi={setApi}
-          />
-        </div>
-      ) : (
-        <div className="px-4 sm:px-6">
-          <PreferencesForm
-            preferences={preferences}
-            onTogglePreference={handlePreferenceToggle}
-            onSave={handleSavePreferences}
-          />
-        </div>
-      )}
-    </>
+        {!showPreferences ? (
+          <div className="px-2 sm:px-8 md:px-12">
+            <CoachCarousel 
+              onCoachSelect={handleSelect}
+              centerIndex={centerIndex}
+              setApi={setApi}
+            />
+          </div>
+        ) : (
+          <div className="max-w-2xl mx-auto px-4 sm:px-6">
+            <PreferencesForm
+              preferences={preferences}
+              onTogglePreference={handlePreferenceToggle}
+              onSave={handleSavePreferences}
+            />
+          </div>
+        )}
+      </motion.div>
+    </div>
   );
 };

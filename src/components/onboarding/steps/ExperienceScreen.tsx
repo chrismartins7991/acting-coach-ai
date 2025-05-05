@@ -47,9 +47,9 @@ export const ExperienceScreen = ({ onNext }: ExperienceScreenProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple p-6 sm:p-8">
-      <div className="max-w-md mx-auto">
-        <div className="text-center mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple p-6 sm:p-8 flex flex-col justify-center">
+      <div className="max-w-md mx-auto space-y-6">
+        <div className="text-center mb-6">
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">What's your acting experience?</h2>
           <p className="text-gray-300">This helps us tailor our coaching to match your current skill level.</p>
         </div>
@@ -86,15 +86,13 @@ export const ExperienceScreen = ({ onNext }: ExperienceScreenProps) => {
           ))}
         </div>
         
-        <div className="flex justify-center">
-          <Button
-            onClick={handleNext}
-            disabled={!selectedLevel}
-            className="bg-theater-gold hover:bg-theater-gold/90 text-black font-bold px-8 py-3 w-full"
-          >
-            Continue
-          </Button>
-        </div>
+        <Button
+          onClick={handleNext}
+          disabled={!selectedLevel}
+          className="w-full bg-theater-gold hover:bg-theater-gold/90 text-black font-bold py-3"
+        >
+          Continue
+        </Button>
       </div>
     </div>
   );

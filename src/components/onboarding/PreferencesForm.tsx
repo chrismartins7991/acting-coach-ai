@@ -1,10 +1,10 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { motion } from "framer-motion";
 
 interface PreferencesProps {
   preferences: {
@@ -23,208 +23,113 @@ export const PreferencesForm = ({
   onTogglePreference, 
   onSave 
 }: PreferencesProps) => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    experience_level: "",
-    acting_type: "",
-    coach_preference: "",
-    primary_focus: "",
-    equipment: "",
-    ai_reader_voice: "",
-  });
+  const [primaryFocus, setPrimaryFocus] = useState("self_tape");
+  const [aiVoice, setAiVoice] = useState("female_neutral");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form Data Submitted:", formData);
-
-    toast({
-      title: "Preferences Saved",
-      description: "Your preferences have been saved successfully.",
-    });
-
-    // Call the onSave callback passed via props
-    onSave();
-  };
+  const preferenceOptions = [
+    { id: 'emotionInVoice', label: 'Emotion in Voice', description: 'How well you convey emotion vocally' },
+    { id: 'voiceExpressiveness', label: 'Voice Expressiveness', description: 'Range and flexibility in your vocal delivery' },
+    { id: 'physicalPresence', label: 'Physical Presence', description: 'How you use your body and space' },
+    { id: 'faceExpressions', label: 'Facial Expressions', description: 'How effectively you use facial expressions' },
+    { id: 'clearnessOfDiction', label: 'Clearness of Diction', description: 'Clarity and precision of speech' }
+  ];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-8"
+    >
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-white">Acting Background</h3>
-
-        <div className="space-y-2">
-          <Label htmlFor="experience_level" className="text-sm text-gray-300">Experience Level</Label>
-          <select
-            id="experience_level"
-            className="w-full p-2 rounded-md bg-black/50 text-white border border-white/20"
-            name="experience_level"
-            value={formData.experience_level}
-            onChange={handleChange}
-          >
-            <option value="">Select...</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="acting_type" className="text-sm text-gray-300">Preferred Acting Type</Label>
-          <select
-            id="acting_type"
-            className="w-full p-2 rounded-md bg-black/50 text-white border border-white/20"
-            name="acting_type"
-            value={formData.acting_type}
-            onChange={handleChange}
-          >
-            <option value="">Select...</option>
-            <option value="film">Film</option>
-            <option value="theater">Theater</option>
-            <option value="commercial">Commercial</option>
-            <option value="voiceover">Voiceover</option>
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="coach_preference" className="text-sm text-gray-300">Preferred AI Coach</Label>
-          <select
-            id="coach_preference"
-            className="w-full p-2 rounded-md bg-black/50 text-white border border-white/20"
-            name="coach_preference"
-            value={formData.coach_preference}
-            onChange={handleChange}
-          >
-            <option value="">Select...</option>
-            <option value="stanislavski">Stanislavski</option>
-            <option value="brecht">Brecht</option>
-            <option value="lee_strasberg">Lee Strasberg</option>
-            <option value="chekhov">Chekhov</option>
-          </select>
+        <div className="bg-black/20 p-4 rounded-xl border border-theater-gold/20">
+          <h3 className="text-xl font-semibold text-white mb-4">Analysis Focus Areas</h3>
+          <div className="grid gap-3">
+            {preferenceOptions.map((option, index) => (
+              <motion.div 
+                key={option.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className={`px-4 py-3 rounded-lg border transition-all flex items-center justify-between 
+                  ${preferences[option.id as keyof typeof preferences] 
+                    ? "border-theater-gold bg-theater-gold/10" 
+                    : "border-white/10 bg-black/30 hover:bg-black/40"}`}
+                onClick={() => onTogglePreference(option.id as keyof PreferencesProps['preferences'])}
+              >
+                <div>
+                  <p className="font-medium text-white">{option.label}</p>
+                  <p className="text-sm text-gray-400">{option.description}</p>
+                </div>
+                <div className={`w-5 h-5 rounded-full border flex items-center justify-center
+                  ${preferences[option.id as keyof typeof preferences] 
+                    ? "border-theater-gold bg-theater-gold" 
+                    : "border-white/30"}`}>
+                  {preferences[option.id as keyof typeof preferences] && (
+                    <span className="text-black text-xs">✓</span>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-white">Analysis Preferences</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <input 
-              type="checkbox" 
-              id="emotionInVoice" 
-              checked={preferences.emotionInVoice}
-              onChange={() => onTogglePreference('emotionInVoice')}
-              className="rounded border-gray-400"
-            />
-            <Label htmlFor="emotionInVoice" className="text-gray-300">Emotion in Voice</Label>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <input 
-              type="checkbox" 
-              id="voiceExpressiveness" 
-              checked={preferences.voiceExpressiveness}
-              onChange={() => onTogglePreference('voiceExpressiveness')}
-              className="rounded border-gray-400"
-            />
-            <Label htmlFor="voiceExpressiveness" className="text-gray-300">Voice Expressiveness</Label>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <input 
-              type="checkbox" 
-              id="physicalPresence" 
-              checked={preferences.physicalPresence}
-              onChange={() => onTogglePreference('physicalPresence')}
-              className="rounded border-gray-400"
-            />
-            <Label htmlFor="physicalPresence" className="text-gray-300">Physical Presence</Label>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <input 
-              type="checkbox" 
-              id="faceExpressions" 
-              checked={preferences.faceExpressions}
-              onChange={() => onTogglePreference('faceExpressions')}
-              className="rounded border-gray-400"
-            />
-            <Label htmlFor="faceExpressions" className="text-gray-300">Facial Expressions</Label>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <input 
-              type="checkbox" 
-              id="clearnessOfDiction" 
-              checked={preferences.clearnessOfDiction}
-              onChange={() => onTogglePreference('clearnessOfDiction')}
-              className="rounded border-gray-400"
-            />
-            <Label htmlFor="clearnessOfDiction" className="text-gray-300">Clearness of Diction</Label>
-          </div>
+          <Label htmlFor="focus" className="text-white font-medium">Primary Focus</Label>
+          <RadioGroup 
+            defaultValue={primaryFocus}
+            onValueChange={setPrimaryFocus}
+            className="bg-black/20 p-3 rounded-lg border border-white/10"
+          >
+            <div className="flex items-center space-x-2 p-2">
+              <RadioGroupItem value="self_tape" id="self_tape" />
+              <Label htmlFor="self_tape" className="text-gray-200">Self-Tape Auditions</Label>
+            </div>
+            <div className="flex items-center space-x-2 p-2">
+              <RadioGroupItem value="rehearsal" id="rehearsal" />
+              <Label htmlFor="rehearsal" className="text-gray-200">Scene Rehearsal</Label>
+            </div>
+            <div className="flex items-center space-x-2 p-2">
+              <RadioGroupItem value="both" id="both" />
+              <Label htmlFor="both" className="text-gray-200">Both Equally</Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        <div className="space-y-3">
+          <Label htmlFor="voice" className="text-white font-medium">AI Reader Voice</Label>
+          <RadioGroup 
+            defaultValue={aiVoice}
+            onValueChange={setAiVoice}
+            className="bg-black/20 p-3 rounded-lg border border-white/10"
+          >
+            <div className="flex items-center space-x-2 p-2">
+              <RadioGroupItem value="female_neutral" id="female_neutral" />
+              <Label htmlFor="female_neutral" className="text-gray-200">Female (Neutral)</Label>
+            </div>
+            <div className="flex items-center space-x-2 p-2">
+              <RadioGroupItem value="male_neutral" id="male_neutral" />
+              <Label htmlFor="male_neutral" className="text-gray-200">Male (Neutral)</Label>
+            </div>
+            <div className="flex items-center space-x-2 p-2">
+              <RadioGroupItem value="female_dramatic" id="female_dramatic" />
+              <Label htmlFor="female_dramatic" className="text-gray-200">Female (Dramatic)</Label>
+            </div>
+            <div className="flex items-center space-x-2 p-2">
+              <RadioGroupItem value="male_dramatic" id="male_dramatic" />
+              <Label htmlFor="male_dramatic" className="text-gray-200">Male (Dramatic)</Label>
+            </div>
+          </RadioGroup>
         </div>
       </div>
 
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-white">Studio Preferences</h3>
-        
-        <div className="space-y-2">
-          <Label htmlFor="primary_focus" className="text-sm text-gray-300">What's your primary focus?</Label>
-          <select 
-            id="primary_focus"
-            className="w-full p-2 rounded-md bg-black/50 text-white border border-white/20"
-            name="primary_focus"
-            value={formData.primary_focus}
-            onChange={handleChange}
-          >
-            <option value="self_tape">Self-Tape Auditions</option>
-            <option value="rehearsal">Scene Rehearsal</option>
-            <option value="both">Both Equally</option>
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="equipment" className="text-sm text-gray-300">Self-Tape Equipment</Label>
-          <select 
-            id="equipment"
-            className="w-full p-2 rounded-md bg-black/50 text-white border border-white/20"
-            name="equipment"
-            value={formData.equipment}
-            onChange={handleChange}
-          >
-            <option value="phone">Smartphone</option>
-            <option value="dslr">DSLR/Mirrorless Camera</option>
-            <option value="webcam">Webcam</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="ai_reader_voice" className="text-sm text-gray-300">Preferred AI Reader Voice</Label>
-          <select 
-            id="ai_reader_voice"
-            className="w-full p-2 rounded-md bg-black/50 text-white border border-white/20"
-            name="ai_reader_voice"
-            value={formData.ai_reader_voice}
-            onChange={handleChange}
-          >
-            <option value="female_neutral">Female (Neutral)</option>
-            <option value="male_neutral">Male (Neutral)</option>
-            <option value="female_dramatic">Female (Dramatic)</option>
-            <option value="male_dramatic">Male (Dramatic)</option>
-          </select>
-        </div>
-      </div>
-
-      <Button type="submit" className="w-full bg-theater-gold hover:bg-theater-gold/90 text-black">
-        Save Preferences
+      <Button
+        onClick={onSave}
+        className="w-full bg-theater-gold hover:bg-theater-gold/90 text-black font-bold py-3 mt-4"
+      >
+        Save & Continue
       </Button>
-    </form>
+    </motion.div>
   );
 };
