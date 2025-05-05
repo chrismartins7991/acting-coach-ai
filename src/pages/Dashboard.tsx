@@ -1,15 +1,15 @@
-
 import { useNavigate, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { TopMenu } from "@/components/TopMenu";
 import { useVideoProcessing } from "@/hooks/useVideoProcessing";
 import { useState } from "react";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import { PerformanceSection } from "@/components/dashboard/PerformanceSection";
-import { ChevronRight, Clock, Award, Activity } from "lucide-react";
+import { ChevronRight, Activity, Award, Clock, User } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
+import { BackgroundEffects } from "@/components/dashboard/BackgroundEffects";
+import { SkillProgressBar } from "@/components/dashboard/SkillProgressBar";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -81,9 +81,10 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <BackgroundEffects fromLanding={fromLanding} />
       <TopMenu />
       
-      <div className="container mx-auto px-4 py-8 pt-24 max-w-7xl">
+      <div className="container mx-auto px-4 py-8 pt-20 pb-28 max-w-7xl">
         <div className="flex justify-between items-start mb-8">
           <div>
             <p className="text-gray-400 mb-1">Welcome back,</p>
@@ -183,48 +184,52 @@ const Dashboard = () => {
               <h2 className="text-xl font-bold mb-4">Skill Progress</h2>
               <div className="bg-neutral-900 rounded-lg p-6 space-y-4">
                 {skills.map((skill) => (
-                  <div key={skill.name} className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span>{skill.name}</span>
-                      <span>{skill.progress}%</span>
-                    </div>
-                    <Progress 
-                      value={skill.progress} 
-                      className="h-2 bg-neutral-800" 
-                    />
-                  </div>
+                  <SkillProgressBar 
+                    key={skill.name} 
+                    name={skill.name} 
+                    progress={skill.progress} 
+                    color={skill.color}
+                  />
                 ))}
               </div>
             </div>
-            
-            <div className="py-4 flex justify-center gap-8">
-              <Link to="/upload" className="text-center">
-                <div className="bg-neutral-900 rounded-full p-4 mb-2 inline-block">
-                  <Activity className="h-6 w-6" />
-                </div>
-                <span className="block text-sm">Upload</span>
-              </Link>
-              <Link to="/chat" className="text-center">
-                <div className="bg-neutral-900 rounded-full p-4 mb-2 inline-block">
-                  <Award className="h-6 w-6" />
-                </div>
-                <span className="block text-sm">Coach</span>
-              </Link>
-              <Link to="/rehearsal-room" className="text-center">
-                <div className="bg-neutral-900 rounded-full p-4 mb-2 inline-block">
-                  <Clock className="h-6 w-6" />
-                </div>
-                <span className="block text-sm">Rehearsal</span>
-              </Link>
-              <Link to="/settings" className="text-center">
-                <div className="bg-neutral-900 rounded-full p-4 mb-2 inline-block">
-                  <Award className="h-6 w-6" />
-                </div>
-                <span className="block text-sm">Profile</span>
-              </Link>
-            </div>
           </>
         )}
+      </div>
+
+      {/* Fixed bottom menu as shown in the image */}
+      <div className="fixed bottom-0 left-0 right-0 bg-neutral-950 py-4 border-t border-neutral-900">
+        <div className="container mx-auto max-w-md">
+          <div className="flex justify-around">
+            <Link to="/upload" className="flex flex-col items-center space-y-2">
+              <div className="bg-neutral-900 rounded-full p-4">
+                <Activity className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-sm text-white">Upload</span>
+            </Link>
+            
+            <Link to="/chat" className="flex flex-col items-center space-y-2">
+              <div className="bg-neutral-900 rounded-full p-4">
+                <Award className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-sm text-white">Coach</span>
+            </Link>
+            
+            <Link to="/rehearsal-room" className="flex flex-col items-center space-y-2">
+              <div className="bg-neutral-900 rounded-full p-4">
+                <Clock className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-sm text-white">Rehearsal</span>
+            </Link>
+            
+            <Link to="/dashboard/profile" className="flex flex-col items-center space-y-2">
+              <div className="bg-neutral-900 rounded-full p-4">
+                <User className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-sm text-white">Profile</span>
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
