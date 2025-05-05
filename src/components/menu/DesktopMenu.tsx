@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Menu, LogOut, Settings2 } from "lucide-react";
 import { menuItems } from "./menuItems";
@@ -12,15 +13,15 @@ export const DesktopMenu = () => {
 
   return (
     <div className="relative inline-flex items-center w-full justify-center">
-      <div className="group flex items-center h-10 bg-white/10 hover:bg-white/15 backdrop-blur-lg border border-white/20 rounded-lg transition-all duration-300">
-        {/* Left side items - hidden by default */}
-        <div className="flex items-center h-full overflow-hidden w-0 group-hover:w-auto transition-all duration-300">
+      <div className="flex items-center h-10 bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg transition-all duration-300">
+        {/* Left side items - always visible */}
+        <div className="flex items-center h-full overflow-hidden w-auto transition-all duration-300">
           <div className="flex items-center gap-1 md:gap-3 h-full pl-2 md:pl-3 whitespace-nowrap">
             {leftItems.map((item) => (
               <Link
                 key={item.title}
                 to={item.href}
-                className="flex items-center gap-1 md:gap-2 rounded-lg px-2 md:px-2.5 py-1.5 h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white/10"
+                className="flex items-center gap-1 md:gap-2 rounded-lg px-2 md:px-2.5 py-1.5 h-full hover:bg-white/10"
               >
                 <item.icon className="h-3.5 w-3.5 text-theater-gold/80" />
                 <span className="text-white/70 text-xs md:text-sm font-medium">{item.title}</span>
@@ -34,14 +35,14 @@ export const DesktopMenu = () => {
           <Menu className="h-3.5 w-3.5 text-theater-gold/80" />
         </div>
 
-        {/* Right side items - hidden by default */}
-        <div className="flex items-center h-full overflow-hidden w-0 group-hover:w-auto transition-all duration-300">
+        {/* Right side items - always visible */}
+        <div className="flex items-center h-full overflow-hidden w-auto transition-all duration-300">
           <div className="flex items-center gap-1 md:gap-3 h-full pr-2 md:pr-3 whitespace-nowrap">
             {rightItems.map((item) => (
               <Link
                 key={item.title}
                 to={item.href}
-                className="flex items-center gap-1 md:gap-2 rounded-lg px-2 md:px-2.5 py-1.5 h-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white/10"
+                className="flex items-center gap-1 md:gap-2 rounded-lg px-2 md:px-2.5 py-1.5 h-full hover:bg-white/10"
               >
                 <item.icon className="h-3.5 w-3.5 text-theater-gold/80" />
                 <span className="text-white/70 text-xs md:text-sm font-medium">{item.title}</span>
