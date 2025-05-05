@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { TestimonialCard } from "./testimonials/TestimonialCard";
@@ -18,9 +19,16 @@ export const Testimonials = () => {
           {t('testimonials.title')}
         </motion.h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
-            <TestimonialCard key={index} {...testimonial} delay={index * 0.2} />
+            <TestimonialCard 
+              key={testimonial.id} 
+              quote={testimonial.text}
+              author={testimonial.name}
+              role={testimonial.role}
+              image={testimonial.image}
+              delay={index * 0.1} 
+            />
           ))}
         </div>
       </div>
