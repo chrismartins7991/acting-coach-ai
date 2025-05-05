@@ -39,7 +39,7 @@ export const FeaturesGrid = ({
     >
       <motion.div>
         <VideoUpload
-          onAnalysisComplete={onAnalysisComplete}
+          onAnalysisComplete={(data) => onAnalysisComplete(data)}
           isAnalyzing={isAnalyzing}
         />
       </motion.div>
