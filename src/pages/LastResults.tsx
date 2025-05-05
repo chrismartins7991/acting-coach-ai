@@ -8,7 +8,8 @@ import { PerformanceAnalysis } from "@/components/PerformanceAnalysis";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Download, Share2, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 const LastResults = () => {
   const { user } = useAuth();
@@ -111,8 +112,46 @@ const LastResults = () => {
     }
   }, [user, toast, searchParams]);
 
+  const handleShareResults = () => {
+    toast({
+      title: "Feature coming soon",
+      description: "Sharing results will be available in a future update.",
+    });
+  };
+
+  const handleDownloadResults = () => {
+    if (!analysis) return;
+    
+    const analysisData = JSON.stringify({
+      analysis,
+      voiceAnalysis,
+      date: new Date().toISOString(),
+      coach: selectedCoach
+    }, null, 2);
+    
+    const blob = new Blob([analysisData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `performance-analysis-${new Date().toLocaleDateString()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Analysis Downloaded",
+      description: "Your performance analysis has been downloaded as a JSON file.",
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red">
+    <motion.div 
+      className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <TopMenu />
       <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 pt-24 sm:pt-32 max-w-7xl">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-8">
@@ -163,14 +202,40 @@ const LastResults = () => {
             </div>
           </div>
         ) : analysis || voiceAnalysis ? (
-          <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3 sm:p-6 border border-white/10">
-            <PerformanceAnalysis
-              analysis={analysis}
-              voiceAnalysis={voiceAnalysis}
-              isLoading={false}
-              methodology={selectedCoach}
-            />
-          </div>
+          <motion.div 
+            className="space-y-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                className="text-white border-white/20 hover:bg-white/10"
+                onClick={handleShareResults}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </Button>
+              <Button 
+                variant="outline" 
+                className="text-white border-white/20 hover:bg-white/10"
+                onClick={handleDownloadResults}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download
+              </Button>
+            </div>
+            
+            <div className="bg-black/30 backdrop-blur-sm rounded-lg p-3 sm:p-6 border border-white/10">
+              <PerformanceAnalysis
+                analysis={analysis}
+                voiceAnalysis={voiceAnalysis}
+                isLoading={false}
+                methodology={selectedCoach}
+              />
+            </div>
+          </motion.div>
         ) : (
           <div className="text-white text-center py-8 sm:py-12">
             <p className="text-base sm:text-lg mb-4">No performance results found.</p>
@@ -183,7 +248,7 @@ const LastResults = () => {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

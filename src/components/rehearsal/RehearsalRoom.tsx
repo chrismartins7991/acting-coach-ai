@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Book, BookOpen, Mic, Play, Timer, Upload, Clipboard, Search, Copy } from "lucide-react";
+import { Book, BookOpen, Mic, Play, Timer, Upload, Clipboard, Search, Copy, Eye, FileText } from "lucide-react";
 import { ScriptEditor } from "./ScriptEditor";
 import { AiReader } from "./AiReader";
 import { MemorizationTools } from "./MemorizationTools";
@@ -69,23 +69,78 @@ export const RehearsalRoom = () => {
       });
     });
   };
+
+  const handleSaveScript = () => {
+    // Create a blob from the script content
+    const blob = new Blob([script], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    // Create a download link and trigger download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'script.txt';
+    document.body.appendChild(a);
+    a.click();
+    
+    // Clean up
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: "Script saved",
+      description: "Script has been downloaded as a text file.",
+    });
+  };
   
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-4 mb-2">
+        <div>
+          <h2 className="text-xl font-bold text-white">Rehearsal Room</h2>
+          <p className="text-white/60">Practice your lines, work with an AI reader, and improve your cold reading skills</p>
+        </div>
+        
+        <div className="flex gap-2">
+          {activeTab === "script" && (
+            <Button 
+              variant="outline" 
+              className="text-white border-white/20 hover:bg-white/10"
+              onClick={handleSaveScript}
+              disabled={!script}
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Save Script
+            </Button>
+          )}
+        </div>
+      </div>
+      
       <Card className="p-6 bg-black/30 border-white/10">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 mb-6">
-            <TabsTrigger value="script">Script</TabsTrigger>
-            <TabsTrigger value="ai-reader">AI Reader</TabsTrigger>
-            <TabsTrigger value="memorization">Memorization</TabsTrigger>
-            <TabsTrigger value="cold-reading">Cold Reading</TabsTrigger>
+          <TabsList className="grid grid-cols-4 mb-6 bg-black/50">
+            <TabsTrigger value="script" className="data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold">
+              <Book className="w-4 h-4 mr-2" />
+              Script
+            </TabsTrigger>
+            <TabsTrigger value="ai-reader" className="data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold">
+              <Mic className="w-4 h-4 mr-2" />
+              AI Reader
+            </TabsTrigger>
+            <TabsTrigger value="memorization" className="data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold">
+              <BookOpen className="w-4 h-4 mr-2" />
+              Memorization
+            </TabsTrigger>
+            <TabsTrigger value="cold-reading" className="data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold">
+              <Eye className="w-4 h-4 mr-2" />
+              Cold Reading
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="script" className="space-y-6">
             <div className="flex flex-wrap gap-4 justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-white">Your Script</h3>
               
-              <div className="flex space-x-3">
+              <div className="flex flex-wrap gap-3">
                 <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
                   <Upload className="mr-2 h-4 w-4" />
                   Upload Script
@@ -103,7 +158,7 @@ export const RehearsalRoom = () => {
                   Paste Script
                 </Button>
                 
-                <Button variant="outline" onClick={handleCopyToClipboard}>
+                <Button variant="outline" onClick={handleCopyToClipboard} disabled={!script}>
                   <Copy className="mr-2 h-4 w-4" />
                   Copy Script
                 </Button>
