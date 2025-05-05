@@ -27,6 +27,7 @@ export const Testimonials = () => {
               author={testimonial.name}
               role={testimonial.role}
               image={testimonial.image}
+              rating={testimonial.rating}
               delay={index * 0.1} 
             />
           ))}

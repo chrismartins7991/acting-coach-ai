@@ -3,15 +3,30 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
 interface TestimonialCardProps {
-  quote: string;
-  author: string;
-  role: string;
-  image: string;
+  quote?: string;
+  author?: string;
+  role?: string;
+  image?: string;
   rating?: number;
   delay?: number;
+  name?: string;
+  text?: string;
 }
 
-export const TestimonialCard = ({ quote, author, role, image, rating = 5, delay = 0 }: TestimonialCardProps) => {
+export const TestimonialCard = ({ 
+  quote, 
+  author, 
+  role, 
+  image, 
+  rating = 5, 
+  delay = 0,
+  name,
+  text
+}: TestimonialCardProps) => {
+  // Use the new fields if provided, otherwise fall back to the old ones
+  const displayName = name || author;
+  const displayText = text || quote;
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -23,7 +38,7 @@ export const TestimonialCard = ({ quote, author, role, image, rating = 5, delay 
       <div className="mb-6 flex justify-center">
         <img
           src={image}
-          alt={author}
+          alt={displayName}
           className="w-24 h-24 rounded-full object-cover border-2 border-theater-gold"
         />
       </div>
@@ -36,8 +51,8 @@ export const TestimonialCard = ({ quote, author, role, image, rating = 5, delay 
         </div>
       )}
       
-      <p className="text-gray-300 mb-4 italic flex-grow">"{quote}"</p>
-      <div className="text-theater-gold font-semibold">{author}</div>
+      <p className="text-gray-300 mb-4 italic flex-grow">"{displayText}"</p>
+      <div className="text-theater-gold font-semibold">{displayName}</div>
       <div className="text-gray-400 text-sm">{role}</div>
     </motion.div>
   );
