@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
+import { Json } from "@/integrations/supabase/types";
 
 const Dashboard = () => {
   const location = useLocation();
@@ -48,9 +49,13 @@ const Dashboard = () => {
         if (resultsError) throw resultsError;
         
         if (resultsData && resultsData.length > 0) {
+          // Convert the JSON data from Supabase to strongly typed objects
+          const analysisData = resultsData[0].analysis as Json;
+          const voiceAnalysisData = resultsData[0].voice_analysis as Json;
+          
           setCurrentAnalysis({
-            analysis: resultsData[0].analysis,
-            voiceAnalysis: resultsData[0].voice_analysis
+            analysis: analysisData as unknown as Analysis,
+            voiceAnalysis: voiceAnalysisData as unknown as VoiceAnalysis
           });
         } else {
           // If no results, fetch performances for the list view
