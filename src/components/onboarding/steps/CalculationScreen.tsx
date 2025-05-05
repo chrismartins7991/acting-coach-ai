@@ -79,8 +79,7 @@ export const CalculationScreen = ({ onNext }: CalculationScreenProps) => {
         </p>
         
         <div className="w-full mb-6">
-          <Progress value={progress} className="h-2 bg-neutral-800" 
-            indicatorClassName="bg-theater-gold" />
+          <Progress value={progress} className="h-2 bg-neutral-800" />
         </div>
       </motion.div>
     </div>

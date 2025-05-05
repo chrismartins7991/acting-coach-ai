@@ -1,4 +1,5 @@
-import { SparklesCore } from "@/components/ui/sparkles";
+
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 interface BackgroundEffectsProps {
@@ -6,62 +7,53 @@ interface BackgroundEffectsProps {
 }
 
 export const BackgroundEffects = ({ fromLanding }: BackgroundEffectsProps) => {
+  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; size: number }>>([]);
+
+  useEffect(() => {
+    // Create particles only on initial render
+    const particlesArray = Array.from({ length: 20 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 2 + 1
+    }));
+    
+    setParticles(particlesArray);
+  }, []);
+
   return (
-    <>
-      {fromLanding && (
-        <motion.div 
-          className="fixed inset-0 pointer-events-none z-50"
-          initial={{ opacity: 1 }}
-          animate={{ opacity: 0 }}
-          transition={{ duration: 3 }}
-        >
-          <SparklesCore
-            background="transparent"
-            minSize={0.2}
-            maxSize={0.8}
-            particleDensity={100}
-            className="w-full h-full"
-            particleColor="#FFD700"
-          />
-        </motion.div>
-      )}
-
-      <div className="absolute top-0 left-0 w-full h-64 opacity-50 pointer-events-none">
-        <SparklesCore
-          background="transparent"
-          minSize={0.2}
-          maxSize={0.8}
-          particleDensity={70}
-          className="w-full h-full"
-          particleColor="#FFD700"
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className="absolute rounded-full bg-theater-gold/20"
+          style={{
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+            width: `${particle.size}px`,
+            height: `${particle.size}px`,
+          }}
+          animate={{
+            x: [0, Math.random() * 100 - 50, 0],
+            y: [0, Math.random() * 100 - 50, 0],
+            opacity: [0.3, 0.7, 0.3],
+          }}
+          transition={{
+            duration: Math.random() * 10 + 15,
+            repeat: Infinity,
+            ease: "linear",
+          }}
         />
-      </div>
-
-      <motion.div 
-        className="absolute right-0 top-1/4 w-64 h-96 opacity-40 pointer-events-none"
-      >
-        <SparklesCore
-          background="transparent"
-          minSize={0.1}
-          maxSize={0.6}
-          particleDensity={50}
-          className="w-full h-full"
-          particleColor="#FFD700"
-        />
-      </motion.div>
-
-      <motion.div 
-        className="absolute left-0 bottom-0 w-96 h-64 opacity-30 pointer-events-none"
-      >
-        <SparklesCore
-          background="transparent"
-          minSize={0.2}
-          maxSize={0.7}
-          particleDensity={60}
-          className="w-full h-full"
-          particleColor="#FFD700"
-        />
-      </motion.div>
-    </>
+      ))}
+      
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-b from-purple-900/10 to-transparent"
+        initial={{ opacity: fromLanding ? 0 : 0.3 }}
+        animate={{ opacity: 0.3 }}
+        transition={{ duration: 1.5 }}
+      />
+      
+      <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-black to-transparent" />
+    </div>
   );
 };
