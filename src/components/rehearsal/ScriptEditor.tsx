@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { BookOpen } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ScriptEditorProps {
   value: string;
@@ -11,6 +12,7 @@ interface ScriptEditorProps {
 
 export const ScriptEditor = ({ value, onChange }: ScriptEditorProps) => {
   const [isFocused, setIsFocused] = useState(false);
+  const isMobile = useIsMobile();
   
   // Helper function to parse and format script with character names
   const formatScript = () => {
@@ -40,7 +42,7 @@ export const ScriptEditor = ({ value, onChange }: ScriptEditorProps) => {
   };
   
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <div className="relative">
         <Textarea
           value={value}
@@ -48,14 +50,14 @@ export const ScriptEditor = ({ value, onChange }: ScriptEditorProps) => {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder="Type or paste your script here..."
-          className="min-h-[400px] p-4 bg-black/50 text-white resize-y font-mono"
+          className={`${isMobile ? 'min-h-[200px]' : 'min-h-[400px]'} p-3 bg-black/50 text-white resize-y font-mono`}
         />
         
         {!value && !isFocused && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center text-white/50">
-              <BookOpen className="h-12 w-12 mx-auto mb-2" />
-              <p>Type your script, upload a file, or paste from clipboard</p>
+              <BookOpen className={`${isMobile ? 'h-8 w-8' : 'h-12 w-12'} mx-auto mb-2`} />
+              <p className={isMobile ? 'text-sm' : ''}>Type your script, upload a file, or paste from clipboard</p>
             </div>
           </div>
         )}
@@ -63,7 +65,7 @@ export const ScriptEditor = ({ value, onChange }: ScriptEditorProps) => {
       
       {value && (
         <div className="flex justify-end">
-          <Button variant="outline" onClick={formatScript}>
+          <Button variant="outline" onClick={formatScript} className={isMobile ? "text-xs px-2 py-1 h-8" : ""}>
             Format Script
           </Button>
         </div>

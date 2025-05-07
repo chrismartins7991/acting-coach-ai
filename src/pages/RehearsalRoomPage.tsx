@@ -12,8 +12,8 @@ const RehearsalRoomPage = () => {
       {/* Top Menu for Navigation */}
       <TopMenu />
       
-      <div className={`container mx-auto px-4 ${isMobile ? 'pt-16 pb-20' : 'pt-28 pb-8'}`}>
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 sm:mb-4">
+      <div className={`container mx-auto px-2 ${isMobile ? 'pt-12 pb-16' : 'pt-28 pb-8'}`}>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1 sm:mb-2">
           Rehearsal Room
         </h1>
         <RehearsalRoom />

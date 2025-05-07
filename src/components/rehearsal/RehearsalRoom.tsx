@@ -95,56 +95,56 @@ export const RehearsalRoom = () => {
   };
   
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4 mb-2">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-2 mb-1">
         <div>
-          <p className={`text-white/60 ${isMobile ? 'text-sm' : ''}`}>Practice your lines, work with an AI reader, and improve your cold reading skills</p>
+          <p className={`text-white/60 ${isMobile ? 'text-xs' : ''}`}>Practice your lines, work with an AI reader, and improve your cold reading skills</p>
         </div>
         
         <div className="flex gap-2">
           {activeTab === "script" && (
             <Button 
-              variant="outline" 
-              className="text-white border-white/20 hover:bg-white/10"
+              variant="ghost" 
+              className="text-white hover:bg-white/10"
               onClick={handleSaveScript}
               disabled={!script}
             >
               <FileText className="w-4 h-4 mr-2" />
-              Save Script
+              Save
             </Button>
           )}
         </div>
       </div>
       
-      <Card className="p-6 bg-black/30 border-white/10">
+      <Card className="p-4 bg-black/30 border-white/10">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 mb-6 bg-black/50">
-            <TabsTrigger value="script" className={`data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold ${isMobile ? 'text-xs py-1.5' : ''}`}>
-              <Book className="w-4 h-4 mr-2" />
+          <TabsList className="grid grid-cols-4 mb-4 bg-black/50">
+            <TabsTrigger value="script" className={`data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold ${isMobile ? 'text-[10px] py-1' : ''}`}>
+              <Book className="w-4 h-4 mr-1" />
               Script
             </TabsTrigger>
-            <TabsTrigger value="ai-reader" className={`data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold ${isMobile ? 'text-xs py-1.5' : ''}`}>
-              <Mic className="w-4 h-4 mr-2" />
+            <TabsTrigger value="ai-reader" className={`data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold ${isMobile ? 'text-[10px] py-1' : ''}`}>
+              <Mic className="w-4 h-4 mr-1" />
               AI Reader
             </TabsTrigger>
-            <TabsTrigger value="memorization" className={`data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold ${isMobile ? 'text-xs py-1.5' : ''}`}>
-              <BookOpen className="w-4 h-4 mr-2" />
+            <TabsTrigger value="memorization" className={`data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold ${isMobile ? 'text-[10px] py-1' : ''}`}>
+              <BookOpen className="w-4 h-4 mr-1" />
               Memorization
             </TabsTrigger>
-            <TabsTrigger value="cold-reading" className={`data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold ${isMobile ? 'text-xs py-1.5' : ''}`}>
-              <Eye className="w-4 h-4 mr-2" />
+            <TabsTrigger value="cold-reading" className={`data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold ${isMobile ? 'text-[10px] py-1' : ''}`}>
+              <Eye className="w-4 h-4 mr-1" />
               Cold Reading
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="script" className="space-y-6">
-            <div className="flex flex-wrap gap-4 justify-between items-center mb-4">
+          <TabsContent value="script" className="space-y-4">
+            <div className="flex flex-wrap gap-2 justify-between items-center mb-2">
               <h3 className="text-lg font-semibold text-white">Your Script</h3>
               
-              <div className="flex flex-wrap gap-3">
-                <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Upload Script
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" onClick={() => fileInputRef.current?.click()} className={isMobile ? "text-xs px-2 py-1 h-8" : ""}>
+                  <Upload className="mr-1 h-4 w-4" />
+                  {isMobile ? "Upload" : "Upload Script"}
                   <input 
                     type="file" 
                     ref={fileInputRef} 
@@ -154,14 +154,14 @@ export const RehearsalRoom = () => {
                   />
                 </Button>
                 
-                <Button variant="outline" onClick={handlePasteScript}>
-                  <Clipboard className="mr-2 h-4 w-4" />
-                  Paste Script
+                <Button variant="outline" onClick={handlePasteScript} className={isMobile ? "text-xs px-2 py-1 h-8" : ""}>
+                  <Clipboard className="mr-1 h-4 w-4" />
+                  {isMobile ? "Paste" : "Paste Script"}
                 </Button>
                 
-                <Button variant="outline" onClick={handleCopyToClipboard} disabled={!script}>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy Script
+                <Button variant="outline" onClick={handleCopyToClipboard} disabled={!script} className={isMobile ? "text-xs px-2 py-1 h-8" : ""}>
+                  <Copy className="mr-1 h-4 w-4" />
+                  {isMobile ? "Copy" : "Copy Script"}
                 </Button>
               </div>
             </div>
@@ -172,16 +172,16 @@ export const RehearsalRoom = () => {
             />
           </TabsContent>
           
-          <TabsContent value="ai-reader" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <TabsContent value="ai-reader" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-white">AI Reader Settings</h3>
                 <AiReader script={script} />
               </div>
               
-              <div className="bg-black/20 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-white mb-4">Script Preview</h3>
-                <div className="max-h-80 overflow-y-auto p-4 bg-black/30 rounded-md border border-white/10">
+              <div className="bg-black/20 p-3 rounded-lg">
+                <h3 className="text-lg font-semibold text-white mb-2">Script Preview</h3>
+                <div className={`${isMobile ? 'max-h-48' : 'max-h-80'} overflow-y-auto p-3 bg-black/30 rounded-md border border-white/10`}>
                   <pre className="text-white/90 whitespace-pre-wrap font-sans text-sm">
                     {script || "No script loaded. Please add a script on the Script tab."}
                   </pre>
@@ -190,13 +190,13 @@ export const RehearsalRoom = () => {
             </div>
           </TabsContent>
           
-          <TabsContent value="memorization" className="space-y-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Memorization Tools</h3>
+          <TabsContent value="memorization" className="space-y-4">
+            <h3 className="text-lg font-semibold text-white mb-2">Memorization Tools</h3>
             <MemorizationTools script={script} />
           </TabsContent>
           
-          <TabsContent value="cold-reading" className="space-y-6">
-            <h3 className="text-lg font-semibold text-white mb-4">Cold Reading Practice</h3>
+          <TabsContent value="cold-reading" className="space-y-4">
+            <h3 className="text-lg font-semibold text-white mb-2">Cold Reading Practice</h3>
             <ColdReadingMode />
           </TabsContent>
         </Tabs>
