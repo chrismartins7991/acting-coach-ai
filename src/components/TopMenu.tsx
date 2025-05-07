@@ -1,7 +1,6 @@
 
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SubscriptionBadge } from "./subscription/SubscriptionBadge";
-import { MobileMenu } from "./menu/MobileMenu";
 import { Link } from "react-router-dom";
 import { Activity, Award, Clock, User, LayoutDashboard } from "lucide-react";
 
@@ -14,13 +13,6 @@ export const TopMenu = () => {
       <div className="fixed top-2 md:top-4 left-2 md:left-4 z-50">
         <SubscriptionBadge />
       </div>
-
-      {/* Mobile menu - only visible on mobile screens */}
-      {isMobile && (
-        <div className="fixed top-2 right-2 z-50">
-          <MobileMenu />
-        </div>
-      )}
 
       {/* Desktop menu - only visible on larger screens */}
       {!isMobile && (
