@@ -12,6 +12,7 @@ import { ResultsScreen } from "./steps/ResultsScreen";
 import { GoalSettingScreen } from "./steps/GoalSettingScreen";
 import { CoachSelection } from "../onboarding/CoachSelection";
 import { SignupStep } from "./steps/SignupStep";
+import { CoachPreferenceStep } from "./steps/CoachPreferenceStep";
 
 type OnboardingStep = 
   | "welcome"
@@ -21,6 +22,7 @@ type OnboardingStep =
   | "calculation"
   | "results"
   | "goals"
+  | "coach-preference"
   | "coach-selection";
 
 interface OnboardingFlowProps {
@@ -112,6 +114,42 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
     setCurrentStep(nextStep);
   };
 
+  const skipCoachSelection = async () => {
+    // Set a default coach (Stanislavski) when user skips selection
+    if (user) {
+      try {
+        await supabase
+          .from('user_coach_preferences')
+          .upsert({
+            user_id: user.id,
+            selected_coach: "stanislavski",
+            emotion_in_voice: true,
+            voice_expressiveness: true,
+            physical_presence: true,
+            face_expressions: true,
+            clearness_of_diction: true,
+          }, {
+            onConflict: 'user_id'
+          });
+          
+        if (onComplete) {
+          onComplete();
+        }
+        navigate('/upload');
+      } catch (error) {
+        console.error('Error setting default coach:', error);
+        toast({
+          title: "Error",
+          description: "Failed to set default coach",
+          variant: "destructive",
+        });
+      }
+    } else {
+      // If no user, redirect to signup
+      setCurrentStep("signup");
+    }
+  };
+
   const handleCoachSelectionComplete = () => {
     if (onComplete) {
       onComplete();
@@ -142,7 +180,12 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
       case "results":
         return <ResultsScreen onNext={() => updateProgress("goals")} />;
       case "goals":
-        return <GoalSettingScreen onNext={() => updateProgress("coach-selection")} />;
+        return <GoalSettingScreen onNext={() => updateProgress("coach-preference")} />;
+      case "coach-preference":
+        return <CoachPreferenceStep 
+                 onNext={() => updateProgress("coach-selection")}
+                 onSkip={skipCoachSelection}
+               />;
       case "coach-selection":
         return <CoachSelection onComplete={handleCoachSelectionComplete} />;
       default:
