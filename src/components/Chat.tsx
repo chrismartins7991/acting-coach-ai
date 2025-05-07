@@ -13,6 +13,10 @@ import { ChatHistory } from './ChatHistory';
 import { useChat } from '@/hooks/useChat';
 import { useToast } from './ui/use-toast';
 import { useVoiceRecording } from '@/hooks/useVoiceRecording';
+import { coaches } from './onboarding/coachData';
+import { Slider } from './ui/slider';
+import { AvatarImage } from './ui/avatar';
+import { ScrollArea } from './ui/scroll-area';
 
 export const Chat: React.FC = () => {
   const { user } = useAuth();
@@ -20,6 +24,7 @@ export const Chat: React.FC = () => {
   const { toast } = useToast();
   const [input, setInput] = useState('');
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
+  const [selectedCoachIndex, setSelectedCoachIndex] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   
   const handleSendMessage = async () => {
@@ -65,6 +70,12 @@ export const Chat: React.FC = () => {
           
         if (data?.selected_coach) {
           setSelectedCoach(data.selected_coach);
+          
+          // Find the index of the selected coach in the coaches array
+          const index = coaches.findIndex(coach => coach.type === data.selected_coach);
+          if (index !== -1) {
+            setSelectedCoachIndex(index);
+          }
         }
       } catch (error) {
         console.error("Error fetching coach preference:", error);
@@ -74,43 +85,126 @@ export const Chat: React.FC = () => {
     getCoachPreference();
   }, [user]);
 
+  // Handle coach slider change
+  const handleCoachChange = (value: number[]) => {
+    const index = value[0];
+    setSelectedCoachIndex(index);
+    const coach = coaches[index];
+    setSelectedCoach(coach.type);
+    
+    // If logged in, save preference
+    if (user) {
+      supabase
+        .from('user_coach_preferences')
+        .upsert({ 
+          user_id: user.id, 
+          selected_coach: coach.type 
+        })
+        .then(({ error }) => {
+          if (error) {
+            console.error("Error saving coach preference:", error);
+          } else {
+            toast({
+              title: `Coach Selected: ${coach.name}`,
+              description: `You're now chatting with ${coach.name}'s methodology in mind.`,
+            });
+          }
+        });
+    }
+  };
+
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const currentCoach = coaches[selectedCoachIndex];
+
   return (
     <div className="flex flex-col bg-black/30 backdrop-blur-sm border border-white/10 rounded-lg h-[calc(100vh-160px)] max-w-4xl mx-auto">
-      <div className="p-4 border-b border-white/10 flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-white">AI Acting Coach</h2>
-          {selectedCoach && (
-            <span className="text-sm text-white/60">
-              Using the {selectedCoach} method
-            </span>
-          )}
+      <div className="p-4 border-b border-white/10 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-white">AI Acting Coach</h2>
+            {selectedCoach && (
+              <span className="text-sm text-white/60">
+                Using the {currentCoach.name} method
+              </span>
+            )}
+          </div>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            className={isRecording ? 
+              "bg-red-500/20 hover:bg-red-500/30 text-red-500 border-red-500/50" : 
+              "bg-white/10 hover:bg-white/20 text-white border-white/20"}
+            onClick={toggleRecording}
+          >
+            {isRecording ? (
+              <>
+                <MicOff className="h-4 w-4 mr-2" />
+                Stop Recording
+              </>
+            ) : (
+              <>
+                <Mic className="h-4 w-4 mr-2" />
+                Voice Input
+              </>
+            )}
+          </Button>
         </div>
-        
-        <Button 
-          variant="outline" 
-          size="sm"
-          className={isRecording ? 
-            "bg-red-500/20 hover:bg-red-500/30 text-red-500 border-red-500/50" : 
-            "bg-white/10 hover:bg-white/20 text-white border-white/20"}
-          onClick={toggleRecording}
-        >
-          {isRecording ? (
-            <>
-              <MicOff className="h-4 w-4 mr-2" />
-              Stop Recording
-            </>
-          ) : (
-            <>
-              <Mic className="h-4 w-4 mr-2" />
-              Voice Input
-            </>
-          )}
-        </Button>
+
+        <Card className="p-3 bg-black/20 border-white/10">
+          <ScrollArea className="h-24">
+            <div className="flex flex-col gap-2">
+              <p className="text-xs text-white/60 mb-2">Select your acting coach:</p>
+              <div className="flex items-center gap-2 mb-4">
+                {selectedCoachIndex > 0 && (
+                  <Avatar className="h-12 w-12 shrink-0 opacity-50">
+                    <AvatarImage 
+                      src={coaches[selectedCoachIndex - 1]?.image} 
+                      alt={coaches[selectedCoachIndex - 1]?.name} 
+                      className="object-cover" 
+                    />
+                  </Avatar>
+                )}
+                
+                <Avatar className="h-16 w-16 border-2 border-theater-gold">
+                  <AvatarImage 
+                    src={currentCoach?.image} 
+                    alt={currentCoach?.name} 
+                    className="object-cover" 
+                  />
+                </Avatar>
+                
+                {selectedCoachIndex < coaches.length - 1 && (
+                  <Avatar className="h-12 w-12 shrink-0 opacity-50">
+                    <AvatarImage 
+                      src={coaches[selectedCoachIndex + 1]?.image} 
+                      alt={coaches[selectedCoachIndex + 1]?.name} 
+                      className="object-cover" 
+                    />
+                  </Avatar>
+                )}
+              </div>
+              
+              <Slider
+                defaultValue={[selectedCoachIndex]}
+                max={coaches.length - 1}
+                step={1}
+                value={[selectedCoachIndex]}
+                onValueChange={handleCoachChange}
+                className="w-full"
+              />
+              
+              <div className="text-center mt-1">
+                <p className="text-sm text-theater-gold font-medium">{currentCoach?.name}</p>
+                <p className="text-xs text-white/60">{currentCoach?.contribution}</p>
+              </div>
+            </div>
+          </ScrollArea>
+        </Card>
       </div>
       
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -133,7 +227,14 @@ export const Chat: React.FC = () => {
               >
                 <div className={`flex ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} max-w-[80%] gap-3`}>
                   <Avatar className={`h-8 w-8 ${message.role === 'user' ? 'bg-theater-gold' : 'bg-theater-purple'}`}>
-                    {message.role === 'user' ? <User className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
+                    {message.role === 'user' ? (
+                      <User className="h-5 w-5" />
+                    ) : (
+                      <>
+                        <AvatarImage src={currentCoach?.image} alt={currentCoach?.name} />
+                        <Bot className="h-5 w-5" />
+                      </>
+                    )}
                   </Avatar>
                   <div 
                     className={`p-3 rounded-lg ${
