@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,9 +12,11 @@ import { AiReader } from "./AiReader";
 import { MemorizationTools } from "./MemorizationTools";
 import { ColdReadingMode } from "./ColdReadingMode";
 import { useToast } from "@/components/ui/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const RehearsalRoom = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [script, setScript] = useState("");
   const [activeTab, setActiveTab] = useState("script");
   const [coldReadingMode, setColdReadingMode] = useState(false);
@@ -95,7 +98,7 @@ export const RehearsalRoom = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4 mb-2">
         <div>
-          <p className="text-white/60">Practice your lines, work with an AI reader, and improve your cold reading skills</p>
+          <p className={`text-white/60 ${isMobile ? 'text-sm' : ''}`}>Practice your lines, work with an AI reader, and improve your cold reading skills</p>
         </div>
         
         <div className="flex gap-2">
@@ -116,19 +119,19 @@ export const RehearsalRoom = () => {
       <Card className="p-6 bg-black/30 border-white/10">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-4 mb-6 bg-black/50">
-            <TabsTrigger value="script" className="data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold">
+            <TabsTrigger value="script" className={`data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold ${isMobile ? 'text-xs py-1.5' : ''}`}>
               <Book className="w-4 h-4 mr-2" />
               Script
             </TabsTrigger>
-            <TabsTrigger value="ai-reader" className="data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold">
+            <TabsTrigger value="ai-reader" className={`data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold ${isMobile ? 'text-xs py-1.5' : ''}`}>
               <Mic className="w-4 h-4 mr-2" />
               AI Reader
             </TabsTrigger>
-            <TabsTrigger value="memorization" className="data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold">
+            <TabsTrigger value="memorization" className={`data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold ${isMobile ? 'text-xs py-1.5' : ''}`}>
               <BookOpen className="w-4 h-4 mr-2" />
               Memorization
             </TabsTrigger>
-            <TabsTrigger value="cold-reading" className="data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold">
+            <TabsTrigger value="cold-reading" className={`data-[state=active]:bg-theater-gold/20 data-[state=active]:text-theater-gold ${isMobile ? 'text-xs py-1.5' : ''}`}>
               <Eye className="w-4 h-4 mr-2" />
               Cold Reading
             </TabsTrigger>
