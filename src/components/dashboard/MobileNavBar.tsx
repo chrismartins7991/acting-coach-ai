@@ -1,5 +1,5 @@
 
-import { Activity, Award, Clock, User, LayoutDashboard } from "lucide-react";
+import { Activity, Award, Book, User, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const MobileNavBar = () => {
@@ -27,7 +27,7 @@ export const MobileNavBar = () => {
           
           <Link to="/rehearsal-room" className="flex flex-col items-center">
             <div className="bg-neutral-900 rounded-full p-3">
-              <Clock className="h-5 w-5 text-white" />
+              <Book className="h-5 w-5 text-white" />
             </div>
           </Link>
           

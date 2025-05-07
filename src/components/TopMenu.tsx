@@ -2,7 +2,7 @@
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SubscriptionBadge } from "./subscription/SubscriptionBadge";
 import { Link } from "react-router-dom";
-import { Activity, Award, Clock, User, LayoutDashboard } from "lucide-react";
+import { Activity, Award, Book, User, LayoutDashboard } from "lucide-react";
 
 export const TopMenu = () => {
   const isMobile = useIsMobile();
@@ -42,7 +42,7 @@ export const TopMenu = () => {
               
               <Link to="/rehearsal-room" className="flex flex-col items-center space-y-1">
                 <div className="bg-neutral-900 rounded-full p-3">
-                  <Clock className="h-5 w-5 text-white" />
+                  <Book className="h-5 w-5 text-white" />
                 </div>
                 <span className="text-xs text-white">Rehearsal</span>
               </Link>
