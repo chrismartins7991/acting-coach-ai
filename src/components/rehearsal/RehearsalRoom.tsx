@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Book, BookOpen, Mic, Play, Timer, Upload, Clipboard, Search, Copy, Eye, FileText } from "lucide-react";
+import { Book, BookOpen, Mic, Play, Timer, Upload, Clipboard, Search, Eye, FileText } from "lucide-react";
 import { ScriptEditor } from "./ScriptEditor";
 import { AiReader } from "./AiReader";
 import { MemorizationTools } from "./MemorizationTools";
@@ -52,21 +52,6 @@ export const RehearsalRoom = () => {
       toast({
         title: "Clipboard error",
         description: "Could not access clipboard. Please paste manually.",
-        variant: "destructive",
-      });
-    });
-  };
-
-  const handleCopyToClipboard = () => {
-    navigator.clipboard.writeText(script).then(() => {
-      toast({
-        title: "Copied to clipboard",
-        description: "Script has been copied to clipboard.",
-      });
-    }).catch(err => {
-      toast({
-        title: "Clipboard error",
-        description: "Could not copy to clipboard.",
         variant: "destructive",
       });
     });
@@ -159,10 +144,7 @@ export const RehearsalRoom = () => {
                   {isMobile ? "Paste" : "Paste Script"}
                 </Button>
                 
-                <Button variant="outline" onClick={handleCopyToClipboard} disabled={!script} className={isMobile ? "text-xs px-2 py-1 h-8" : ""}>
-                  <Copy className="mr-1 h-4 w-4" />
-                  {isMobile ? "Copy" : "Copy Script"}
-                </Button>
+                {/* Copy Script button removed as requested */}
               </div>
             </div>
             
