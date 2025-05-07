@@ -23,7 +23,7 @@ export const CoachPreferenceStep = ({ onNext, onSkip }: CoachPreferenceStepProps
             Choose Your Path
           </h1>
           <p className="text-lg text-gray-300">
-            Would you like to select a specific acting coach for your 1st performance analysis?
+            Would you like to select a specific acting coach for your <span className="text-theater-gold font-semibold">1st performance analysis</span>?
           </p>
         </div>
 
