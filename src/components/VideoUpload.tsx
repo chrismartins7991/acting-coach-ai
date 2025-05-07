@@ -3,18 +3,24 @@ import { useVideoUpload } from "@/utils/videoAnalysis/useVideoUpload";
 import { UploadButton } from "./video/UploadButton";
 import { useToast } from "./ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 
 interface VideoUploadProps {
-  onAnalysisComplete: (analysis: any) => void;
+  onAnalysisComplete: (data: { analysis: Analysis; voiceAnalysis: VoiceAnalysis }) => void;
   isAnalyzing: boolean;
 }
 
-export const VideoUpload = ({ onAnalysisComplete, isAnalyzing }: VideoUploadProps) => {
+export default function VideoUpload({ onAnalysisComplete, isAnalyzing }: VideoUploadProps) {
   const { toast } = useToast();
   const { user } = useAuth();
   const { handleFileUpload, isUploading, retryCount } = useVideoUpload(
     user?.id || "demo-user",
-    onAnalysisComplete
+    (analysis) => {
+      onAnalysisComplete({ 
+        analysis: analysis as Analysis, 
+        voiceAnalysis: {} as VoiceAnalysis 
+      });
+    }
   );
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,4 +55,4 @@ export const VideoUpload = ({ onAnalysisComplete, isAnalyzing }: VideoUploadProp
       onFileSelect={handleFileSelect}
     />
   );
-};
+}

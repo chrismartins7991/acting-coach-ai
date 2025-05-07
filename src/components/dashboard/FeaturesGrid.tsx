@@ -1,4 +1,5 @@
-import { VideoUpload } from "@/components/VideoUpload";
+
+import VideoUpload from "@/components/VideoUpload";
 import { FeatureCard } from "@/components/FeatureCard";
 import { Analysis, VoiceAnalysis } from "@/utils/videoAnalysis/types";
 import { Camera, History } from "lucide-react";
