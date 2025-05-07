@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Mic, MicOff, User, Bot } from 'lucide-react';
+import { Send, Mic, MicOff, User, Bot, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +14,6 @@ import { useChat } from '@/hooks/useChat';
 import { useToast } from './ui/use-toast';
 import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { coaches } from './onboarding/coachData';
-import { Slider } from './ui/slider';
 import { AvatarImage } from './ui/avatar';
 import { ScrollArea } from './ui/scroll-area';
 
@@ -85,11 +84,14 @@ export const Chat: React.FC = () => {
     getCoachPreference();
   }, [user]);
 
-  // Handle coach slider change
-  const handleCoachChange = (value: number[]) => {
-    const index = value[0];
-    setSelectedCoachIndex(index);
-    const coach = coaches[index];
+  // Navigate through coaches
+  const navigateCoach = (direction: 'prev' | 'next') => {
+    const newIndex = direction === 'next' 
+      ? (selectedCoachIndex + 1) % coaches.length 
+      : (selectedCoachIndex - 1 + coaches.length) % coaches.length;
+    
+    setSelectedCoachIndex(newIndex);
+    const coach = coaches[newIndex];
     setSelectedCoach(coach.type);
     
     // If logged in, save preference
@@ -159,44 +161,35 @@ export const Chat: React.FC = () => {
           <ScrollArea className="h-24">
             <div className="flex flex-col gap-2">
               <p className="text-xs text-white/60 mb-2">Select your acting coach:</p>
-              <div className="flex items-center gap-2 mb-4">
-                {selectedCoachIndex > 0 && (
-                  <Avatar className="h-12 w-12 shrink-0 opacity-50">
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => navigateCoach('prev')}
+                  className="text-white/60 hover:text-white hover:bg-white/10"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
+                
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-16 w-16 border-2 border-theater-gold">
                     <AvatarImage 
-                      src={coaches[selectedCoachIndex - 1]?.image} 
-                      alt={coaches[selectedCoachIndex - 1]?.name} 
+                      src={currentCoach?.image} 
+                      alt={currentCoach?.name} 
                       className="object-cover" 
                     />
                   </Avatar>
-                )}
+                </div>
                 
-                <Avatar className="h-16 w-16 border-2 border-theater-gold">
-                  <AvatarImage 
-                    src={currentCoach?.image} 
-                    alt={currentCoach?.name} 
-                    className="object-cover" 
-                  />
-                </Avatar>
-                
-                {selectedCoachIndex < coaches.length - 1 && (
-                  <Avatar className="h-12 w-12 shrink-0 opacity-50">
-                    <AvatarImage 
-                      src={coaches[selectedCoachIndex + 1]?.image} 
-                      alt={coaches[selectedCoachIndex + 1]?.name} 
-                      className="object-cover" 
-                    />
-                  </Avatar>
-                )}
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => navigateCoach('next')}
+                  className="text-white/60 hover:text-white hover:bg-white/10"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
               </div>
-              
-              <Slider
-                defaultValue={[selectedCoachIndex]}
-                max={coaches.length - 1}
-                step={1}
-                value={[selectedCoachIndex]}
-                onValueChange={handleCoachChange}
-                className="w-full"
-              />
               
               <div className="text-center mt-1">
                 <p className="text-sm text-theater-gold font-medium">{currentCoach?.name}</p>
