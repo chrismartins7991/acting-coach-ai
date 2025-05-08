@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -104,6 +105,20 @@ export const useChat = () => {
     setIsLoading(true);
 
     try {
+      // Get selected coach preference
+      let selectedCoachType = null;
+      if (user) {
+        const { data: preferenceData } = await supabase
+          .from('user_coach_preferences')
+          .select('selected_coach')
+          .eq('user_id', user.id)
+          .single();
+          
+        if (preferenceData?.selected_coach) {
+          selectedCoachType = preferenceData.selected_coach;
+        }
+      }
+
       // Create new conversation if needed
       if (!currentConversationId) {
         console.log('No current conversation, creating new one...');
@@ -128,7 +143,10 @@ export const useChat = () => {
 
       // Get AI response
       const { data, error } = await supabase.functions.invoke('chat', {
-        body: { message: content },
+        body: { 
+          message: content,
+          coachType: selectedCoachType 
+        },
       });
 
       if (error) throw error;

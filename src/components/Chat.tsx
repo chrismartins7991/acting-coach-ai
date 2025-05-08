@@ -173,11 +173,19 @@ export const Chat: React.FC = () => {
                 
                 <div className="flex items-center gap-2">
                   <Avatar className="h-16 w-16 border-2 border-theater-gold">
-                    <AvatarImage 
-                      src={currentCoach?.image} 
-                      alt={currentCoach?.name} 
-                      className="object-cover" 
-                    />
+                    {currentCoach?.gifImage ? (
+                      <img 
+                        src={currentCoach.gifImage} 
+                        alt={currentCoach.name} 
+                        className="object-cover h-full w-full" 
+                      />
+                    ) : (
+                      <AvatarImage 
+                        src={currentCoach?.image} 
+                        alt={currentCoach?.name} 
+                        className="object-cover" 
+                      />
+                    )}
                   </Avatar>
                 </div>
                 
@@ -223,10 +231,15 @@ export const Chat: React.FC = () => {
                     {message.role === 'user' ? (
                       <User className="h-5 w-5" />
                     ) : (
-                      <>
+                      currentCoach?.gifImage ? (
+                        <img 
+                          src={currentCoach.gifImage} 
+                          alt={currentCoach.name} 
+                          className="h-full w-full object-cover" 
+                        />
+                      ) : (
                         <AvatarImage src={currentCoach?.image} alt={currentCoach?.name} />
-                        <Bot className="h-5 w-5" />
-                      </>
+                      )
                     )}
                   </Avatar>
                   <div 
