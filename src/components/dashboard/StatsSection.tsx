@@ -1,5 +1,5 @@
 
-import { Activity, Award, Clock } from "lucide-react";
+import { Activity, Award, Calendar, Clock, Film, Users } from "lucide-react";
 
 interface StatItemProps {
   value: number;
@@ -32,11 +32,31 @@ export const StatsSection = () => {
       value: 3, 
       label: "Skills", 
       icon: <Award className="h-6 w-6 text-yellow-400" /> 
+    },
+    { 
+      value: 5, 
+      label: "Rehearsals", 
+      icon: <Calendar className="h-6 w-6 text-blue-400" /> 
+    },
+    { 
+      value: 8, 
+      label: "Selftapes", 
+      icon: <Film className="h-6 w-6 text-green-400" /> 
+    },
+    { 
+      value: 4, 
+      label: "Coaching", 
+      icon: <Calendar className="h-6 w-6 text-orange-400" /> 
+    },
+    { 
+      value: 6, 
+      label: "Actor Friends", 
+      icon: <Users className="h-6 w-6 text-pink-400" /> 
     }
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-2 mb-6">
+    <div className="grid grid-cols-3 md:grid-cols-4 gap-2 mb-6">
       {stats.map((stat, index) => (
         <StatItem key={index} {...stat} />
       ))}
