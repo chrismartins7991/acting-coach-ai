@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Bot, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { User, Bot, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -35,7 +34,6 @@ export const Chat: React.FC = () => {
   };
 
   useEffect(() => {
-    // Fetch the user's selected coach preference
     const getCoachPreference = async () => {
       if (!user) return;
       
@@ -63,7 +61,6 @@ export const Chat: React.FC = () => {
     getCoachPreference();
   }, [user]);
 
-  // Navigate through coaches
   const navigateCoach = (direction: 'prev' | 'next') => {
     const newIndex = direction === 'next' 
       ? (selectedCoachIndex + 1) % coaches.length 
@@ -73,7 +70,6 @@ export const Chat: React.FC = () => {
     const coach = coaches[newIndex];
     setSelectedCoach(coach.type);
     
-    // If logged in, save preference
     if (user) {
       supabase
         .from('user_coach_preferences')
@@ -94,7 +90,6 @@ export const Chat: React.FC = () => {
     }
   };
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -116,7 +111,7 @@ export const Chat: React.FC = () => {
             <h2 className="text-xl font-bold text-white">AI Acting Coach</h2>
             {selectedCoach && (
               <span className="text-sm text-white/60">
-                Using the {currentCoach.name} method
+                Using the {currentCoach.name.split(' ').pop()} method
               </span>
             )}
           </div>
@@ -230,7 +225,7 @@ export const Chat: React.FC = () => {
           onClick={handleEnterCoachingSession}
           className={`bg-theater-gold hover:bg-theater-gold/80 text-black w-full ${isMobile ? 'py-2 text-base' : 'py-6 text-lg'} font-medium`}
         >
-          <Play className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} mr-2`} /> Enter the Coaching Session
+          Enter the Coaching Session
         </Button>
       </div>
     </div>
