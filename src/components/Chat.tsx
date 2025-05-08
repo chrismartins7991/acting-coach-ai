@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Bot, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +14,7 @@ import { coaches } from './onboarding/coachData';
 import { AvatarImage } from './ui/avatar';
 import { ScrollArea } from './ui/scroll-area';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export const Chat: React.FC = () => {
   const { user } = useAuth();
@@ -23,6 +25,7 @@ export const Chat: React.FC = () => {
   const [selectedCoachIndex, setSelectedCoachIndex] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   const handleSendMessage = async () => {
     if (!input.trim()) return;
@@ -119,8 +122,8 @@ export const Chat: React.FC = () => {
           </div>
         </div>
 
-        <Card className="p-3 bg-black/20 border-white/10">
-          <ScrollArea className="h-32">
+        <Card className="p-3 bg-black/20 border-white/10 h-full">
+          <ScrollArea className={isMobile ? "h-auto" : "h-32"}>
             <div className="flex flex-col gap-2">
               <div className="text-center mb-3">
                 <h3 className="text-base text-white mb-1">Welcome to AI Acting Coach</h3>
@@ -225,9 +228,9 @@ export const Chat: React.FC = () => {
       <div className="p-4 border-t border-white/10">
         <Button 
           onClick={handleEnterCoachingSession}
-          className="bg-theater-gold hover:bg-theater-gold/80 text-black w-full py-6 text-lg font-medium"
+          className={`bg-theater-gold hover:bg-theater-gold/80 text-black w-full ${isMobile ? 'py-2 text-base' : 'py-6 text-lg'} font-medium`}
         >
-          <Play className="h-5 w-5 mr-2" /> Enter the Coaching Session
+          <Play className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'} mr-2`} /> Enter the Coaching Session
         </Button>
       </div>
     </div>
