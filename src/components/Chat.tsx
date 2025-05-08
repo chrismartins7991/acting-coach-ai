@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Bot, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -118,7 +119,7 @@ export const Chat: React.FC = () => {
         </div>
 
         <Card className="p-3 bg-black/20 border-white/10 h-full">
-          <ScrollArea className={isMobile ? "h-auto" : "h-32"}>
+          <ScrollArea className={isMobile ? "h-auto" : "h-[calc(100vh-420px)]"}>
             <div className="flex flex-col gap-2">
               <div className="text-center mb-3">
                 <h3 className="text-base text-white mb-1">Welcome to AI Acting Coach</h3>
