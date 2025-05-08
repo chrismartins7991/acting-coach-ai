@@ -128,12 +128,12 @@ export const Chat: React.FC = () => {
               </div>
               
               <p className="text-xs text-white/60 mb-2">Select your acting coach:</p>
-              <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="flex items-center justify-center gap-2 sm:gap-4 mb-4 relative px-10">
                 <Button 
                   variant="ghost" 
                   size="icon"
                   onClick={() => navigateCoach('prev')}
-                  className="text-white/60 hover:text-white hover:bg-white/10"
+                  className="text-white/60 hover:text-white hover:bg-white/10 absolute left-0 z-10"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </Button>
@@ -160,7 +160,7 @@ export const Chat: React.FC = () => {
                   variant="ghost" 
                   size="icon"
                   onClick={() => navigateCoach('next')}
-                  className="text-white/60 hover:text-white hover:bg-white/10"
+                  className="text-white/60 hover:text-white hover:bg-white/10 absolute right-0 z-10"
                 >
                   <ChevronRight className="h-5 w-5" />
                 </Button>
