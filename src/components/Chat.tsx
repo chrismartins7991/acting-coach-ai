@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Mic, MicOff, User, Bot, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { User, Bot, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,28 +31,6 @@ export const Chat: React.FC = () => {
     await sendMessage(input);
     setInput('');
   };
-
-  const handleProcessVoiceMessage = async (text: string) => {
-    if (!text.trim()) {
-      toast({
-        title: "No speech detected",
-        description: "Please try speaking more clearly.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Set the transcribed text in the input field so the user can see it
-    setInput(text);
-    
-    // Send the transcribed message after a brief delay so the user can see what was transcribed
-    setTimeout(async () => {
-      await sendMessage(text);
-      setInput('');
-    }, 1000);
-  };
-  
-  const { isRecording, toggleRecording } = useVoiceRecording(handleProcessVoiceMessage);
 
   useEffect(() => {
     // Fetch the user's selected coach preference
@@ -142,27 +121,6 @@ export const Chat: React.FC = () => {
               </span>
             )}
           </div>
-          
-          <Button 
-            variant="outline" 
-            size="sm"
-            className={isRecording ? 
-              "bg-red-500/20 hover:bg-red-500/30 text-red-500 border-red-500/50" : 
-              "bg-white/10 hover:bg-white/20 text-white border-white/20"}
-            onClick={toggleRecording}
-          >
-            {isRecording ? (
-              <>
-                <MicOff className="h-4 w-4 mr-2" />
-                Stop Recording
-              </>
-            ) : (
-              <>
-                <Mic className="h-4 w-4 mr-2" />
-                Voice Input
-              </>
-            )}
-          </Button>
         </div>
 
         <Card className="p-3 bg-black/20 border-white/10">
