@@ -1,21 +1,18 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Mic, MicOff, User, Bot, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Send, Mic, MicOff, User, Bot, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from './ui/button';
 import { Avatar } from './ui/avatar';
-import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
 import { Card } from './ui/card';
 import { ChatHistory } from './ChatHistory';
 import { useChat } from '@/hooks/useChat';
 import { useToast } from './ui/use-toast';
-import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { coaches } from './onboarding/coachData';
 import { AvatarImage } from './ui/avatar';
 import { ScrollArea } from './ui/scroll-area';
+import { useNavigate } from 'react-router-dom';
 
 export const Chat: React.FC = () => {
   const { user } = useAuth();
@@ -25,6 +22,7 @@ export const Chat: React.FC = () => {
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
   const [selectedCoachIndex, setSelectedCoachIndex] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const navigate = useNavigate();
   
   const handleSendMessage = async () => {
     if (!input.trim()) return;
@@ -122,6 +120,16 @@ export const Chat: React.FC = () => {
 
   const currentCoach = coaches[selectedCoachIndex];
 
+  const handleEnterCoachingSession = () => {
+    // This could navigate to a specific conversation page or open a modal
+    // For now, let's just show a toast
+    toast({
+      title: "Coaching Session",
+      description: `Starting a session with ${currentCoach.name}`,
+    });
+    // Additional logic can be added here
+  };
+
   return (
     <div className="flex flex-col bg-black/30 backdrop-blur-sm border border-white/10 rounded-lg h-[calc(100vh-160px)] max-w-4xl mx-auto">
       <div className="p-4 border-b border-white/10 flex flex-col gap-3">
@@ -172,7 +180,7 @@ export const Chat: React.FC = () => {
                 </Button>
                 
                 <div className="flex items-center gap-2">
-                  <Avatar className="h-16 w-16 border-2 border-theater-gold">
+                  <Avatar className="h-24 w-24 border-2 border-theater-gold">
                     {currentCoach?.gifImage ? (
                       <img 
                         src={currentCoach.gifImage} 
@@ -227,9 +235,9 @@ export const Chat: React.FC = () => {
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`flex ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} max-w-[80%] gap-3`}>
-                  <Avatar className={`h-8 w-8 ${message.role === 'user' ? 'bg-theater-gold' : 'bg-theater-purple'}`}>
+                  <Avatar className={`h-12 w-12 ${message.role === 'user' ? 'bg-theater-gold' : 'bg-theater-purple'}`}>
                     {message.role === 'user' ? (
-                      <User className="h-5 w-5" />
+                      <User className="h-7 w-7" />
                     ) : (
                       currentCoach?.gifImage ? (
                         <img 
@@ -260,33 +268,12 @@ export const Chat: React.FC = () => {
       </div>
       
       <div className="p-4 border-t border-white/10">
-        <div className="flex gap-2">
-          <Textarea
-            className="bg-black/20 border-white/20 placeholder-white/40 text-white"
-            placeholder="Ask your AI acting coach a question..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSendMessage();
-              }
-            }}
-            rows={1}
-          />
-          <Button 
-            className="bg-theater-gold hover:bg-theater-gold/80 text-black"
-            onClick={handleSendMessage}
-            disabled={isLoading || !input.trim()}
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
-        {isRecording && (
-          <div className="mt-2 p-2 bg-red-500/20 rounded text-center text-sm text-red-400 animate-pulse">
-            Recording... Speak clearly into your microphone
-          </div>
-        )}
+        <Button 
+          onClick={handleEnterCoachingSession}
+          className="bg-theater-gold hover:bg-theater-gold/80 text-black w-full py-6 text-lg font-medium"
+        >
+          <Play className="h-5 w-5 mr-2" /> Enter the Coaching Session
+        </Button>
       </div>
     </div>
   );
