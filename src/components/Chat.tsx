@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Bot, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -100,13 +99,10 @@ export const Chat: React.FC = () => {
   const currentCoach = coaches[selectedCoachIndex];
 
   const handleEnterCoachingSession = () => {
-    // This could navigate to a specific conversation page or open a modal
-    // For now, let's just show a toast
     toast({
       title: "Coaching Session",
       description: `Starting a session with ${currentCoach.name}`,
     });
-    // Additional logic can be added here
   };
 
   return (
@@ -183,9 +179,7 @@ export const Chat: React.FC = () => {
       
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-white/60">
-            <Bot className="h-12 w-12 mb-4 text-theater-gold/60" />
-          </div>
+          <></>
         ) : (
           messages.map((message, index) => (
             <AnimatePresence key={index} mode="wait">
