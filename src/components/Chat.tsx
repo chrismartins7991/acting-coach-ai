@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Bot, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -140,7 +139,7 @@ export const Chat: React.FC = () => {
                 </Button>
                 
                 <div className="flex items-center gap-2">
-                  <Avatar className="h-28 w-28 border-2 border-theater-gold">
+                  <Avatar className="h-36 w-36 sm:h-40 sm:w-40 border-2 border-theater-gold">
                     {currentCoach?.gifImage ? (
                       <img 
                         src={currentCoach.gifImage} 
@@ -189,9 +188,9 @@ export const Chat: React.FC = () => {
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`flex ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'} max-w-[80%] gap-3`}>
-                  <Avatar className={`h-12 w-12 ${message.role === 'user' ? 'bg-theater-gold' : 'bg-theater-purple'}`}>
+                  <Avatar className={`h-14 w-14 ${message.role === 'user' ? 'bg-theater-gold' : 'bg-theater-purple'}`}>
                     {message.role === 'user' ? (
-                      <User className="h-7 w-7" />
+                      <User className="h-8 w-8" />
                     ) : (
                       currentCoach?.gifImage ? (
                         <img 
