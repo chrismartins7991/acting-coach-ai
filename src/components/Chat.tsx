@@ -124,8 +124,15 @@ export const Chat: React.FC = () => {
         </div>
 
         <Card className="p-3 bg-black/20 border-white/10">
-          <ScrollArea className="h-24">
+          <ScrollArea className="h-32">
             <div className="flex flex-col gap-2">
+              <div className="text-center mb-3">
+                <h3 className="text-base text-white mb-1">Welcome to AI Acting Coach</h3>
+                <p className="text-xs text-white/60 mb-2">
+                  Ask questions about acting techniques, get feedback on your performance, or request exercises based on your selected coach's methodology.
+                </p>
+              </div>
+              
               <p className="text-xs text-white/60 mb-2">Select your acting coach:</p>
               <div className="flex items-center justify-center gap-4 mb-4">
                 <Button 
@@ -138,7 +145,7 @@ export const Chat: React.FC = () => {
                 </Button>
                 
                 <div className="flex items-center gap-2">
-                  <Avatar className="h-24 w-24 border-2 border-theater-gold">
+                  <Avatar className="h-28 w-28 border-2 border-theater-gold">
                     {currentCoach?.gifImage ? (
                       <img 
                         src={currentCoach.gifImage} 
@@ -178,10 +185,6 @@ export const Chat: React.FC = () => {
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-white/60">
             <Bot className="h-12 w-12 mb-4 text-theater-gold/60" />
-            <h3 className="text-lg font-medium text-white mb-2">Welcome to AI Acting Coach</h3>
-            <p className="text-center max-w-md">
-              Ask questions about acting techniques, get feedback on your performance, or request exercises based on your selected coach's methodology.
-            </p>
           </div>
         ) : (
           messages.map((message, index) => (
