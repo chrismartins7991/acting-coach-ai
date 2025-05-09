@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 type VoiceOptions = "alloy" | "echo" | "fable" | "onyx" | "nova" | "shimmer";
 
@@ -21,7 +21,8 @@ export const useTextToSpeech = () => {
         toast({
           title: "Text too long",
           description: "Only the first 4000 characters will be spoken",
-          variant: "warning",
+          // Changed from 'warning' to 'default' to match allowed variants
+          variant: "default", 
         });
       }
 
