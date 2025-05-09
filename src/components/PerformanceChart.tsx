@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useEffect, useState } from "react"
@@ -251,21 +250,20 @@ export const PerformanceChart = () => {
                   width={40}
                 />
                 <ChartTooltip
-                  content={
-                    <ChartTooltipContent>
-                      {({ payload }) => {
-                        if (!payload?.length) return null
-                        const data = payload[0].payload as PerformanceData
-                        return (
-                          <div className="space-y-1">
-                            <p className="font-medium text-primary">Score: {data.score}%</p>
-                            <p className="text-sm text-muted-foreground">{data.date}</p>
-                            <p className="text-xs text-muted-foreground">{data.actualDate}</p>
-                          </div>
-                        )
-                      }}
-                    </ChartTooltipContent>
-                  }
+                  content={(props) => {
+                    const { payload } = props;
+                    if (!payload?.length) return null;
+                    const data = payload[0].payload as PerformanceData;
+                    return (
+                      <ChartTooltipContent>
+                        <div className="space-y-1">
+                          <p className="font-medium text-primary">Score: {data.score}%</p>
+                          <p className="text-sm text-muted-foreground">{data.date}</p>
+                          <p className="text-xs text-muted-foreground">{data.actualDate}</p>
+                        </div>
+                      </ChartTooltipContent>
+                    );
+                  }}
                 />
                 <Line
                   type="monotone"
