@@ -88,6 +88,9 @@ export const ActivityList = ({ activities }: ActivityListProps) => {
             <div 
               key={activity.id} 
               className="bg-neutral-900 rounded-lg overflow-hidden flex-shrink-0 w-[280px]"
+              style={{
+                backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.8))`,
+              }}
             >
               <div className="relative h-28 md:h-40">
                 <img 
