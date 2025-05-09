@@ -28,12 +28,12 @@ const actorFriends = [
   { id: 6, name: "Leonardo DiCaprio", avatar: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/leonardo-dicaprio.jpg" },
 ];
 
-// Mock data for recent activities
+// Fixed type definitions in the mock data for recent activities
 const recentActivities = [
   {
     id: 1,
     title: "Hamlet Monologue",
-    type: "selftape",
+    type: "selftape" as const,  // Using 'as const' to ensure TypeScript recognizes this as a literal type
     date: "May 7, 2025",
     score: 82,
     image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/iconic-movie-frames/Joker-Pin.jpeg"
@@ -41,7 +41,7 @@ const recentActivities = [
   {
     id: 2,
     title: "Line Memorization Practice",
-    type: "rehearsal",
+    type: "rehearsal" as const,
     subtype: "memorization",
     date: "May 5, 2025",
     duration: "45 min",
@@ -50,7 +50,7 @@ const recentActivities = [
   {
     id: 3,
     title: "AI Reader Practice",
-    type: "rehearsal",
+    type: "rehearsal" as const,
     subtype: "aireader",
     date: "May 3, 2025",
     duration: "30 min",
@@ -59,7 +59,7 @@ const recentActivities = [
   {
     id: 4,
     title: "Film Scene",
-    type: "selftape",
+    type: "selftape" as const,
     date: "May 1, 2025",
     score: 88,
     image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/iconic-movie-frames/Taxi_Driver_Robert_Deniro.jpeg"
@@ -67,11 +67,11 @@ const recentActivities = [
   {
     id: 5,
     title: "Cold Reading Practice",
-    type: "rehearsal",
+    type: "rehearsal" as const,
     subtype: "coldreading",
     date: "Apr 29, 2025",
     duration: "25 min",
-    image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/oscars-actors-images/Oscars-Glamour-Golden-Age.jpeg"
+    image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/iconic-movie-frames/Oscars-Glamour-Golden-Age.jpeg"
   }
 ];
 
