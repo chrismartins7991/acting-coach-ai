@@ -41,6 +41,20 @@ export const ScriptEditor = ({ value, onChange }: ScriptEditorProps) => {
     onChange(formattedScript);
   };
   
+  // Helper function to clean up PDF extracted text
+  const cleanupScript = () => {
+    if (!value) return;
+    
+    // Remove excessive whitespace and formatting issues common in PDF extraction
+    const cleanedScript = value
+      .replace(/\s{2,}/g, ' ')        // Replace multiple spaces with single space
+      .replace(/\n{3,}/g, '\n\n')     // Replace excessive newlines
+      .replace(/([.!?])\s*(?=[A-Z])/g, '$1\n') // Add line breaks after sentences
+      .trim();
+      
+    onChange(cleanedScript);
+  };
+  
   return (
     <div className="space-y-2">
       <div className="relative">
@@ -64,7 +78,13 @@ export const ScriptEditor = ({ value, onChange }: ScriptEditorProps) => {
       </div>
       
       {value && (
-        <div className="flex justify-end">
+        <div className="flex justify-end space-x-2">
+          {value.includes('\uFFFD') || value.length > 1000 ? (
+            <Button variant="outline" onClick={cleanupScript} className={isMobile ? "text-xs px-2 py-1 h-8" : ""}>
+              Clean Text
+            </Button>
+          ) : null}
+          
           <Button variant="outline" onClick={formatScript} className={isMobile ? "text-xs px-2 py-1 h-8" : ""}>
             Format Script
           </Button>
