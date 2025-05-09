@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { differenceInDays, format, parseISO } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -259,12 +259,6 @@ export const PerformanceChart = () => {
                 data={performances}
                 margin={{ top: 20, right: 20, left: 40, bottom: 60 }}
               >
-                <CartesianGrid 
-                  strokeDasharray="3 3" 
-                  stroke="#ffffff20" 
-                  horizontal={true}
-                  vertical={false}
-                />
                 <XAxis 
                   dataKey="date" 
                   stroke="#ffffff60"
