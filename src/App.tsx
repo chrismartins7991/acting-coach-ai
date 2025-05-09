@@ -16,6 +16,7 @@ import { OnboardingFlow } from "./components/onboarding/OnboardingFlow";
 import SelfTapeStudioPage from "./pages/SelfTapeStudioPage";
 import RehearsalRoomPage from "./pages/RehearsalRoomPage";
 import ProfilePage from "./pages/ProfilePage";
+import ProfileSettingsPage from "./pages/ProfileSettingsPage";
 
 const queryClient = new QueryClient();
 
@@ -106,6 +107,14 @@ const App = () => {
               element={
                 <ProtectedRoute>
                   <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile-settings"
+              element={
+                <ProtectedRoute>
+                  <ProfileSettingsPage />
                 </ProtectedRoute>
               }
             />

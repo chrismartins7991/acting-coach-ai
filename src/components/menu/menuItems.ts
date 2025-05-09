@@ -1,5 +1,5 @@
 
-import { Camera, FileVideo, History, Home, User, MessageSquare, LayoutDashboard } from "lucide-react";
+import { Camera, FileVideo, History, Home, User, MessageSquare, LayoutDashboard, Settings } from "lucide-react";
 
 export const menuItems = [
   {
@@ -42,6 +42,12 @@ export const menuItems = [
     title: "Profile",
     href: "/profile",
     icon: User,
-    description: "Manage your profile and preferences",
+    description: "View your profile and network",
+  },
+  {
+    title: "Settings",
+    href: "/profile-settings",
+    icon: Settings,
+    description: "Manage your account settings",
   },
 ];

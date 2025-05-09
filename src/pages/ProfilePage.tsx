@@ -3,148 +3,133 @@ import { useState, useEffect } from "react";
 import { TopMenu } from "@/components/TopMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
-import { useSubscription } from "@/hooks/useSubscription";
+import { Link } from "react-router-dom";
+import { 
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext
+} from "@/components/ui/carousel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
+import { LayoutDashboard, Activity, MessageSquare, User, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Camera, ChevronRight, LogOut, Settings, LayoutDashboard, Activity, MessageSquare as Award, User } from "lucide-react";
-import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
-import { format } from "date-fns";
+import { PerformancesList } from "@/components/dashboard/PerformancesList";
+import { StatsSection } from "@/components/dashboard/StatsSection";
+
+// Mock data for actor friends
+const actorFriends = [
+  { id: 1, name: "Emma Stone", avatar: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/emma-stone.jpg" },
+  { id: 2, name: "Tom Hanks", avatar: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/tom-hanks.jpg" },
+  { id: 3, name: "Meryl Streep", avatar: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/meryl-streep.jpg" },
+  { id: 4, name: "Denzel Washington", avatar: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/denzel-washington.jpg" },
+  { id: 5, name: "Viola Davis", avatar: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/viola-davis.jpg" },
+  { id: 6, name: "Leonardo DiCaprio", avatar: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/leonardo-dicaprio.jpg" },
+];
+
+// Mock data for performances
+const recentPerformances = [
+  {
+    id: 1,
+    title: "Hamlet Monologue",
+    date: "May 7, 2025",
+    score: 82,
+    image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/iconic-movie-frames/Joker-Pin.jpeg"
+  },
+  {
+    id: 2,
+    title: "Dramatic Scene",
+    date: "May 5, 2025",
+    score: 75,
+    image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/iconic-movie-frames/There_Will_Be_Blood_Daniel_Day_Lewis.jpeg"
+  },
+  {
+    id: 3,
+    title: "Comedy Audition",
+    date: "May 3, 2025",
+    score: 67,
+    image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/iconic-movie-frames/Emma-Stone-The-Favourite.jpeg"
+  },
+  {
+    id: 4,
+    title: "Film Scene",
+    date: "May 1, 2025",
+    score: 88,
+    image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/iconic-movie-frames/Taxi_Driver_Robert_Deniro.jpeg"
+  }
+];
 
 const ProfilePage = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
-  const { usage, plan, isLoading } = useSubscription();
-  const { toast } = useToast();
-  const [performanceCount, setPerformanceCount] = useState(24);
-  const [averageScore, setAverageScore] = useState(68);
-
   const userEmail = user?.email || "User";
   const userName = user?.user_metadata?.full_name || userEmail.split("@")[0];
-  
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Logged out successfully",
-        description: "Come back soon!",
-      });
-    } catch (error) {
-      console.error("Error logging out:", error);
-      toast({
-        title: "Error logging out",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const subscriptionRenewalDate = usage?.subscription_expiry 
-    ? format(new Date(usage.subscription_expiry), "MMMM d, yyyy")
-    : "May 15, 2025";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red text-white">
       <TopMenu />
       
-      <div className={`container mx-auto px-4 py-8 ${isMobile ? 'pt-20' : 'pt-36'} pb-28 max-w-2xl flex flex-col items-center`}>
-        {/* Profile Avatar */}
-        <div className="relative mb-4">
-          <Avatar className="h-24 w-24 border-2 border-theater-gold">
-            <AvatarImage src={user?.user_metadata?.avatar_url} />
-            <AvatarFallback className="bg-neutral-800 text-white text-xl">
-              {userName.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="absolute bottom-0 right-0 bg-purple-600 rounded-full p-1.5 border border-black">
-            <Camera className="h-4 w-4 text-white" />
-          </div>
-        </div>
-        
-        {/* User Name */}
-        <h1 className="text-2xl font-bold flex items-center mb-1">
-          {userName}
-          <button className="ml-2 text-neutral-400">
-            <Settings className="h-4 w-4" />
-          </button>
-        </h1>
-        
-        {/* User Email */}
-        <p className="text-neutral-400 mb-8">{userEmail}</p>
-        
-        {/* Stats Card */}
-        <Card className="w-full mb-8 bg-neutral-900 border-neutral-800">
-          <div className="grid grid-cols-3 divide-x divide-neutral-800">
-            <div className="p-4 text-center">
-              <p className="text-xl font-bold">{performanceCount}</p>
-              <p className="text-sm text-neutral-400">Performances</p>
-            </div>
-            <div className="p-4 text-center">
-              <p className="text-xl font-bold">{averageScore}%</p>
-              <p className="text-sm text-neutral-400">Avg. Score</p>
-            </div>
-            <div className="p-4 text-center">
-              <p className="text-xl font-bold">{usage?.subscription_tier === 'pro' ? 'Pro' : 'Basic'}</p>
-              <p className="text-sm text-neutral-400">Plan</p>
+      <div className={`container mx-auto px-4 py-8 ${isMobile ? 'pt-20' : 'pt-36'} pb-28`}>
+        {/* Profile header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center">
+            <Avatar className="h-16 w-16 border-2 border-theater-gold mr-4">
+              <AvatarImage src={user?.user_metadata?.avatar_url} />
+              <AvatarFallback className="bg-neutral-800 text-white text-xl">
+                {userName.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h1 className="text-2xl font-bold">{userName}</h1>
+              <p className="text-sm text-neutral-400">{userEmail}</p>
             </div>
           </div>
-        </Card>
-        
-        {/* Subscription Section */}
-        <div className="w-full mb-6">
-          <h2 className="text-xl font-bold mb-4">Subscription</h2>
-          <Card className="bg-neutral-900 border-neutral-800 p-5">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <h3 className="font-bold">Pro Plan</h3>
-                <p className="text-theater-gold">€7.99/month</p>
-                <p className="text-sm text-neutral-400">Renews on {subscriptionRenewalDate}</p>
-              </div>
-              <Button className="bg-theater-gold hover:bg-theater-gold/90 text-black">
-                Upgrade
-              </Button>
-            </div>
-          </Card>
+          <Link to="/profile-settings">
+            <Button variant="outline" className="bg-neutral-900 border-neutral-700">
+              <Settings className="h-4 w-4 mr-2" />
+              Profile Settings
+            </Button>
+          </Link>
+        </div>
+
+        {/* Stats Section */}
+        <div className="mb-8">
+          <StatsSection />
         </div>
         
-        {/* Settings Section */}
-        <div className="w-full mb-6">
-          <h2 className="text-xl font-bold mb-4">Settings</h2>
-          <Card className="bg-neutral-900 border-neutral-800 overflow-hidden">
-            <Link to="/account-settings" className="flex items-center justify-between p-5 hover:bg-neutral-800">
-              <div className="flex items-center">
-                <div className="bg-neutral-800 p-3 rounded-full mr-4">
-                  <Settings className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold">Account Settings</h3>
-                  <p className="text-sm text-neutral-400">Manage your account preferences</p>
-                </div>
-              </div>
-              <ChevronRight className="h-5 w-5 text-neutral-400" />
-            </Link>
-            
-            <div className="border-t border-neutral-800"></div>
-            
-            <button 
-              onClick={handleLogout}
-              className="w-full flex items-center justify-between p-5 hover:bg-neutral-800"
-            >
-              <div className="flex items-center">
-                <div className="bg-neutral-800 p-3 rounded-full mr-4">
-                  <LogOut className="h-5 w-5 text-red-400" />
-                </div>
-                <div>
-                  <h3 className="font-bold">Sign Out</h3>
-                  <p className="text-sm text-neutral-400">Log out of your account</p>
-                </div>
-              </div>
-              <ChevronRight className="h-5 w-5 text-neutral-400" />
-            </button>
-          </Card>
+        {/* Actor Friends Carousel */}
+        <div className="mb-8">
+          <h2 className="text-lg md:text-xl font-bold mb-4">Actor Friends</h2>
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-4">
+              {actorFriends.map((friend) => (
+                <CarouselItem key={friend.id} className="pl-4 md:basis-1/4 lg:basis-1/6">
+                  <div className="flex flex-col items-center">
+                    <Avatar className="h-16 w-16 md:h-20 md:w-20 border-2 border-theater-gold mb-2">
+                      <AvatarImage src={friend.avatar} alt={friend.name} />
+                      <AvatarFallback className="bg-neutral-800 text-white">
+                        {friend.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <p className="text-xs md:text-sm text-center">{friend.name}</p>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-0 bg-black/50 border-theater-gold/50 text-white" />
+            <CarouselNext className="right-0 bg-black/50 border-theater-gold/50 text-white" />
+          </Carousel>
         </div>
+        
+        {/* Performances Feed */}
+        <PerformancesList performances={recentPerformances} />
       </div>
       
       {/* Fixed bottom menu - only visible on mobile */}
@@ -168,7 +153,7 @@ const ProfilePage = () => {
               
               <Link to="/chat" className="flex flex-col items-center space-y-2">
                 <div className="bg-neutral-900 rounded-full p-4">
-                  <Award className="h-6 w-6 text-white" />
+                  <MessageSquare className="h-6 w-6 text-white" />
                 </div>
                 <span className="text-sm text-white">Coach</span>
               </Link>
