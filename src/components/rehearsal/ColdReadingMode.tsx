@@ -1,174 +1,198 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
-import { Book, Clock, Timer, Upload, Search, Play, Square } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
 
-export const ColdReadingMode = () => {
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
+import { useToast } from "@/components/ui/use-toast";
+import { BookOpen, Clock, Timer } from "lucide-react";
+
+interface ColdReadingProps {
+  script: string;
+}
+
+export const ColdReadingMode = ({ script }: ColdReadingProps) => {
+  const [paragraphs, setParagraphs] = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isActive, setIsActive] = useState(false);
+  const [autoScrollSpeed, setAutoScrollSpeed] = useState(20); // seconds per paragraph
+  const [countdown, setCountdown] = useState(3);
+  const [isCountingDown, setIsCountingDown] = useState(false);
   const { toast } = useToast();
-  const [category, setCategory] = useState("drama");
-  const [complexity, setComplexity] = useState(50);
-  const [practiceStarted, setPracticeStarted] = useState(false);
-  const [timerSeconds, setTimerSeconds] = useState(60);
-  const [currentScript, setCurrentScript] = useState("");
-  
-  const handleStartPractice = () => {
-    // Mock script generation
-    const dramaScripts = [
-      "MARGARET: I don't understand why you can't just tell me the truth. After all we've been through.\n\nJAMES: The truth isn't always what people want to hear, Margaret. Sometimes it's better left unsaid.\n\nMARGARET: That's just an excuse people use when they're afraid. And I never thought you were a coward.",
-      "DAVID: All my life I've waited for something like this. A chance to prove myself.\n\nKATE: And what about us? What about the promises you made?\n\nDAVID: This isn't about you and me. This is bigger than that.\n\nKATE: Nothing is bigger than us. Nothing.",
-    ];
+
+  useEffect(() => {
+    if (script) {
+      // Split the script into manageable paragraphs
+      const parts = script
+        .split(/\n\s*\n/) // Split by empty lines
+        .filter(part => part.trim().length > 0)
+        .map(part => part.trim());
+      setParagraphs(parts);
+    }
+  }, [script]);
+
+  useEffect(() => {
+    let timer: number;
     
-    const comedyScripts = [
-      "JERRY: Wait, so you're telling me you broke up with her because she ate her peas one at a time?\n\nGEORGE: It was disturbing! Who does that? It's like she was savoring each individual pea. I couldn't take it anymore.\n\nJERRY: You need professional help. And I mean that in the most caring way possible.",
-      "ALEX: I told my boss I needed a mental health day and he asked if I could reschedule my breakdown for next week because we're short-staffed.\n\nSAM: What did you say?\n\nALEX: I told him my anxiety was feeling very disrespected right now.",
-    ];
+    if (isCountingDown && countdown > 0) {
+      timer = window.setTimeout(() => {
+        setCountdown(prev => prev - 1);
+      }, 1000);
+    } else if (isCountingDown && countdown === 0) {
+      setIsCountingDown(false);
+      setIsActive(true);
+    }
     
-    const selectedScript = category === "drama" ? 
-      dramaScripts[Math.floor(Math.random() * dramaScripts.length)] : 
-      comedyScripts[Math.floor(Math.random() * comedyScripts.length)];
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isCountingDown, countdown]);
+
+  useEffect(() => {
+    let interval: number;
     
-    setCurrentScript(selectedScript);
-    setPracticeStarted(true);
-    
-    toast({
-      title: "Cold reading started",
-      description: `You have ${timerSeconds} seconds to prepare before performing.`,
-    });
-    
-    // Start countdown timer
-    setTimeout(() => {
-      if (practiceStarted) {
-        toast({
-          title: "Time's up!",
-          description: "Now perform the scene without looking at the script.",
+    if (isActive && currentIndex < paragraphs.length - 1) {
+      interval = window.setInterval(() => {
+        setCurrentIndex(prev => {
+          if (prev < paragraphs.length - 1) {
+            return prev + 1;
+          }
+          return prev;
         });
-      }
-    }, timerSeconds * 1000);
-  };
-  
-  const handleStopPractice = () => {
-    setPracticeStarted(false);
-    setCurrentScript("");
+      }, autoScrollSpeed * 1000);
+    }
     
-    toast({
-      title: "Practice ended",
-      description: "Cold reading practice has been stopped.",
-    });
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isActive, currentIndex, paragraphs.length, autoScrollSpeed]);
+
+  const handleStart = () => {
+    if (paragraphs.length === 0) {
+      toast({
+        title: "No script found",
+        description: "Please enter or upload a script first.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setCurrentIndex(0);
+    setCountdown(3);
+    setIsCountingDown(true);
   };
-  
+
+  const handleStop = () => {
+    setIsActive(false);
+    setIsCountingDown(false);
+  };
+
+  const handleNext = () => {
+    if (currentIndex < paragraphs.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <p className="text-white/80">
-          Cold reading simulates real audition scenarios where you have minimal time to prepare.
-          You'll be given a random script excerpt with a short preparation time.
-        </p>
-      </div>
-      
-      {!practiceStarted ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-white">Script Category</Label>
-              <div className="grid grid-cols-2 gap-2">
-                <Button 
-                  variant={category === "drama" ? "default" : "outline"}
-                  onClick={() => setCategory("drama")}
-                  className={category === "drama" ? "bg-theater-gold hover:bg-theater-gold/90 text-black" : ""}
+    <Card className="bg-black/40">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Clock className="h-5 w-5 text-theater-gold" /> 
+          Cold Reading Practice
+        </CardTitle>
+        <CardDescription>
+          Practice cold reading with auto-scrolling text at your preferred pace
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {paragraphs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-48 text-center">
+            <BookOpen className="h-12 w-12 text-white/30 mb-4" />
+            <p className="text-white/70 mb-2">No script detected</p>
+            <p className="text-white/50 text-sm">Enter or upload a script in the editor above to begin cold reading practice</p>
+          </div>
+        ) : (
+          <>
+            <div className="mb-4">
+              <div className="flex justify-between items-center mb-2">
+                <div className="text-sm text-white/70 flex items-center">
+                  <Timer className="h-4 w-4 mr-1" /> Auto-Scroll Speed
+                </div>
+                <div className="text-sm font-medium text-white/80">
+                  {autoScrollSpeed} seconds
+                </div>
+              </div>
+              <Slider
+                value={[autoScrollSpeed]}
+                min={5}
+                max={60}
+                step={5}
+                onValueChange={(values) => setAutoScrollSpeed(values[0])}
+                disabled={isActive}
+                className="w-full"
+              />
+            </div>
+
+            {isCountingDown ? (
+              <div className="bg-black/30 rounded-lg h-64 flex items-center justify-center">
+                <div className="text-6xl font-bold text-white animate-pulse">
+                  {countdown}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-black/30 p-6 rounded-lg h-64 overflow-auto relative">
+                {paragraphs[currentIndex] ? (
+                  <div className="text-white text-lg leading-relaxed">
+                    {paragraphs[currentIndex]}
+                  </div>
+                ) : (
+                  <div className="text-center text-white/50 mt-8">
+                    End of script
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex flex-col space-y-3">
+              <div className="flex justify-between items-center">
+                <Button
+                  variant="outline"
+                  onClick={handlePrevious}
+                  disabled={currentIndex <= 0 || isCountingDown}
+                  className="bg-black/30 border-white/10"
                 >
-                  Drama
+                  Previous
                 </Button>
-                <Button 
-                  variant={category === "comedy" ? "default" : "outline"}
-                  onClick={() => setCategory("comedy")}
-                  className={category === "comedy" ? "bg-theater-gold hover:bg-theater-gold/90 text-black" : ""}
+                
+                <div className="text-sm text-white/50">
+                  {currentIndex + 1} / {paragraphs.length}
+                </div>
+                
+                <Button
+                  variant="outline"
+                  onClick={handleNext}
+                  disabled={currentIndex >= paragraphs.length - 1 || isCountingDown}
+                  className="bg-black/30 border-white/10"
                 >
-                  Comedy
+                  Next
                 </Button>
               </div>
+              
+              <Button
+                variant={isActive || isCountingDown ? "destructive" : "default"}
+                onClick={isActive || isCountingDown ? handleStop : handleStart}
+              >
+                {isActive ? "Stop" : isCountingDown ? "Cancel" : "Start Auto-Scroll"}
+              </Button>
             </div>
-            
-            <div className="space-y-2">
-              <Label className="text-white">Script Complexity: {complexity}%</Label>
-              <Slider
-                value={[complexity]}
-                min={10}
-                max={100}
-                step={10}
-                onValueChange={(values) => setComplexity(values[0])}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label className="text-white">Preparation Time: {timerSeconds} seconds</Label>
-              <Slider
-                value={[timerSeconds]}
-                min={15}
-                max={120}
-                step={15}
-                onValueChange={(values) => setTimerSeconds(values[0])}
-              />
-            </div>
-            
-            <Button 
-              onClick={handleStartPractice}
-              className="w-full bg-theater-gold hover:bg-theater-gold/90 text-black"
-            >
-              <Play className="mr-2 h-4 w-4" />
-              Start Cold Reading
-            </Button>
-          </div>
-          
-          <div className="bg-black/20 p-4 rounded-lg">
-            <h4 className="font-medium text-white mb-2">Audition Tips</h4>
-            <ul className="space-y-2 text-white/80 text-sm">
-              <li className="flex items-start">
-                <Search className="h-4 w-4 mr-2 mt-1 flex-shrink-0" />
-                <span>Scan the entire text quickly to understand context before diving in</span>
-              </li>
-              <li className="flex items-start">
-                <Clock className="h-4 w-4 mr-2 mt-1 flex-shrink-0" />
-                <span>Focus on key emotional moments rather than memorizing every word</span>
-              </li>
-              <li className="flex items-start">
-                <Book className="h-4 w-4 mr-2 mt-1 flex-shrink-0" />
-                <span>Identify character relationships and objectives immediately</span>
-              </li>
-              <li className="flex items-start">
-                <Timer className="h-4 w-4 mr-2 mt-1 flex-shrink-0" />
-                <span>Use preparation time to make strong character choices</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          <div className="relative">
-            <div className="absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium flex items-center">
-              <Timer className="h-4 w-4 mr-1" />
-              <span id="countdown">{timerSeconds}</span>s
-            </div>
-            
-            <div className="p-6 bg-black/30 rounded-lg border border-white/10 min-h-[300px]">
-              <pre className="text-white/90 whitespace-pre-wrap font-sans text-base">
-                {currentScript}
-              </pre>
-            </div>
-          </div>
-          
-          <div className="flex justify-center">
-            <Button 
-              onClick={handleStopPractice}
-              variant="destructive"
-            >
-              <Square className="mr-2 h-4 w-4" />
-              End Practice
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 };

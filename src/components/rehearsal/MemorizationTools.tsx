@@ -1,245 +1,350 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { Eye, EyeOff, Play, Headphones, Square } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Toggle } from "@/components/ui/toggle";
+import { BookOpen, Eye, EyeOff, CheckCircle2, XCircle, Brain } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MemorizationToolsProps {
   script: string;
 }
 
+interface CharacterLine {
+  character: string;
+  line: string;
+}
+
 export const MemorizationTools = ({ script }: MemorizationToolsProps) => {
+  const [lines, setLines] = useState<CharacterLine[]>([]);
+  const [currentLineIndex, setCurrentLineIndex] = useState(0);
+  const [showLine, setShowLine] = useState(true);
+  const [userInput, setUserInput] = useState("");
+  const [inputFocused, setInputFocused] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [mode, setMode] = useState<"standard" | "progressive">("standard");
   const { toast } = useToast();
-  const [hidePercentage, setHidePercentage] = useState(50);
-  const [hideAllButMine, setHideAllButMine] = useState(false);
-  const [characterName, setCharacterName] = useState("");
-  const [isListening, setIsListening] = useState(false);
-  const [mode, setMode] = useState<"hide-lines" | "audio">("hide-lines");
-  
-  const characters = script ? [...new Set(
-    script.split('\n')
-      .filter(line => /^[A-Z]+:/.test(line))
-      .map(line => line.split(':')[0])
-  )] : [];
-  
-  const handleStartAudio = () => {
+
+  // Parse script into character lines
+  useEffect(() => {
+    if (script && !isGenerating && lines.length === 0) {
+      parseScript();
+    }
+  }, [script]);
+
+  const parseScript = async () => {
     if (!script) {
       toast({
-        title: "No script available",
-        description: "Please add a script first before using the audio tool.",
+        title: "No script found",
+        description: "Please enter or upload a script first.",
         variant: "destructive",
       });
       return;
     }
-    
-    setIsListening(true);
-    toast({
-      title: "Audio playback started",
-      description: "You can now listen to the script. Your lines are muted.",
-    });
-    
-    setTimeout(() => {
-      setIsListening(false);
-    }, 3000);
+
+    setIsGenerating(true);
+
+    try {
+      // Try to intelligently parse character lines using AI
+      const { data, error } = await supabase.functions.invoke("chat", {
+        body: {
+          message: `Parse this script into a JSON array of objects with 'character' and 'line' properties for each dialogue line. Only include lines that have clear character names. Just return the JSON, no explanation:\n\n${script.slice(0, 4000)}`,
+          coachType: "meisner"
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.reply) {
+        try {
+          // Find JSON in the response
+          const jsonMatch = data.reply.match(/\[[\s\S]*\]/);
+          if (jsonMatch) {
+            const parsedLines = JSON.parse(jsonMatch[0]);
+            
+            if (Array.isArray(parsedLines) && parsedLines.length > 0) {
+              setLines(parsedLines);
+              toast({
+                title: "Script Parsed",
+                description: `Found ${parsedLines.length} lines with character dialogue.`,
+              });
+              return;
+            }
+          }
+        } catch (jsonError) {
+          console.error("Error parsing JSON from AI response:", jsonError);
+        }
+      }
+
+      // Fallback to basic parsing if AI parsing fails
+      fallbackParsing();
+    } catch (error) {
+      console.error("Error parsing script with AI:", error);
+      fallbackParsing();
+    } finally {
+      setIsGenerating(false);
+    }
   };
-  
-  const handleStopAudio = () => {
-    setIsListening(false);
-    toast({
-      title: "Audio playback stopped",
-      description: "Audio playback has been stopped.",
-    });
-  };
-  
-  const applyHideLines = (text: string) => {
-    if (!text) return "";
+
+  const fallbackParsing = () => {
+    // Basic parsing logic
+    const parsedLines: CharacterLine[] = [];
+    const lines = script.split('\n');
     
-    const lines = text.split('\n');
-    
-    return lines.map(line => {
-      if (hideAllButMine && characterName && line.startsWith(`${characterName}:`)) {
-        return line;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      
+      // Look for patterns like "CHARACTER: Line of dialogue"
+      const colonMatch = line.match(/^([A-Z][A-Z\s]+):(.+)/);
+      if (colonMatch) {
+        parsedLines.push({
+          character: colonMatch[1].trim(),
+          line: colonMatch[2].trim()
+        });
+        continue;
       }
       
-      const hideCount = Math.floor(line.length * (hidePercentage / 100));
-      
-      if (hideCount <= 0) return line;
-      
-      const colonIndex = line.indexOf(':');
-      if (colonIndex > 0) {
-        const name = line.substring(0, colonIndex + 1);
-        const dialogue = line.substring(colonIndex + 1);
+      // Look for character names in ALL CAPS followed by dialogue
+      if (line.match(/^[A-Z][A-Z\s]+$/) && i + 1 < lines.length) {
+        const character = line;
+        const nextLine = lines[i + 1].trim();
         
-        const hideDialogueCount = Math.floor(dialogue.length * (hidePercentage / 100));
-        
-        if (hideDialogueCount <= 0) return line;
-        
-        const visiblePart = dialogue.substring(0, dialogue.length - hideDialogueCount);
-        const hiddenPart = "█".repeat(hideDialogueCount);
-        
-        return `${name}${visiblePart}${hiddenPart}`;
+        if (nextLine && !nextLine.match(/^[A-Z][A-Z\s]+$/)) {
+          parsedLines.push({
+            character,
+            line: nextLine
+          });
+          i++; // Skip the next line as we've already processed it
+        }
       }
-      
-      const visiblePart = line.substring(0, line.length - hideCount);
-      const hiddenPart = "█".repeat(hideCount);
-      
-      return `${visiblePart}${hiddenPart}`;
-    }).join('\n');
+    }
+    
+    if (parsedLines.length > 0) {
+      setLines(parsedLines);
+      toast({
+        title: "Script Parsed",
+        description: `Found ${parsedLines.length} lines with character dialogue using basic parsing.`,
+      });
+    } else {
+      toast({
+        title: "Parsing Failed",
+        description: "Couldn't identify character lines. Please check script formatting.",
+        variant: "destructive",
+      });
+    }
   };
-  
+
+  const checkLineAccuracy = () => {
+    if (!userInput || !lines[currentLineIndex]) return 0;
+    
+    const actualLine = lines[currentLineIndex].line.toLowerCase().replace(/[^\w\s]/g, '');
+    const userLine = userInput.toLowerCase().replace(/[^\w\s]/g, '');
+    
+    // Simple word comparison
+    const actualWords = actualLine.split(/\s+/);
+    const userWords = userLine.split(/\s+/);
+    
+    let correctWords = 0;
+    for (let i = 0; i < userWords.length; i++) {
+      if (i < actualWords.length && userWords[i] === actualWords[i]) {
+        correctWords++;
+      }
+    }
+    
+    return Math.round((correctWords / actualWords.length) * 100);
+  };
+
+  const handleNextLine = () => {
+    if (currentLineIndex < lines.length - 1) {
+      setCurrentLineIndex(prev => prev + 1);
+      setShowLine(mode === "standard");
+      setUserInput("");
+    } else {
+      toast({
+        title: "End of Script",
+        description: "You've reached the end of the available lines.",
+      });
+    }
+  };
+
+  const handlePrevLine = () => {
+    if (currentLineIndex > 0) {
+      setCurrentLineIndex(prev => prev - 1);
+      setShowLine(mode === "standard");
+      setUserInput("");
+    }
+  };
+
+  const accuracy = checkLineAccuracy();
+  const currentLine = lines[currentLineIndex];
+
   return (
-    <div className="space-y-6">
-      <Tabs value={mode} onValueChange={(value) => setMode(value as "hide-lines" | "audio")}>
-        <TabsList className="mb-4">
-          <TabsTrigger value="hide-lines">Hide Lines</TabsTrigger>
-          <TabsTrigger value="audio">Audio Playback</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="hide-lines" className="space-y-6">
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-white">Hide text percentage: {hidePercentage}%</Label>
-                  <Slider
-                    value={[hidePercentage]}
-                    min={0}
-                    max={100}
-                    step={5}
-                    onValueChange={(values) => setHidePercentage(values[0])}
-                  />
-                </div>
-                
-                {characters.length > 0 && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-white">Your character</Label>
-                      <div className="flex items-center space-x-2">
-                        <input 
-                          type="checkbox" 
-                          id="hide-all-but-mine"
-                          checked={hideAllButMine}
-                          onChange={() => setHideAllButMine(!hideAllButMine)}
-                          className="rounded"
-                        />
-                        <Label htmlFor="hide-all-but-mine" className="text-sm">Hide all but my lines</Label>
-                      </div>
-                    </div>
-                    <select
-                      className="w-full p-2 bg-black/50 text-white border border-white/20 rounded-md"
-                      value={characterName}
-                      onChange={(e) => setCharacterName(e.target.value)}
-                    >
-                      <option value="">Select your character</option>
-                      {characters.map(char => (
-                        <option key={char} value={char}>{char}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                
-                <div className="flex space-x-3">
-                  <Button 
-                    onClick={() => setHidePercentage(prev => Math.min(prev + 10, 100))}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    <EyeOff className="mr-2 h-4 w-4" />
-                    Hide More
-                  </Button>
-                  <Button 
-                    onClick={() => setHidePercentage(prev => Math.max(prev - 10, 0))}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    <Eye className="mr-2 h-4 w-4" />
-                    Show More
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="bg-black/20 p-4 rounded-lg">
-                <h4 className="font-medium text-white mb-2">Script Preview with Hidden Text</h4>
-                <div className="max-h-60 overflow-y-auto p-4 bg-black/30 rounded-md border border-white/10">
-                  <pre className="text-white/90 whitespace-pre-wrap font-sans text-sm">
-                    {script ? applyHideLines(script) : "No script loaded. Please add a script on the Script tab."}
-                  </pre>
-                </div>
-              </div>
-            </div>
+    <Card className="bg-black/40">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Brain className="h-5 w-5 text-theater-gold" />
+          Line Memorization
+        </CardTitle>
+        <CardDescription>
+          Practice memorizing your lines with active recall
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isGenerating ? (
+          <div className="flex flex-col items-center justify-center h-48">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mb-4"></div>
+            <p className="text-white/80">Analyzing script...</p>
           </div>
-        </TabsContent>
-        
-        <TabsContent value="audio" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-white">Listen & Respond Method</Label>
-                <p className="text-sm text-white/70">
-                  Listen to your scene partner's lines and practice responding on cue. Your character's lines will be muted.
+        ) : lines.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-48 text-center">
+            <BookOpen className="h-12 w-12 text-white/30 mb-4" />
+            <p className="text-white/70 mb-2">No lines detected</p>
+            <p className="text-white/50 text-sm mb-4">Enter a script in the editor above to begin memorizing lines</p>
+            {script && (
+              <Button onClick={parseScript} variant="outline">
+                Parse Script
+              </Button>
+            )}
+          </div>
+        ) : (
+          <>
+            <Tabs defaultValue="standard" value={mode} onValueChange={(val) => setMode(val as "standard" | "progressive")}>
+              <TabsList className="grid w-full grid-cols-2 mb-4 bg-black/30">
+                <TabsTrigger value="standard">Standard Mode</TabsTrigger>
+                <TabsTrigger value="progressive">Progressive Mode</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="standard">
+                <p className="text-sm text-white/70 mb-4">
+                  View lines as you practice memorizing them. Toggle visibility as needed.
                 </p>
+              </TabsContent>
+              
+              <TabsContent value="progressive">
+                <p className="text-sm text-white/70 mb-4">
+                  Test your memory by typing lines before revealing them.
+                </p>
+              </TabsContent>
+            </Tabs>
+
+            <div className="bg-black/20 p-4 mb-4 rounded-md">
+              <div className="text-sm font-medium text-theater-gold mb-1">
+                {currentLine?.character || "CHARACTER"}
               </div>
               
-              {characters.length > 0 && (
-                <div className="space-y-2">
-                  <Label className="text-white">Your character</Label>
-                  <select
-                    className="w-full p-2 bg-black/50 text-white border border-white/20 rounded-md"
-                    value={characterName}
-                    onChange={(e) => setCharacterName(e.target.value)}
+              {showLine ? (
+                <p className="text-white text-lg leading-relaxed">
+                  {currentLine?.line || "Line not available"}
+                </p>
+              ) : (
+                <div className="h-24 flex items-center justify-center border border-dashed border-white/20 rounded bg-black/10">
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => setShowLine(true)}
+                    className="text-white/50"
                   >
-                    <option value="">Select your character</option>
-                    {characters.map(char => (
-                      <option key={char} value={char}>{char}</option>
-                    ))}
-                  </select>
+                    <Eye className="mr-2 h-4 w-4" /> Reveal Line
+                  </Button>
                 </div>
               )}
-              
-              <div className="flex space-x-3">
-                {!isListening ? (
-                  <Button 
-                    onClick={handleStartAudio}
-                    className="bg-theater-gold hover:bg-theater-gold/90 text-black flex-1"
-                    disabled={!script || !characterName}
+            </div>
+
+            {mode === "progressive" && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Input
+                    placeholder="Type the line as you remember it..."
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onFocus={() => setInputFocused(true)}
+                    className="bg-black/30 border-white/10 text-white"
+                  />
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => setShowLine(true)}
+                    className="bg-black/30 border-white/10"
                   >
-                    <Headphones className="mr-2 h-4 w-4" />
-                    Start Audio Practice
+                    <Eye className="h-5 w-5" />
                   </Button>
-                ) : (
-                  <Button 
-                    onClick={handleStopAudio}
-                    variant="destructive"
-                    className="flex-1"
-                  >
-                    <Square className="mr-2 h-4 w-4" />
-                    Stop Audio
-                  </Button>
+                </div>
+
+                {inputFocused && userInput && (
+                  <div className="mt-2 flex items-center">
+                    <div className="h-2 flex-1 bg-black/40 rounded overflow-hidden">
+                      <div
+                        className={`h-full ${
+                          accuracy > 80 ? 'bg-green-500' : accuracy > 50 ? 'bg-yellow-500' : 'bg-red-500'
+                        }`}
+                        style={{ width: `${accuracy}%` }}
+                      ></div>
+                    </div>
+                    <span className="ml-2 text-sm font-medium text-white/70">{accuracy}%</span>
+                  </div>
+                )}
+
+                {showLine && userInput && (
+                  <div className="mt-4">
+                    {accuracy > 80 ? (
+                      <div className="flex items-center text-green-400 text-sm">
+                        <CheckCircle2 className="mr-2 h-4 w-4" /> Great job! Your recall was accurate.
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-yellow-300 text-sm">
+                        <XCircle className="mr-2 h-4 w-4" /> Keep practicing - your recall needs improvement.
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
-            </div>
-            
-            <div className="bg-black/20 p-4 rounded-lg">
-              <h4 className="font-medium text-white mb-2">How it works</h4>
-              <ol className="list-decimal list-inside space-y-2 text-white/80 text-sm">
-                <li>Select your character from the dropdown</li>
-                <li>Click "Start Audio Practice" to begin</li>
-                <li>Listen for your cues as other character lines are read aloud</li>
-                <li>Your lines will be skipped, giving you time to say them</li>
-                <li>Perfect for memorizing both lines and timing</li>
-              </ol>
+            )}
+
+            <div className="flex justify-between items-center mt-6">
+              <Button
+                variant="outline"
+                onClick={handlePrevLine}
+                disabled={currentLineIndex <= 0}
+                className="bg-black/30 border-white/10"
+              >
+                Previous Line
+              </Button>
               
-              <div className="mt-4 p-3 bg-black/30 rounded-md border border-white/10">
-                <p className="text-white/70 text-xs italic">
-                  Tip: Record yourself during practice to review your performance and identify areas for improvement.
-                </p>
+              <div className="text-sm text-white/50">
+                {currentLineIndex + 1} / {lines.length}
               </div>
+
+              <Button
+                onClick={handleNextLine}
+                disabled={currentLineIndex >= lines.length - 1}
+              >
+                Next Line
+              </Button>
             </div>
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>
+
+            <div className="mt-4 flex justify-center">
+              <Toggle
+                pressed={showLine}
+                onPressedChange={setShowLine}
+                variant="outline"
+                className="bg-black/30 border-white/10 data-[state=on]:bg-white/10"
+              >
+                {showLine ? (
+                  <>
+                    <EyeOff className="h-4 w-4 mr-2" /> Hide Lines
+                  </>
+                ) : (
+                  <>
+                    <Eye className="h-4 w-4 mr-2" /> Show Lines
+                  </>
+                )}
+              </Toggle>
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 };

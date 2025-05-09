@@ -1,158 +1,150 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Play, Square, Mic } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/components/ui/use-toast";
+import { Play, Square, Volume2, Mic } from "lucide-react";
+import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 
 interface AiReaderProps {
   script: string;
 }
 
+type Voice = "alloy" | "echo" | "fable" | "onyx" | "nova" | "shimmer";
+
 export const AiReader = ({ script }: AiReaderProps) => {
-  const { toast } = useToast();
+  const [voice, setVoice] = useState<Voice>("nova");
+  const [volume, setVolume] = useState(80);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [voice, setVoice] = useState("female-neutral");
-  const [speed, setSpeed] = useState(1);
-  const [accent, setAccent] = useState("american");
-  const [highlightActiveChar, setHighlightActiveChar] = useState(true);
-  const [useEmotionalTone, setUseEmotionalTone] = useState(true);
-  
-  const handlePlay = () => {
+  const { generateSpeech, stopSpeech, isLoading, audio } = useTextToSpeech();
+  const { toast } = useToast();
+
+  const voiceOptions: { value: Voice; label: string; description: string }[] = [
+    { value: "alloy", label: "Alloy", description: "Versatile, balanced voice" },
+    { value: "echo", label: "Echo", description: "Deep, resonant male voice" },
+    { value: "fable", label: "Fable", description: "Warm, friendly narrator voice" },
+    { value: "onyx", label: "Onyx", description: "Authoritative, deep voice" },
+    { value: "nova", label: "Nova", description: "Expressive female voice" },
+    { value: "shimmer", label: "Shimmer", description: "Clear, youthful voice" }
+  ];
+
+  const handlePlay = async () => {
     if (!script) {
       toast({
-        title: "No script available",
-        description: "Please add a script first before using the AI reader.",
+        title: "No script found",
+        description: "Please enter or upload a script first.",
         variant: "destructive",
       });
       return;
     }
-    
-    setIsPlaying(true);
-    toast({
-      title: "AI Reader activated",
-      description: "The AI reader is now reading your script.",
-    });
-    
-    setTimeout(() => {
+
+    if (isPlaying) {
+      stopSpeech();
       setIsPlaying(false);
-    }, 3000);
+      return;
+    }
+
+    setIsPlaying(true);
+    const audioEl = await generateSpeech(script, voice);
+    
+    if (audioEl) {
+      audioEl.volume = volume / 100;
+      
+      audioEl.addEventListener('ended', () => {
+        setIsPlaying(false);
+      });
+      
+      audioEl.addEventListener('error', () => {
+        setIsPlaying(false);
+        toast({
+          title: "Playback Error",
+          description: "There was an error playing the audio.",
+          variant: "destructive",
+        });
+      });
+      
+      audioEl.play();
+    } else {
+      setIsPlaying(false);
+    }
   };
-  
-  const handleStop = () => {
-    setIsPlaying(false);
-    toast({
-      title: "AI Reader stopped",
-      description: "The AI reader has stopped.",
-    });
+
+  const handleVoiceChange = (value: string) => {
+    setVoice(value as Voice);
   };
-  
-  const voices = [
-    { id: "female-neutral", name: "Female (Neutral)" },
-    { id: "male-neutral", name: "Male (Neutral)" },
-    { id: "female-dramatic", name: "Female (Dramatic)" },
-    { id: "male-dramatic", name: "Male (Dramatic)" },
-    { id: "female-youthful", name: "Female (Youthful)" },
-    { id: "male-youthful", name: "Male (Youthful)" },
-  ];
-  
-  const accents = [
-    { id: "american", name: "American" },
-    { id: "british", name: "British" },
-    { id: "australian", name: "Australian" },
-    { id: "irish", name: "Irish" },
-    { id: "scottish", name: "Scottish" },
-  ];
-  
+
+  const handleVolumeChange = (value: number[]) => {
+    setVolume(value[0]);
+    if (audio) {
+      audio.volume = value[0] / 100;
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="voice" className="text-white mb-1 block">Voice</Label>
-          <select 
-            id="voice" 
-            className="w-full p-2 bg-black/50 text-white border border-white/20 rounded-md"
-            value={voice}
-            onChange={(e) => setVoice(e.target.value)}
-          >
-            {voices.map(v => (
-              <option key={v.id} value={v.id}>{v.name}</option>
-            ))}
-          </select>
-        </div>
-        
-        <div>
-          <Label htmlFor="accent" className="text-white mb-1 block">Accent</Label>
-          <select 
-            id="accent" 
-            className="w-full p-2 bg-black/50 text-white border border-white/20 rounded-md"
-            value={accent}
-            onChange={(e) => setAccent(e.target.value)}
-          >
-            {accents.map(a => (
-              <option key={a.id} value={a.id}>{a.name}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-      
-      <div>
-        <Label htmlFor="speed" className="text-white mb-1 block">Reading Speed</Label>
-        <input 
-          type="range" 
-          id="speed"
-          min="0.5"
-          max="2"
-          step="0.1"
-          value={speed}
-          onChange={(e) => setSpeed(parseFloat(e.target.value))}
-          className="w-full"
-        />
-        <div className="flex justify-between text-xs text-white/70 mt-1">
-          <span>Slow</span>
-          <span>{speed}x</span>
-          <span>Fast</span>
-        </div>
-      </div>
-      
-      <div className="space-y-3">
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="highlight-active"
-            checked={highlightActiveChar}
-            onCheckedChange={setHighlightActiveChar}
+    <Card className="bg-black/40">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Mic className="h-5 w-5 text-theater-gold" /> 
+          AI Reader
+        </CardTitle>
+        <CardDescription>
+          Let the AI read your script with natural expression
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 mb-1">
+            <Volume2 className="h-4 w-4 text-white/70" />
+            <span className="text-sm text-white/70">Volume</span>
+          </div>
+          <Slider
+            value={[volume]}
+            min={0}
+            max={100}
+            step={1}
+            onValueChange={handleVolumeChange}
+            className="w-full"
           />
-          <Label htmlFor="highlight-active">Highlight active character</Label>
         </div>
-        
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="emotional-tone"
-            checked={useEmotionalTone}
-            onCheckedChange={setUseEmotionalTone}
-          />
-          <Label htmlFor="emotional-tone">Use emotional tone based on context</Label>
+
+        <div className="space-y-2">
+          <label className="text-sm text-white/70 block">Voice</label>
+          <Select value={voice} onValueChange={handleVoiceChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select voice" />
+            </SelectTrigger>
+            <SelectContent>
+              {voiceOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  <div className="flex flex-col">
+                    <span>{option.label}</span>
+                    <span className="text-xs text-muted-foreground">{option.description}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      </div>
-      
-      <div className="flex space-x-3">
-        {!isPlaying ? (
-          <Button onClick={handlePlay} className="bg-theater-gold hover:bg-theater-gold/90 text-black flex-1">
-            <Play className="mr-2 h-4 w-4" />
-            Start Reading
-          </Button>
-        ) : (
-          <Button onClick={handleStop} variant="destructive" className="flex-1">
-            <Square className="mr-2 h-4 w-4" />
-            Stop Reading
-          </Button>
-        )}
-        
-        <Button variant="outline" className="flex-1">
-          <Mic className="mr-2 h-4 w-4" />
-          Practice with AI
+
+        <Button 
+          className="w-full mt-4"
+          variant={isPlaying ? "destructive" : "default"}
+          disabled={isLoading || !script}
+          onClick={handlePlay}
+        >
+          {isPlaying ? (
+            <>
+              <Square className="mr-2 h-4 w-4" /> Stop
+            </>
+          ) : (
+            <>
+              <Play className="mr-2 h-4 w-4" /> {isLoading ? "Loading..." : "Read Script"}
+            </>
+          )}
         </Button>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
