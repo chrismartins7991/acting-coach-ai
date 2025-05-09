@@ -42,7 +42,7 @@ const recentActivities = [
     id: 2,
     title: "Line Memorization Practice",
     type: "rehearsal" as const,
-    subtype: "memorization",
+    subtype: "memorization" as const,
     date: "May 5, 2025",
     duration: "45 min",
     image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/iconic-movie-frames/There_Will_Be_Blood_Daniel_Day_Lewis.jpeg"
@@ -51,7 +51,7 @@ const recentActivities = [
     id: 3,
     title: "AI Reader Practice",
     type: "rehearsal" as const,
-    subtype: "aireader",
+    subtype: "aireader" as const,
     date: "May 3, 2025",
     duration: "30 min",
     image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/iconic-movie-frames/Emma-Stone-The-Favourite.jpeg"
@@ -68,7 +68,7 @@ const recentActivities = [
     id: 5,
     title: "Cold Reading Practice",
     type: "rehearsal" as const,
-    subtype: "coldreading",
+    subtype: "coldreading" as const,
     date: "Apr 29, 2025",
     duration: "25 min",
     image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/iconic-movie-frames/Oscars-Glamour-Golden-Age.jpeg"

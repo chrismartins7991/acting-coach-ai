@@ -2,7 +2,7 @@
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SubscriptionBadge } from "./subscription/SubscriptionBadge";
 import { Link } from "react-router-dom";
-import { Activity, Award, Book, User, LayoutDashboard } from "lucide-react";
+import { Award, Book, User, LayoutDashboard, Clapperboard } from "lucide-react";
 
 export const TopMenu = () => {
   const isMobile = useIsMobile();
@@ -28,7 +28,7 @@ export const TopMenu = () => {
               
               <Link to="/upload" className="flex flex-col items-center space-y-1">
                 <div className="bg-neutral-900 rounded-full p-3">
-                  <Activity className="h-5 w-5 text-white" />
+                  <Clapperboard className="h-5 w-5 text-white" />
                 </div>
                 <span className="text-xs text-white">Upload</span>
               </Link>

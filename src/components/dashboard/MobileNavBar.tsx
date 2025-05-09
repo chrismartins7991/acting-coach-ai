@@ -1,5 +1,5 @@
 
-import { Activity, Award, Book, User, LayoutDashboard } from "lucide-react";
+import { Award, Book, User, LayoutDashboard, Clapperboard } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const MobileNavBar = () => {
@@ -15,7 +15,7 @@ export const MobileNavBar = () => {
           
           <Link to="/upload" className="flex flex-col items-center">
             <div className="bg-neutral-900 rounded-full p-3">
-              <Activity className="h-5 w-5 text-white" />
+              <Clapperboard className="h-5 w-5 text-white" />
             </div>
           </Link>
           
