@@ -13,9 +13,9 @@ import {
 } from "@/components/ui/carousel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import { LayoutDashboard, Activity, MessageSquare, User, Settings } from "lucide-react";
+import { LayoutDashboard, Activity, MessageSquare, User, Settings, Book, Mic, FileVideo } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PerformancesList } from "@/components/dashboard/PerformancesList";
+import { ActivityList } from "@/components/profile/ActivityList";
 import { StatsSection } from "@/components/dashboard/StatsSection";
 
 // Mock data for actor friends
@@ -28,35 +28,50 @@ const actorFriends = [
   { id: 6, name: "Leonardo DiCaprio", avatar: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/images/leonardo-dicaprio.jpg" },
 ];
 
-// Mock data for performances
-const recentPerformances = [
+// Mock data for recent activities
+const recentActivities = [
   {
     id: 1,
     title: "Hamlet Monologue",
+    type: "selftape",
     date: "May 7, 2025",
     score: 82,
     image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/iconic-movie-frames/Joker-Pin.jpeg"
   },
   {
     id: 2,
-    title: "Dramatic Scene",
+    title: "Line Memorization Practice",
+    type: "rehearsal",
+    subtype: "memorization",
     date: "May 5, 2025",
-    score: 75,
+    duration: "45 min",
     image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/iconic-movie-frames/There_Will_Be_Blood_Daniel_Day_Lewis.jpeg"
   },
   {
     id: 3,
-    title: "Comedy Audition",
+    title: "AI Reader Practice",
+    type: "rehearsal",
+    subtype: "aireader",
     date: "May 3, 2025",
-    score: 67,
+    duration: "30 min",
     image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/iconic-movie-frames/Emma-Stone-The-Favourite.jpeg"
   },
   {
     id: 4,
     title: "Film Scene",
+    type: "selftape",
     date: "May 1, 2025",
     score: 88,
     image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/iconic-movie-frames/Taxi_Driver_Robert_Deniro.jpeg"
+  },
+  {
+    id: 5,
+    title: "Cold Reading Practice",
+    type: "rehearsal",
+    subtype: "coldreading",
+    date: "Apr 29, 2025",
+    duration: "25 min",
+    image: "https://etqdfxnyvrjyabjduhpk.supabase.co/storage/v1/object/public/lovable-uploads/oscars-actors-images/Oscars-Glamour-Golden-Age.jpeg"
   }
 ];
 
@@ -128,8 +143,8 @@ const ProfilePage = () => {
           </Carousel>
         </div>
         
-        {/* Performances Feed */}
-        <PerformancesList performances={recentPerformances} />
+        {/* Activities Feed - Replacing Performances Feed */}
+        <ActivityList activities={recentActivities} />
       </div>
       
       {/* Fixed bottom menu - only visible on mobile */}
