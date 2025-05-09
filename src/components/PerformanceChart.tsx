@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useEffect, useState } from "react"
@@ -231,8 +232,8 @@ export const PerformanceChart = () => {
                   dataKey="date"
                   stroke="hsl(var(--muted-foreground))"
                   tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
-                  tickLine={{ stroke: "hsl(var(--border))" }}
-                  axisLine={{ stroke: "hsl(var(--border))" }}
+                  tickLine={{ stroke: "transparent" }}
+                  axisLine={{ stroke: "transparent" }}
                   angle={-35}
                   textAnchor="end"
                   height={60}
@@ -243,8 +244,8 @@ export const PerformanceChart = () => {
                 <YAxis
                   stroke="hsl(var(--muted-foreground))"
                   tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
-                  tickLine={{ stroke: "hsl(var(--border))" }}
-                  axisLine={{ stroke: "hsl(var(--border))" }}
+                  tickLine={{ stroke: "transparent" }}
+                  axisLine={{ stroke: "transparent" }}
                   domain={[0, 100]}
                   ticks={[0, 25, 50, 75, 100]}
                   width={40}
