@@ -103,8 +103,8 @@ const ProfilePage = () => {
           </div>
           <Link to="/profile-settings">
             <Button variant="outline" className="bg-neutral-900 border-neutral-700">
-              <Settings className="h-4 w-4 mr-2" />
-              Profile Settings
+              <Settings className="h-4 w-4" />
+              {!isMobile && <span className="ml-2">Profile Settings</span>}
             </Button>
           </Link>
         </div>
