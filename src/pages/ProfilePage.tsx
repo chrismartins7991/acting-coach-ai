@@ -83,12 +83,23 @@ const ProfilePage = () => {
   const userName = user?.user_metadata?.full_name || userEmail.split("@")[0];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red text-white">
+    <div className="min-h-screen bg-gradient-to-br from-theater-purple via-black to-theater-red text-white overflow-x-hidden">
       <TopMenu />
       
-      <div className={`container mx-auto px-4 py-8 ${isMobile ? 'pt-20' : 'pt-36'} pb-28`}>
+      {/* Added fixed positioning for mobile settings button */}
+      {isMobile && (
+        <div className="fixed top-4 right-4 z-50">
+          <Link to="/profile-settings">
+            <Button variant="outline" size="icon" className="h-8 w-8 bg-neutral-900/80 border-neutral-700">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      )}
+      
+      <div className={`container mx-auto px-4 py-8 ${isMobile ? 'pt-20' : 'pt-36'} pb-28 max-w-4xl`}>
         {/* Profile header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center mb-8">
           <div className="flex items-center">
             <Avatar className="h-16 w-16 border-2 border-theater-gold mr-4">
               <AvatarImage src={user?.user_metadata?.avatar_url} />
@@ -102,13 +113,17 @@ const ProfilePage = () => {
             </div>
           </div>
           
-          {/* Fixed positioning of the settings button */}
-          <Link to="/profile-settings">
-            <Button variant="outline" className="bg-neutral-900 border-neutral-700">
-              <Settings className="h-4 w-4" />
-              {!isMobile && <span className="ml-2">Profile Settings</span>}
-            </Button>
-          </Link>
+          {/* Only show button on desktop */}
+          {!isMobile && (
+            <div className="ml-auto">
+              <Link to="/profile-settings">
+                <Button variant="outline" className="bg-neutral-900 border-neutral-700">
+                  <Settings className="h-4 w-4" />
+                  <span className="ml-2">Profile Settings</span>
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Stats Section */}
