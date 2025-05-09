@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { RehearsalRoom } from "@/components/rehearsal/RehearsalRoom";
 import { TopMenu } from "@/components/TopMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
