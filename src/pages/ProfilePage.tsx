@@ -101,6 +101,8 @@ const ProfilePage = () => {
               <p className="text-sm text-neutral-400">{userEmail}</p>
             </div>
           </div>
+          
+          {/* Fixed positioning of the settings button */}
           <Link to="/profile-settings">
             <Button variant="outline" className="bg-neutral-900 border-neutral-700">
               <Settings className="h-4 w-4" />
