@@ -13,6 +13,7 @@ import { StatsSection } from "@/components/dashboard/StatsSection";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { PerformancesList } from "@/components/dashboard/PerformancesList";
 import { MobileNavBar } from "@/components/dashboard/MobileNavBar";
+import { PerformanceChart } from "@/components/PerformanceChart";
 
 const Dashboard = () => {
   const location = useLocation();
@@ -46,6 +47,12 @@ const Dashboard = () => {
           <DashboardHeader />
           
           <StatsSection />
+          
+          {/* Performance Chart - Add before skills section */}
+          <div className="mb-6">
+            <h2 className="text-lg md:text-xl font-bold mb-3">Performance Progress</h2>
+            <PerformanceChart />
+          </div>
           
           {/* Skill Progress - Below the stats */}
           <div className="mb-6">
