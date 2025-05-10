@@ -106,7 +106,7 @@ export const SignupStep = ({ onNext }: SignupStepProps) => {
             type="button"
             variant="ghost"
             onClick={onNext}
-            className="text-gray-400 hover:text-white hover:bg-black/30"
+            className="text-gray-400 hover:text-white hover:bg-black/30 w-full sm:w-auto"
           >
             Skip for now
           </Button>
