@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom';
 import { ChatHeader } from './chat/ChatHeader';
 import { MessageList } from './chat/MessageList';
 import { ChatFooter } from './chat/ChatFooter';
+import { PaymentWall } from './PaymentWall';
+import { useSubscription } from '@/hooks/useSubscription';
 
 export const Chat: React.FC = () => {
   const { user } = useAuth();
@@ -17,7 +19,9 @@ export const Chat: React.FC = () => {
   const [input, setInput] = useState('');
   const [selectedCoach, setSelectedCoach] = useState<string | null>(null);
   const [selectedCoachIndex, setSelectedCoachIndex] = useState(0);
+  const [showPaymentWall, setShowPaymentWall] = useState(false);
   const navigate = useNavigate();
+  const { subscriptionTier } = useSubscription();
   
   const handleSendMessage = async () => {
     if (!input.trim()) return;
@@ -84,14 +88,25 @@ export const Chat: React.FC = () => {
   };
 
   const handleEnterCoachingSession = () => {
+    if (subscriptionTier === 'trial') {
+      setShowPaymentWall(true);
+      return;
+    }
+    
     toast({
       title: "Coaching Session",
       description: `Starting a session with ${coaches[selectedCoachIndex].name}`,
     });
+    // Implement actual coaching session logic here
   };
 
   return (
     <div className="flex flex-col bg-black/30 backdrop-blur-sm border border-white/10 rounded-lg h-[calc(100vh-160px)] max-w-4xl mx-auto">
+      <PaymentWall 
+        isOpen={showPaymentWall}
+        onComplete={() => setShowPaymentWall(false)}
+      />
+      
       <ChatHeader
         selectedCoach={selectedCoach}
         selectedCoachIndex={selectedCoachIndex}
