@@ -1,4 +1,3 @@
-
 interface AnalysisResult {
   total: number;
   strengths: { name: string; score: number }[];
@@ -115,34 +114,33 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
   const recommendedFocus: string[] = areasForGrowth.map(area => {
     switch(area.id) {
       case "technique":
-        return "Study different acting methodologies and practice their applications";
+        return "Try our AI Reader feature to practice different acting techniques with script analysis";
       case "improvisation":
-        return "Regular improvisation exercises and spontaneity training";
+        return "Use the Cold Reading Practice tool to improve your spontaneity and thinking on your feet";
       case "emotion":
-        return "Emotional range expansion through sense memory and personal connection";
+        return "Practice with our AI Coach for emotional connection exercises and personalized feedback";
       case "voice":
-        return "Voice control and projection exercises";
+        return "Use our AI Reader tool to practice voice projection and modulation with guidance";
       case "physical":
-        return "Movement and body awareness techniques";
+        return "Record yourself in our Self-Tape Studio to analyze and improve your physical presence";
       case "selftape":
-        return "Improve self-tape skills with proper lighting, sound, and framing techniques";
+        return "Visit our Self-Tape Studio section to create professional-quality audition videos";
       case "audition":
-        return "Practice audition techniques and mental preparation strategies";
+        return "Practice audition techniques with our camera recording and playback features";
       case "practice":
-        return "Establish a consistent practice routine with varied methods";
+        return "Explore our Line Memorization Tools to establish an effective practice routine";
       default:
-        return "Focus on developing your overall acting craft";
+        return "Explore our full range of acting practice tools to enhance your overall craft";
     }
   });
   
   // Add one more recommendation based on the overall score
-  // Fix: Allow any string in recommendedFocus by removing type inference limitation
   if (totalScore < 50) {
-    recommendedFocus.push("Build a strong foundation with acting classes");
+    recommendedFocus.push("Begin with our AI Reader and Cold Reading features to build your foundation");
   } else if (totalScore < 75) {
-    recommendedFocus.push("Continue regular practice and seek performance opportunities");
+    recommendedFocus.push("Continue your progress by practicing regularly with our Rehearsal Room tools");
   } else {
-    recommendedFocus.push("Challenge yourself with complex characters and advanced workshops");
+    recommendedFocus.push("Take your skills to the next level with advanced Self-Tape Studio features");
   }
   
   return {
