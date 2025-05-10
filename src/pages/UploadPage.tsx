@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import VideoUploader from "@/components/VideoUploader";
@@ -6,19 +7,21 @@ import { PaymentWall } from "@/components/PaymentWall";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Book, Database } from "lucide-react";
 import { TopMenu } from "@/components/TopMenu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileNavBar } from "@/components/dashboard/MobileNavBar";
 
 const UploadPage = () => {
-  const { canUploadPerformance } = useSubscription();
+  const { canUploadPerformance, isSubscribed } = useSubscription();
   const [showUploader, setShowUploader] = useState(false);
   const [showPaymentWall, setShowPaymentWall] = useState(false);
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  const [isNewUser, setIsNewUser] = useState(false);
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
@@ -26,14 +29,33 @@ const UploadPage = () => {
 
       try {
         setIsLoading(true);
-        const { data, error } = await supabase
+        
+        // Check if user has completed onboarding (has coach preferences)
+        const { data: coachPreferences, error: coachError } = await supabase
           .from('user_coach_preferences')
           .select('*')
           .eq('user_id', user.id)
           .single();
 
+        // Check if user is in onboarding flow (has progress record)
+        const { data: onboardingProgress, error: progressError } = await supabase
+          .from('onboarding_progress')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        
+        // If user has onboarding progress but isn't subscribed, they are a new user
+        // who should be in the onboarding flow
+        if (onboardingProgress && !isSubscribed) {
+          setIsNewUser(true);
+          
+          // Redirect to onboarding flow with upload step
+          navigate('/welcome');
+          return;
+        }
+
         // If user has coach preferences, show the uploader
-        if (data) {
+        if (coachPreferences) {
           setShowUploader(true);
         }
       } catch (error) {
@@ -44,7 +66,7 @@ const UploadPage = () => {
     };
 
     checkOnboardingStatus();
-  }, [user]);
+  }, [user, isSubscribed, navigate]);
 
   const handleModifySettings = () => {
     setShowUploader(false);
@@ -61,6 +83,16 @@ const UploadPage = () => {
   };
 
   if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple p-8 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-theater-gold"></div>
+      </div>
+    );
+  }
+
+  // If user is a new onboarding user who hasn't subscribed yet,
+  // redirect them to the onboarding flow (handled in useEffect)
+  if (isNewUser) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple p-8 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-theater-gold"></div>

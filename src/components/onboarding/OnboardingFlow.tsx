@@ -13,6 +13,7 @@ import { GoalSettingScreen } from "./steps/GoalSettingScreen";
 import { CoachSelection } from "../onboarding/CoachSelection";
 import { SignupStep } from "./steps/SignupStep";
 import { CoachPreferenceStep } from "./steps/CoachPreferenceStep";
+import { OnboardingUploadStep } from "./steps/OnboardingUploadStep";
 
 type OnboardingStep = 
   | "welcome"
@@ -23,7 +24,8 @@ type OnboardingStep =
   | "results"
   | "goals"
   | "coach-preference"
-  | "coach-selection";
+  | "coach-selection"
+  | "upload";
 
 interface OnboardingFlowProps {
   onComplete?: () => void;
@@ -138,10 +140,8 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
             onConflict: 'user_id'
           });
           
-        if (onComplete) {
-          onComplete();
-        }
-        navigate('/upload');
+        // Now redirect to upload step instead of upload page
+        updateProgress("upload");
       } catch (error) {
         console.error('Error setting default coach:', error);
         toast({
@@ -157,10 +157,8 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
   };
 
   const handleCoachSelectionComplete = () => {
-    if (onComplete) {
-      onComplete();
-    }
-    navigate('/upload');
+    // Now redirect to upload step instead of upload page
+    updateProgress("upload");
   };
 
   if (isLoading) {
@@ -194,6 +192,8 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
                />;
       case "coach-selection":
         return <CoachSelection onComplete={handleCoachSelectionComplete} />;
+      case "upload":
+        return <OnboardingUploadStep onBack={() => updateProgress("coach-preference")} />;
       default:
         return <WelcomeScreen onNext={() => updateProgress("signup")} />;
     }
