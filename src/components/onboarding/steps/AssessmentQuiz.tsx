@@ -66,7 +66,7 @@ const assessmentQuestions: Question[] = [
 ];
 
 interface AssessmentQuizProps {
-  onNext: () => void;
+  onNext: (answers: Record<string, string>) => void;
 }
 
 export const AssessmentQuiz = ({ onNext }: AssessmentQuizProps) => {
@@ -93,6 +93,10 @@ export const AssessmentQuiz = ({ onNext }: AssessmentQuizProps) => {
   
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
   const canContinue = answers[currentQuestion.id] !== undefined;
+  
+  const handleComplete = () => {
+    onNext(answers);
+  };
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-black to-theater-purple p-6 sm:p-8">
@@ -159,7 +163,7 @@ export const AssessmentQuiz = ({ onNext }: AssessmentQuizProps) => {
             
             {isLastQuestion && (
               <Button
-                onClick={onNext}
+                onClick={handleComplete}
                 disabled={!canContinue}
                 className="bg-theater-gold hover:bg-theater-gold/90 text-black font-bold"
               >

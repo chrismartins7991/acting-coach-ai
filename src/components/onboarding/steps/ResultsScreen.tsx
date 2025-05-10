@@ -2,30 +2,34 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { analyzeAssessmentAnswers } from "@/utils/assessmentAnalysis";
 
 interface ResultsScreenProps {
   onNext: () => void;
+  assessmentAnswers?: Record<string, string>;
 }
 
-// Mock results data
-const mockResults = {
-  total: 68,
-  strengths: [
-    { name: 'Character Development', score: 82 },
-    { name: 'Emotional Connection', score: 78 },
-  ],
-  areasForGrowth: [
-    { name: 'Voice Projection', score: 45 },
-    { name: 'Physical Presence', score: 51 },
-  ],
-  recommendedFocus: [
-    'Voice control and projection exercises',
-    'Movement and body awareness techniques',
-    'Emotional range expansion through sense memory',
-  ],
-};
+export const ResultsScreen = ({ onNext, assessmentAnswers = {} }: ResultsScreenProps) => {
+  // Generate results based on assessment answers or use fallback data if no answers
+  const results = Object.keys(assessmentAnswers).length > 0
+    ? analyzeAssessmentAnswers(assessmentAnswers)
+    : {
+        total: 68,
+        strengths: [
+          { name: 'Character Development', score: 82 },
+          { name: 'Emotional Connection', score: 78 },
+        ],
+        areasForGrowth: [
+          { name: 'Voice Projection', score: 45 },
+          { name: 'Physical Presence', score: 51 },
+        ],
+        recommendedFocus: [
+          'Voice control and projection exercises',
+          'Movement and body awareness techniques',
+          'Emotional range expansion through sense memory',
+        ],
+      };
 
-export const ResultsScreen = ({ onNext }: ResultsScreenProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -53,13 +57,13 @@ export const ResultsScreen = ({ onNext }: ResultsScreenProps) => {
                 fill="none" 
                 stroke="#FFD700" 
                 strokeWidth="8"
-                strokeDasharray={`${2 * Math.PI * 45 * mockResults.total / 100} ${2 * Math.PI * 45 * (1 - mockResults.total / 100)}`}
+                strokeDasharray={`${2 * Math.PI * 45 * results.total / 100} ${2 * Math.PI * 45 * (1 - results.total / 100)}`}
                 strokeDashoffset={2 * Math.PI * 45 * 0.25}
                 transform="rotate(-90 50 50)"
               />
             </svg>
             <div className="absolute text-center">
-              <div className="text-3xl font-bold text-white">{mockResults.total}</div>
+              <div className="text-3xl font-bold text-white">{results.total}</div>
               <div className="text-xs text-gray-400">OVERALL</div>
             </div>
           </div>
@@ -70,7 +74,7 @@ export const ResultsScreen = ({ onNext }: ResultsScreenProps) => {
           <div className="bg-black/30 p-4 sm:p-6 rounded-lg border border-theater-gold">
             <h3 className="text-lg sm:text-xl font-semibold text-theater-gold mb-4">Strengths</h3>
             <div className="space-y-4">
-              {mockResults.strengths.map((strength, index) => (
+              {results.strengths.map((strength, index) => (
                 <div key={index} className="space-y-1">
                   <div className="flex justify-between">
                     <span className="text-white">{strength.name}</span>
@@ -86,7 +90,7 @@ export const ResultsScreen = ({ onNext }: ResultsScreenProps) => {
           <div className="bg-black/30 p-4 sm:p-6 rounded-lg border border-theater-gold">
             <h3 className="text-lg sm:text-xl font-semibold text-theater-gold mb-4">Areas for Growth</h3>
             <div className="space-y-4">
-              {mockResults.areasForGrowth.map((area, index) => (
+              {results.areasForGrowth.map((area, index) => (
                 <div key={index} className="space-y-1">
                   <div className="flex justify-between">
                     <span className="text-white">{area.name}</span>
@@ -103,7 +107,7 @@ export const ResultsScreen = ({ onNext }: ResultsScreenProps) => {
         <div className="bg-black/30 p-4 sm:p-6 rounded-lg border border-theater-gold">
           <h3 className="text-lg sm:text-xl font-semibold text-theater-gold mb-3">Recommended Focus Areas</h3>
           <ul className="space-y-2">
-            {mockResults.recommendedFocus.map((recommendation, index) => (
+            {results.recommendedFocus.map((recommendation, index) => (
               <li key={index} className="flex items-start">
                 <div className="w-2 h-2 mt-2 mr-2 rounded-full bg-theater-gold"></div>
                 <span className="text-white">{recommendation}</span>

@@ -36,6 +36,7 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>(startStep);
   const [isLoading, setIsLoading] = useState(false);
+  const [assessmentAnswers, setAssessmentAnswers] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const checkOnboardingProgress = async () => {
@@ -114,6 +115,11 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
     setCurrentStep(nextStep);
   };
 
+  const handleAssessmentComplete = (answers: Record<string, string>) => {
+    setAssessmentAnswers(answers);
+    updateProgress("calculation");
+  };
+
   const skipCoachSelection = async () => {
     // Set a default coach (Stanislavski) when user skips selection
     if (user) {
@@ -174,11 +180,11 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
       case "experience":
         return <ExperienceScreen onNext={() => updateProgress("assessment")} />;
       case "assessment":
-        return <AssessmentQuiz onNext={() => updateProgress("calculation")} />;
+        return <AssessmentQuiz onNext={handleAssessmentComplete} />;
       case "calculation":
         return <CalculationScreen onNext={() => updateProgress("results")} />;
       case "results":
-        return <ResultsScreen onNext={() => updateProgress("goals")} />;
+        return <ResultsScreen onNext={() => updateProgress("goals")} assessmentAnswers={assessmentAnswers} />;
       case "goals":
         return <GoalSettingScreen onNext={() => updateProgress("coach-preference")} />;
       case "coach-preference":
