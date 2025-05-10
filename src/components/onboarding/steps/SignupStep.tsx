@@ -57,8 +57,12 @@ export const SignupStep = ({ onNext }: SignupStepProps) => {
 
   const handleSkip = () => {
     console.info("Skip button clicked - navigating to next step");
-    // Make sure we trigger onNext directly instead of any potential navigation
-    onNext();
+    
+    // Force a small delay before calling onNext to ensure UI updates properly
+    setTimeout(() => {
+      console.info("Executing onNext from skip button");
+      onNext();
+    }, 10);
   };
 
   return (
