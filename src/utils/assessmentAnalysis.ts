@@ -37,7 +37,25 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
     uncomfortable: 25,
     somewhat_physical: 50, 
     comfortable_physical: 75, 
-    very: 90
+    very: 90,
+    
+    // New self-tape scores
+    novice: 20,
+    basic_selftape: 50,
+    intermediate: 75,
+    advanced: 95,
+    
+    // New audition scores
+    nervous_audition: 25,
+    learning: 50,
+    confident: 80,
+    very_confident: 95,
+    
+    // New practice method scores
+    minimal: 30,
+    some_methods: 55,
+    regular: 75,
+    comprehensive: 90
   };
   
   // Create skill mapping for display
@@ -46,7 +64,10 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
     improvisation: "Improvisation",
     emotion: "Emotional Connection",
     voice: "Voice Projection",
-    physical: "Physical Presence"
+    physical: "Physical Presence",
+    selftape: "Self-Tape Creation",
+    audition: "Audition Performance",
+    practice: "Practice Methods"
   };
   
   // Fix: Create mapping for options IDs that were renamed in scoreMap
@@ -103,6 +124,12 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
         return "Voice control and projection exercises";
       case "physical":
         return "Movement and body awareness techniques";
+      case "selftape":
+        return "Improve self-tape skills with proper lighting, sound, and framing techniques";
+      case "audition":
+        return "Practice audition techniques and mental preparation strategies";
+      case "practice":
+        return "Establish a consistent practice routine with varied methods";
       default:
         return "Focus on developing your overall acting craft";
     }

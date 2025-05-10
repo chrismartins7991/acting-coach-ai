@@ -62,6 +62,39 @@ const assessmentQuestions: Question[] = [
       { id: "comfortable_physical", text: "I'm comfortable with most physical requirements" },
       { id: "very", text: "Physical expression is one of my strengths" }
     ]
+  },
+  // New question about self-tape creation
+  {
+    id: "selftape",
+    text: "How experienced are you with creating self-tape auditions?",
+    options: [
+      { id: "novice", text: "I've never created a self-tape before" },
+      { id: "basic_selftape", text: "I've created a few self-tapes but struggle with technical aspects" },
+      { id: "intermediate", text: "I can create good quality self-tapes with proper setup" },
+      { id: "advanced", text: "I consistently create professional-quality self-tapes" }
+    ]
+  },
+  // New question about auditioning skills
+  {
+    id: "audition",
+    text: "How confident are you in your auditioning skills?",
+    options: [
+      { id: "nervous_audition", text: "I get very nervous and it affects my performance" },
+      { id: "learning", text: "I'm learning to manage my nerves during auditions" },
+      { id: "confident", text: "I'm confident in most audition situations" },
+      { id: "very_confident", text: "I excel in auditions and consistently perform well" }
+    ]
+  },
+  // New question about practice methods
+  {
+    id: "practice",
+    text: "Which acting practice methods do you use regularly?",
+    options: [
+      { id: "minimal", text: "I rarely use specific practice methods" },
+      { id: "some_methods", text: "I occasionally use memorization or cold reading practice" },
+      { id: "regular", text: "I regularly practice using various methods" },
+      { id: "comprehensive", text: "I have a comprehensive practice routine incorporating multiple methods" }
+    ]
   }
 ];
 
