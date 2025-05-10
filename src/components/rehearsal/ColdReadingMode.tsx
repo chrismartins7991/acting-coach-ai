@@ -90,7 +90,7 @@ export const ColdReadingMode = ({ script }: ColdReadingModeProps) => {
         <RehearsalFeatureWrapper
           onInteraction={isActive ? handleStopReading : handleStartReading}
         >
-          {(handleInteraction) => (
+          {(handleInteraction: () => void) => (
             <Button 
               className="w-full mt-4"
               variant={isActive ? "destructive" : "default"}

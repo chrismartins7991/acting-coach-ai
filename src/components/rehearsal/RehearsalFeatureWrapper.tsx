@@ -4,7 +4,7 @@ import { PaymentWall } from "@/components/PaymentWall";
 import { useSubscription } from "@/hooks/useSubscription";
 
 interface RehearsalFeatureWrapperProps {
-  children: ReactNode;
+  children: ReactNode | ((handleInteraction: () => void) => ReactNode);
   onInteraction: () => void;
 }
 
@@ -30,8 +30,7 @@ export const RehearsalFeatureWrapper = ({
         onComplete={() => setShowPaymentWall(false)} 
       />
       
-      {/* Pass the handleInteraction function to children via cloning */}
-      {children instanceof Function 
+      {typeof children === 'function' 
         ? children(handleInteraction) 
         : children}
     </>

@@ -74,7 +74,7 @@ export const MemorizationTools = ({ script }: MemorizationToolsProps) => {
         <RehearsalFeatureWrapper
           onInteraction={isActive ? handleStopMemorization : handleStartMemorization}
         >
-          {(handleInteraction) => (
+          {(handleInteraction: () => void) => (
             <Button 
               className="w-full mt-4"
               variant={isActive ? "destructive" : "default"}
