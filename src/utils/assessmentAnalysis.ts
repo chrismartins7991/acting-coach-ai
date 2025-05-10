@@ -18,25 +18,25 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
     // Improvisation scores
     nervous: 30,
     basic: 55,
-    good_improv: 80, // Renamed to avoid duplicate
-    excellent_improv: 95, // Renamed to avoid duplicate
+    good_improv: 80, 
+    excellent_improv: 95, 
     
     // Emotion scores
     difficult: 35,
-    somewhat_emotion: 60, // Renamed to avoid duplicate
+    somewhat_emotion: 60, 
     most: 80,
     all: 90,
     
     // Voice scores
     limited: 30,
     developing: 55,
-    good_voice: 75, // Renamed to avoid duplicate
-    excellent_voice: 90, // Renamed to avoid duplicate
+    good_voice: 75, 
+    excellent_voice: 90, 
     
     // Physical scores
     uncomfortable: 25,
-    somewhat_physical: 50, // Renamed to avoid duplicate
-    comfortable_physical: 75, // Renamed to avoid duplicate
+    somewhat_physical: 50, 
+    comfortable_physical: 75, 
     very: 90
   };
   
@@ -49,15 +49,18 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
     physical: "Physical Presence"
   };
   
-  // Create mapping for options IDs that were renamed in scoreMap
+  // Fix: Create mapping for options IDs that were renamed in scoreMap
+  // Remove duplicates by using different property names for each
   const optionMapping: Record<string, string> = {
-    good: "good_improv", // Map original option ID to renamed score key
-    excellent: "excellent_improv",
-    somewhat: "somewhat_emotion",
-    good: "good_voice", // This is actually a problem in the original quiz data - duplicate options
-    excellent: "excellent_voice",
-    somewhat: "somewhat_physical",
-    comfortable: "comfortable_physical"
+    good: "good_improv", // For improvisation question
+    excellent: "excellent_improv", // For improvisation question
+    somewhat: "somewhat_emotion", // For emotion question
+    // For voice question, using unique keys
+    "voice_good": "good_voice", 
+    "voice_excellent": "excellent_voice",
+    // For physical question, using unique keys
+    "physical_somewhat": "somewhat_physical",
+    "physical_comfortable": "comfortable_physical"
   };
   
   // Calculate scores for each area
@@ -88,7 +91,7 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
   const areasForGrowth = [...sortedSkills].sort((a, b) => a.score - b.score).slice(0, 2);
   
   // Generate recommendations based on areas for growth
-  const recommendedFocus = areasForGrowth.map(area => {
+  const recommendedFocus: string[] = areasForGrowth.map(area => {
     switch(area.id) {
       case "technique":
         return "Study different acting methodologies and practice their applications";
@@ -105,7 +108,8 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
     }
   });
   
-  // Add one more recommendation based on the overall score without type issues
+  // Add one more recommendation based on the overall score
+  // Fix: Allow any string in recommendedFocus by removing type inference limitation
   if (totalScore < 50) {
     recommendedFocus.push("Build a strong foundation with acting classes");
   } else if (totalScore < 75) {
