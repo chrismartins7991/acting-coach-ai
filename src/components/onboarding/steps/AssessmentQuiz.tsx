@@ -96,15 +96,15 @@ const assessmentQuestions: Question[] = [
       { id: "advanced", text: "I consistently create professional-quality self-tapes" }
     ]
   },
-  // Auditioning question
+  // Auditioning question (updated wording)
   {
     id: "audition",
-    text: "How confident are you in your auditioning skills?",
+    text: "How confident are you in your auditioning or casting skills?",
     options: [
       { id: "nervous_audition", text: "I get very nervous and it affects my performance" },
-      { id: "learning", text: "I'm learning to manage my nerves during auditions" },
-      { id: "confident", text: "I'm confident in most audition situations" },
-      { id: "very_confident", text: "I excel in auditions and consistently perform well" }
+      { id: "learning", text: "I'm learning to manage my nerves during auditions or castings" },
+      { id: "confident", text: "I'm confident in most audition or casting situations" },
+      { id: "very_confident", text: "I excel in auditions or castings and consistently perform well" }
     ]
   },
   // Practice methods question
