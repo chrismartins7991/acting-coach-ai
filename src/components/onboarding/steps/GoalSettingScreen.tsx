@@ -20,8 +20,8 @@ export const GoalSettingScreen = ({ onNext }: GoalSettingScreenProps) => {
     },
     { 
       id: "auditions", 
-      label: "Book more auditions", 
-      description: "Perfect your self-tapes with our professional-grade Studio",
+      label: "Get more Roles", 
+      description: "Perfect your self-tape Techniques with our professional-grade Studio",
       feature: "Self-Tape Studio" 
     },
     { 
