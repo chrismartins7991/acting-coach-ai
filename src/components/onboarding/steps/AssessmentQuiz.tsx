@@ -110,7 +110,7 @@ const assessmentQuestions: Question[] = [
   // Practice methods question
   {
     id: "practice",
-    text: "Which acting practice methods do you use regularly?",
+    text: "Which acting practice methods do you use regularly (such as line memorization, cold reading, scene study, improvisation exercises, etc.)?",
     options: [
       { id: "minimal", text: "I rarely use specific practice methods" },
       { id: "some_methods", text: "I occasionally use memorization or cold reading practice" },
