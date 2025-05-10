@@ -59,7 +59,7 @@ export const CoachPreferenceStep = ({ onNext, onSkip }: CoachPreferenceStepProps
             <Button
               onClick={onSkip}
               variant="outline"
-              className="w-full border-white/30 hover:bg-white/10 text-gray-200 font-medium"
+              className="w-full border-white/30 hover:bg-white/10 text-black font-medium"
             >
               Use Default Coach
             </Button>
