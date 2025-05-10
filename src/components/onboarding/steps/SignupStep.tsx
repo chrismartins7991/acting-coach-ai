@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useNavigate } from "react-router-dom";
 
 interface SignupStepProps {
   onNext: () => void;
@@ -17,6 +18,7 @@ export const SignupStep = ({ onNext }: SignupStepProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +53,12 @@ export const SignupStep = ({ onNext }: SignupStepProps) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSkip = () => {
+    console.info("Skip button clicked - navigating to next step");
+    // Make sure we trigger onNext directly instead of any potential navigation
+    onNext();
   };
 
   return (
@@ -105,7 +113,7 @@ export const SignupStep = ({ onNext }: SignupStepProps) => {
           <Button
             type="button"
             variant="ghost"
-            onClick={onNext}
+            onClick={handleSkip}
             className="text-gray-400 hover:text-white hover:bg-black/30 w-full sm:w-auto"
           >
             Skip for now
