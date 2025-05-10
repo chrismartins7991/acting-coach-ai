@@ -21,7 +21,6 @@ export const useTextToSpeech = () => {
         toast({
           title: "Text too long",
           description: "Only the first 4000 characters will be spoken",
-          // Changed from 'warning' to 'default' to match allowed variants
           variant: "default", 
         });
       }
