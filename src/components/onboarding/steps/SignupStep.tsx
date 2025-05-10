@@ -57,7 +57,7 @@ export const SignupStep = ({ onNext }: SignupStepProps) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-md mx-auto space-y-6 px-4 sm:px-6 mt-16 pt-8"
+      className="max-w-md mx-auto space-y-6 px-4 sm:px-6 pt-16"
     >
       <div className="text-center">
         <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Create Your Account</h2>
