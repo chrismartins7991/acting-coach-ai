@@ -18,25 +18,25 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
     // Improvisation scores
     nervous: 30,
     basic: 55,
-    good: 80,
-    excellent: 95,
+    good_improv: 80, // Renamed to avoid duplicate
+    excellent_improv: 95, // Renamed to avoid duplicate
     
     // Emotion scores
     difficult: 35,
-    somewhat: 60,
+    somewhat_emotion: 60, // Renamed to avoid duplicate
     most: 80,
     all: 90,
     
     // Voice scores
     limited: 30,
     developing: 55,
-    good: 75,
-    excellent: 90,
+    good_voice: 75, // Renamed to avoid duplicate
+    excellent_voice: 90, // Renamed to avoid duplicate
     
     // Physical scores
     uncomfortable: 25,
-    somewhat: 50,
-    comfortable: 75,
+    somewhat_physical: 50, // Renamed to avoid duplicate
+    comfortable_physical: 75, // Renamed to avoid duplicate
     very: 90
   };
   
@@ -49,10 +49,23 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
     physical: "Physical Presence"
   };
   
+  // Create mapping for options IDs that were renamed in scoreMap
+  const optionMapping: Record<string, string> = {
+    good: "good_improv", // Map original option ID to renamed score key
+    excellent: "excellent_improv",
+    somewhat: "somewhat_emotion",
+    good: "good_voice", // This is actually a problem in the original quiz data - duplicate options
+    excellent: "excellent_voice",
+    somewhat: "somewhat_physical",
+    comfortable: "comfortable_physical"
+  };
+  
   // Calculate scores for each area
   const scores: Record<string, number> = {};
   Object.entries(answers).forEach(([questionId, optionId]) => {
-    scores[questionId] = scoreMap[optionId] || 50;
+    // Check if we need to map this option to a renamed key
+    const scoreKey = optionMapping[optionId] || optionId;
+    scores[questionId] = scoreMap[scoreKey] || 50;
   });
   
   // Calculate total score
@@ -92,13 +105,13 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
     }
   });
   
-  // Add one more recommendation based on the overall score
+  // Add one more recommendation based on the overall score without type issues
   if (totalScore < 50) {
-    recommendedFocus.push("Build a strong foundation with acting classes and basic technique practice");
+    recommendedFocus.push("Build a strong foundation with acting classes");
   } else if (totalScore < 75) {
-    recommendedFocus.push("Continue regular practice and seek performance opportunities to apply your skills");
+    recommendedFocus.push("Continue regular practice and seek performance opportunities");
   } else {
-    recommendedFocus.push("Challenge yourself with complex characters and advanced acting workshops");
+    recommendedFocus.push("Challenge yourself with complex characters and advanced workshops");
   }
   
   return {

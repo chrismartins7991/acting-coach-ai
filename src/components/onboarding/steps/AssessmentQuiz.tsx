@@ -29,8 +29,8 @@ const assessmentQuestions: Question[] = [
     options: [
       { id: "nervous", text: "I get nervous when improvising" },
       { id: "basic", text: "I can handle basic improvisation" },
-      { id: "good", text: "I'm quite good at thinking on my feet" },
-      { id: "excellent", text: "Improvisation is one of my strengths" }
+      { id: "good_improv", text: "I'm quite good at thinking on my feet" },
+      { id: "excellent_improv", text: "Improvisation is one of my strengths" }
     ]
   },
   {
@@ -38,7 +38,7 @@ const assessmentQuestions: Question[] = [
     text: "How easily can you access and express emotions?",
     options: [
       { id: "difficult", text: "I find it difficult to express emotions" },
-      { id: "somewhat", text: "I can express some emotions convincingly" },
+      { id: "somewhat_emotion", text: "I can express some emotions convincingly" },
       { id: "most", text: "I can express most emotions effectively" },
       { id: "all", text: "I can access and express all emotions authentically" }
     ]
@@ -49,8 +49,8 @@ const assessmentQuestions: Question[] = [
     options: [
       { id: "limited", text: "My vocal control is limited" },
       { id: "developing", text: "I'm working on improving my vocal skills" },
-      { id: "good", text: "I have good vocal control in most situations" },
-      { id: "excellent", text: "My vocal control and projection are excellent" }
+      { id: "good_voice", text: "I have good vocal control in most situations" },
+      { id: "excellent_voice", text: "My vocal control and projection are excellent" }
     ]
   },
   {
@@ -58,8 +58,8 @@ const assessmentQuestions: Question[] = [
     text: "How comfortable are you with physical aspects of acting?",
     options: [
       { id: "uncomfortable", text: "I'm uncomfortable with physical expression" },
-      { id: "somewhat", text: "I'm somewhat comfortable with basic movement" },
-      { id: "comfortable", text: "I'm comfortable with most physical requirements" },
+      { id: "somewhat_physical", text: "I'm somewhat comfortable with basic movement" },
+      { id: "comfortable_physical", text: "I'm comfortable with most physical requirements" },
       { id: "very", text: "Physical expression is one of my strengths" }
     ]
   }
