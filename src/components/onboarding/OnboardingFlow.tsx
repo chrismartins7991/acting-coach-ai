@@ -80,18 +80,30 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
   }, [user, currentStep, toast]);
 
   const updateProgress = async (nextStep: OnboardingStep) => {
+    console.info(`Updating progress: current=${currentStep}, next=${nextStep}`);
+    
     if (currentStep === "welcome" && nextStep === "signup") {
+      console.info("Moving from welcome to signup step");
       setCurrentStep("signup");
       return;
     }
 
     if (!user && nextStep !== "signup") {
+      console.info("No user detected, redirecting to signup step");
       setCurrentStep("signup");
+      return;
+    }
+
+    // Handle the special case when skipping signup
+    if (currentStep === "signup" && nextStep === "experience" && !user) {
+      console.info("User skipped signup, proceeding to experience step without saving progress");
+      setCurrentStep("experience");
       return;
     }
 
     if (user && nextStep !== "welcome" && nextStep !== "signup") {
       try {
+        console.info("Updating user onboarding progress in database");
         const { data: currentProgress } = await supabase
           .from('onboarding_progress')
           .select('completed_steps')
@@ -114,6 +126,7 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
       }
     }
 
+    console.info(`Setting current step to: ${nextStep}`);
     setCurrentStep(nextStep);
   };
 
@@ -170,6 +183,7 @@ export const OnboardingFlow = ({ onComplete, startStep = "welcome" }: Onboarding
   }
 
   const renderStep = () => {
+    console.info(`Rendering step: ${currentStep}`);
     switch (currentStep) {
       case "welcome":
         return <WelcomeScreen onNext={() => updateProgress("signup")} />;

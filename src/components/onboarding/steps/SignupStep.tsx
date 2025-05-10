@@ -58,11 +58,19 @@ export const SignupStep = ({ onNext }: SignupStepProps) => {
   const handleSkip = () => {
     console.info("Skip button clicked - navigating to next step");
     
-    // Force a small delay before calling onNext to ensure UI updates properly
-    setTimeout(() => {
-      console.info("Executing onNext from skip button");
+    // Prevent any race conditions by using a direct approach
+    // and force the navigation to the next onboarding step
+    try {
+      console.info("Executing onNext directly from skip button handler");
       onNext();
-    }, 10);
+      console.info("onNext function completed");
+    } catch (err) {
+      console.error("Error in skip button handler:", err);
+      
+      // Fallback: if onNext fails for any reason, attempt direct navigation
+      console.info("Attempting direct navigation to experience step");
+      navigate("/welcome", { replace: true });
+    }
   };
 
   return (
