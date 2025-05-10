@@ -63,7 +63,29 @@ const assessmentQuestions: Question[] = [
       { id: "very", text: "Physical expression is one of my strengths" }
     ]
   },
-  // New question about self-tape creation
+  // New question about acting methods
+  {
+    id: "methods",
+    text: "How familiar are you with different acting methods (Stanislavski, Meisner, Strasberg, etc.)?",
+    options: [
+      { id: "unfamiliar", text: "I'm not familiar with specific acting methods" },
+      { id: "basic_knowledge", text: "I know about them but haven't studied in depth" },
+      { id: "some_training", text: "I've studied one or two methods formally" },
+      { id: "method_expert", text: "I'm well-versed in multiple acting methods" }
+    ]
+  },
+  // New question about private coaching
+  {
+    id: "coaching",
+    text: "Have you worked with a dedicated private acting coach before?",
+    options: [
+      { id: "never", text: "Never had private coaching" },
+      { id: "briefly", text: "Had a few sessions but not regularly" },
+      { id: "periodically", text: "Work with a coach periodically" },
+      { id: "regularly", text: "Work with a coach regularly" }
+    ]
+  },
+  // Self-tape question
   {
     id: "selftape",
     text: "How experienced are you with creating self-tape auditions?",
@@ -74,7 +96,7 @@ const assessmentQuestions: Question[] = [
       { id: "advanced", text: "I consistently create professional-quality self-tapes" }
     ]
   },
-  // New question about auditioning skills
+  // Auditioning question
   {
     id: "audition",
     text: "How confident are you in your auditioning skills?",
@@ -85,7 +107,7 @@ const assessmentQuestions: Question[] = [
       { id: "very_confident", text: "I excel in auditions and consistently perform well" }
     ]
   },
-  // New question about practice methods
+  // Practice methods question
   {
     id: "practice",
     text: "Which acting practice methods do you use regularly?",

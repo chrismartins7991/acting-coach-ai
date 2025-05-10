@@ -24,9 +24,9 @@ export const ResultsScreen = ({ onNext, assessmentAnswers = {} }: ResultsScreenP
           { name: 'Physical Presence', score: 51 },
         ],
         recommendedFocus: [
-          'Voice control and projection exercises',
-          'Movement and body awareness techniques',
-          'Emotional range expansion through sense memory',
+          'Use our AI Reader tool to practice voice projection and modulation with guidance',
+          'Record yourself in our Self-Tape Studio to analyze and improve your physical presence',
+          'Continue your progress by practicing regularly with our Rehearsal Room tools',
         ],
       };
 
@@ -105,7 +105,7 @@ export const ResultsScreen = ({ onNext, assessmentAnswers = {} }: ResultsScreenP
 
         {/* Recommended Focus Areas */}
         <div className="bg-black/30 p-4 sm:p-6 rounded-lg border border-theater-gold">
-          <h3 className="text-lg sm:text-xl font-semibold text-theater-gold mb-3">Recommended Focus Areas</h3>
+          <h3 className="text-lg sm:text-xl font-semibold text-theater-gold mb-3">Recommended App Features</h3>
           <ul className="space-y-2">
             {results.recommendedFocus.map((recommendation, index) => (
               <li key={index} className="flex items-start">

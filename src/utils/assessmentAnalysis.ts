@@ -1,3 +1,4 @@
+
 interface AnalysisResult {
   total: number;
   strengths: { name: string; score: number }[];
@@ -38,23 +39,35 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
     comfortable_physical: 75, 
     very: 90,
     
-    // New self-tape scores
+    // Self-tape scores
     novice: 20,
     basic_selftape: 50,
     intermediate: 75,
     advanced: 95,
     
-    // New audition scores
+    // Audition scores
     nervous_audition: 25,
     learning: 50,
     confident: 80,
     very_confident: 95,
     
-    // New practice method scores
+    // Practice method scores
     minimal: 30,
     some_methods: 55,
     regular: 75,
-    comprehensive: 90
+    comprehensive: 90,
+    
+    // New acting methods scores
+    unfamiliar: 20,
+    basic_knowledge: 45,
+    some_training: 75,
+    method_expert: 95,
+    
+    // New coaching scores
+    never: 25,
+    briefly: 50,
+    periodically: 80,
+    regularly: 95
   };
   
   // Create skill mapping for display
@@ -66,7 +79,9 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
     physical: "Physical Presence",
     selftape: "Self-Tape Creation",
     audition: "Audition Performance",
-    practice: "Practice Methods"
+    practice: "Practice Methods",
+    methods: "Acting Methods Knowledge",
+    coaching: "Private Coaching Experience"
   };
   
   // Fix: Create mapping for options IDs that were renamed in scoreMap
@@ -110,7 +125,7 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
   const strengths = sortedSkills.slice(0, 2);
   const areasForGrowth = [...sortedSkills].sort((a, b) => a.score - b.score).slice(0, 2);
   
-  // Generate recommendations based on areas for growth
+  // Generate specific, app-focused recommendations based on areas for growth
   const recommendedFocus: string[] = areasForGrowth.map(area => {
     switch(area.id) {
       case "technique":
@@ -129,18 +144,25 @@ export const analyzeAssessmentAnswers = (answers: Record<string, string>): Analy
         return "Practice audition techniques with our camera recording and playback features";
       case "practice":
         return "Explore our Line Memorization Tools to establish an effective practice routine";
+      case "methods":
+        return "Work with our AI Acting Coaches based on different methods to expand your technique knowledge";
+      case "coaching":
+        return "Try our AI Acting Coach for personalized guidance on your specific acting challenges";
       default:
         return "Explore our full range of acting practice tools to enhance your overall craft";
     }
   });
   
-  // Add one more recommendation based on the overall score
+  // Add targeted recommendations based on overall score range
   if (totalScore < 50) {
     recommendedFocus.push("Begin with our AI Reader and Cold Reading features to build your foundation");
+    recommendedFocus.push("Try our Self-Tape Studio with guided framing to learn professional recording techniques");
   } else if (totalScore < 75) {
     recommendedFocus.push("Continue your progress by practicing regularly with our Rehearsal Room tools");
+    recommendedFocus.push("Use our Line Memorization Tools to master your scripts more efficiently");
   } else {
     recommendedFocus.push("Take your skills to the next level with advanced Self-Tape Studio features");
+    recommendedFocus.push("Experiment with different AI Acting Coaches to expand your methodological toolkit");
   }
   
   return {
